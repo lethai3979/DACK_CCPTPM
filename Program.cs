@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
