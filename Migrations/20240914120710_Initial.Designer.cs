@@ -101,7 +101,7 @@ namespace GoWheels_WebAPI.Migrations
                     b.ToTable("CarTypes");
                 });
 
-            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarTypeDetail", b =>
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CompanyIdList", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -250,16 +250,16 @@ namespace GoWheels_WebAPI.Migrations
                     b.ToTable("PromotionTypes");
                 });
 
-            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarTypeDetail", b =>
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CompanyIdList", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.CarType", "CarType")
-                        .WithMany("CarTypeDetail")
+                        .WithMany("CompanyIdList")
                         .HasForeignKey("CarTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Company", "Company")
-                        .WithMany("CarTypeDetail")
+                        .WithMany("CompanyIdList")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -282,12 +282,12 @@ namespace GoWheels_WebAPI.Migrations
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>
                 {
-                    b.Navigation("CarTypeDetail");
+                    b.Navigation("CompanyIdList");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Company", b =>
                 {
-                    b.Navigation("CarTypeDetail");
+                    b.Navigation("CompanyIdList");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PromotionType", b =>

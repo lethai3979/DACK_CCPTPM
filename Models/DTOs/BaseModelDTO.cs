@@ -5,10 +5,7 @@ namespace GoWheels_WebAPI.Models.DTOs
     public class BaseModelDTO
     {
         public int Id { get; set; }
-
-        [Required]
         public string? CreateById { get; set; }
-        [Required]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]
         public DateTime CreateOn { get; set; }
 

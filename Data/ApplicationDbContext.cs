@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

@@ -8,6 +8,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public required string Name { get; set; }
 
-        public ICollection<CarTypeDetailDTO> CarTypeDetail { get; set; } = new List<CarTypeDetailDTO>();
+        public List<int> CompanyIds { get; set; } = new List<int>();
     }
 }

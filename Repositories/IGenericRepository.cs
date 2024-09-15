@@ -4,10 +4,10 @@ namespace GoWheels_WebAPI.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {
-        public Task<OperationResult> GetAllAsync();
-        public Task<OperationResult> GetByIdAsync(int id);
-        public Task<OperationResult> AddAsync(T entity);
-        public Task<OperationResult> UpdateAsync(int id, T entity);
-        public Task<OperationResult> DeleteByIdAsync(int id);
+        Task<List<T>> GetAllAsync();
+        Task<T?> GetByIdAsync(int id);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity, T newEntity);
+        Task DeleteAsync(T entity);
     }
 }
