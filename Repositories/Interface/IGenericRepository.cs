@@ -1,6 +1,6 @@
 ﻿using GoWheels_WebAPI.Utilities;
 
-namespace GoWheels_WebAPI.Repositories
+namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IGenericRepository<T> where T : class
     {

@@ -17,6 +17,8 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Company, CompanyDTO>();
             CreateMap<Promotion, PromotionType>();
             CreateMap<PromotionType, Promotion>();
+            CreateMap<CarTypeDetailDTO, CarTypeDetail>();
+            CreateMap<CarTypeDetail, CarTypeDetailDTO>();
 
             //For Update 
             CreateMap<CarType, CarType>();

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
@@ -18,17 +20,6 @@ namespace GoWheels_WebAPI.Repositories
             _mapper = mapper;
         }
 
-        public async Task AddCarTypeDetail(int carTypeId, List<int> CompanyIds)
-        {
-            foreach (var companyId in CompanyIds)
-            {
-                var carTypeDetail = new CarTypeDetail();
-                carTypeDetail.CarTypeId = carTypeId;
-                carTypeDetail.CompanyId = companyId;
-                await _context.CarTypeDetails.AddAsync(carTypeDetail);
-            }
-            await _context.SaveChangesAsync();             
-        }
 
         public async Task AddAsync(CarType carType)
         {
@@ -43,20 +34,20 @@ namespace GoWheels_WebAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
+
         public async Task UpdateAsync(CarType carType, CarType newCarType)
         {
             _context.Entry(carType).State = EntityState.Modified;
             _mapper.Map(newCarType, carType);
             await _context.SaveChangesAsync();
-
         }
 
         public async Task<List<CarType>> GetAllAsync()
-            => await _context.CarTypes.AsNoTracking().Where(c => !c.IsDeleted).ToListAsync();
+            => await _context.CarTypes.AsNoTracking().Include(c => c.CarTypeDetail).ThenInclude(c => c.Company).Where(c => !c.IsDeleted).ToListAsync();
         
 
         public async Task<CarType?> GetByIdAsync(int id)
-            => await _context.CarTypes.Where (c => !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == id);
+            => await _context.CarTypes.Where(c => !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == id);
 
     }
 }
