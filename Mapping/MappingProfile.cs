@@ -9,8 +9,8 @@ namespace GoWheels_WebAPI.Mapping
         public MappingProfile() 
         {
             //For Mapping
-            CreateMap<AmenityDTO, Amentity>();
-            CreateMap<Amentity, AmenityDTO>();
+            CreateMap<AmenityDTO, Amenity>();
+            CreateMap<Amenity, AmenityDTO>();
             CreateMap<CarType, CarTypeDTO>();
             CreateMap<CarTypeDTO, CarType>();
             CreateMap<CompanyDTO, Company>();
@@ -20,7 +20,7 @@ namespace GoWheels_WebAPI.Mapping
 
             //For Update 
             CreateMap<CarType, CarType>();
-            CreateMap<Amentity, Amentity>();
+            CreateMap<Amenity, Amenity>();
             CreateMap<Company, Company>();
             CreateMap<PromotionType, PromotionType>();
             CreateMap<Promotion, Promotion>();

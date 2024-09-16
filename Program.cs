@@ -54,6 +54,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddControllers();
+builder.Services.AddScoped<AmenityRepository>();
+builder.Services.AddScoped<AmenityService>();
 builder.Services.AddScoped<CarTypeRepository>();
 builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();

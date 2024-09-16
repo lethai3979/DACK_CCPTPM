@@ -22,7 +22,7 @@ namespace GoWheels_WebAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Amentity", b =>
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Amenity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

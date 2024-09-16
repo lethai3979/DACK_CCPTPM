@@ -10,7 +10,7 @@ namespace GoWheels_WebAPI.Data
         {
             
         }
-        public DbSet<Amentity> Amentities { get; set; }
+        public DbSet<Amenity> Amentities { get; set; }
         public DbSet<CarType> CarTypes { get; set; }
         public DbSet<CarTypeDetail> CarTypeDetails { get; set; }
         public DbSet<Company> Companies { get; set; }
