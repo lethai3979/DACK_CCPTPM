@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class SalePromotionTypeRepository : ISalePromotionTypeRepository
+    public class SalePromotionTypeRepository
     {
         private readonly ApplicationDbContext _context;
         public SalePromotionTypeRepository(ApplicationDbContext context)

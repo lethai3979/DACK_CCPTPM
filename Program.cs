@@ -60,7 +60,7 @@ builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<SalePromotionRepository>();
-builder.Services.AddScoped<ISalePromotionTypeRepository, SalePromotionTypeRepository>();
+builder.Services.AddScoped<SalePromotionTypeRepository>();
 builder.Services.AddScoped<SalePromotionService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -129,7 +129,7 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<ApplicationDbContext>();
     context.Database.Migrate();
 
-    var repository = services.GetRequiredService<ISalePromotionTypeRepository>();
+    var repository = services.GetRequiredService<SalePromotionTypeRepository>();
     await repository.SeedSalePromotionTypeAsync();
 }
 app.Run();

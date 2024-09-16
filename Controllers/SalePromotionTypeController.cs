@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Interfaces;
+using GoWheels_WebAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,8 +9,8 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class SalePromotionTypeController : ControllerBase
     {
-        private readonly ISalePromotionTypeRepository _salePromotionTypeRepository;
-        public SalePromotionTypeController(ISalePromotionTypeRepository salePromotionTypeRepository)
+        private readonly SalePromotionTypeRepository _salePromotionTypeRepository;
+        public SalePromotionTypeController(SalePromotionTypeRepository salePromotionTypeRepository)
         {
             _salePromotionTypeRepository = salePromotionTypeRepository;
         }

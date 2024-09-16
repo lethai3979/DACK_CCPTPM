@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<Promotion>> GetAllAsync()
-            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).ToListAsync();
+            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).ToListAsync();
 
         public async Task<Promotion?> GetByIdAsync(int id) 
             => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).FirstOrDefaultAsync();

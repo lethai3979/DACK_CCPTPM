@@ -1,7 +1,7 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Utilities;
 
-namespace GoWheels_WebAPI.Repositories
+namespace GoWheels_WebAPI.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
