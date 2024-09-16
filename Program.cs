@@ -61,6 +61,7 @@ builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<SalePromotionRepository>();
 builder.Services.AddScoped<ISalePromotionTypeRepository, SalePromotionTypeRepository>();
+builder.Services.AddScoped<SalePromotionService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>

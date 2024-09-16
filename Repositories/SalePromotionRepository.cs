@@ -1,32 +1,43 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using AutoMapper;
+using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
     public class SalePromotionRepository : IGenericRepository<Promotion>
     {
-        public Task AddAsync(Promotion entity)
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        public SalePromotionRepository(ApplicationDbContext context,IMapper mapper)
         {
-            throw new NotImplementedException();
+            _context = context;
+            _mapper = mapper;
+        }
+        public async Task AddAsync(Promotion promotion)
+        {
+            await _context.Promotions.AddAsync(promotion);
+            await _context.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(Promotion entity)
+        public async Task DeleteAsync(Promotion promotion)
         {
-            throw new NotImplementedException();
+            _context.Entry(promotion).State = EntityState.Modified;
+            promotion.IsDeleted = true;
+            await _context.SaveChangesAsync();
         }
 
-        public Task<List<Promotion>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<List<Promotion>> GetAllAsync()
+            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).ToListAsync();
 
-        public Task<Promotion?> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<Promotion?> GetByIdAsync(int id) 
+            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).FirstOrDefaultAsync();
 
-        public Task UpdateAsync(Promotion entity, Promotion newEntity)
+        public async Task UpdateAsync(Promotion promotion, Promotion newPromotion)
         {
-            throw new NotImplementedException();
+            _context.Entry(promotion).State = EntityState.Modified;
+            _mapper.Map(newPromotion, promotion);
+            await _context.SaveChangesAsync();
         }
     }
 }

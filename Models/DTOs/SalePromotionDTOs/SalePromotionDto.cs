@@ -5,12 +5,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GoWheels_WebAPI.Models.DTOs.SalePromotionDTOs
 {
-    public class SalePromotionDto
+    public class SalePromotionDto : BaseModelDTO
     {
         public required string Content { get; set; }
         public decimal DiscountValue { get; set; }
         public required DateTime ExpiredDate { get; set; }
         public int PromotionId { get; set; }
-        public string? Name { get; set;}
     }
 }

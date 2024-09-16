@@ -1,4 +1,5 @@
-﻿using GoWheels_WebAPI.Utilities;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Utilities;
 
 namespace GoWheels_WebAPI.Repositories
 {
