@@ -46,7 +46,7 @@ namespace GoWheels_WebAPI.Service
             salePromotionDto.CreateById = _httpContextAccessor.HttpContext?.User?
                                     .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             salePromotionDto.CreateOn = DateTime.Now;
-            salePromotionDto.PromotionId = DeterminePromotionType(); 
+            salePromotionDto.PromotionId = DeterminePromotionType();
             try
             {
                 var promotion = _mapper.Map<Promotion>(salePromotionDto);
@@ -87,6 +87,23 @@ namespace GoWheels_WebAPI.Service
             {
                 var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+        public async Task<OperationResult> GetByIdAsync(int id)
+        {
+            try
+            {
+                var promotion = await _salepromotionRepository.GetByIdAsync(id);
+                if (promotion != null)
+                {
+                    var promotionDto = _mapper.Map<SalePromotionDto>(promotion);
+                    return new OperationResult(true, "Promotion found", StatusCodes.Status200OK, promotionDto);
+                }
+                return new OperationResult(false, "Promotion not found", StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
             }
         }
     }

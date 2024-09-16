@@ -25,6 +25,12 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _salePromotionService.GetAllAsync();
             return result;
         }
+        [HttpGet("GetSalePromotion/{id}")]
+        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        {
+            var result = await _salePromotionService.GetByIdAsync(id);
+            return result;
+        }
         [HttpPost("AddSalePromotion")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDto salePromotionDto)
         {
