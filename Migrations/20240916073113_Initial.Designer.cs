@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240915145451_Initial")]
+    [Migration("20240916073113_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

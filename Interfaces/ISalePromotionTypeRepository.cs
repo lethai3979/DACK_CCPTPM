@@ -2,5 +2,6 @@
 {
     public interface ISalePromotionTypeRepository
     {
+        Task SeedSalePromotionTypeAsync();
     }
 }

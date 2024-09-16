@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GoWheels_WebAPI.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace GoWheels_WebAPI.Controllers
 {
@@ -7,5 +9,6 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class SalePromotionController : ControllerBase
     {
+         
     }
 }
