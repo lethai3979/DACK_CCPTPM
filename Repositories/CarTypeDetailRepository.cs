@@ -24,19 +24,23 @@ namespace GoWheels_WebAPI.Repositories
         {
             foreach (var companyId in companyIds)
             {
-                var carTypeDetailDTO = new CarTypeDetail();
-                carTypeDetailDTO.CarTypeId = carTypeId;
-                carTypeDetailDTO.CompanyId = companyId;
-                var carTypeDetail = _mapper.Map<CarTypeDetail>(carTypeDetailDTO);
+                var carTypeDetail = new CarTypeDetail();
+                carTypeDetail.CarTypeId = carTypeId;
+                carTypeDetail.CompanyId = companyId;
                 await _context.CarTypeDetails.AddAsync(carTypeDetail);
             }
             await _context.SaveChangesAsync();
         }
 
-        public async Task ClearCarTypeDetails(int carTypeId)
+        public async Task ClearCarTypeDetailsAsync(int carTypeId)
         {
-            var carTypeDetailsToRemove = await _context.CarTypeDetails.Where(p => p.CarTypeId == carTypeId).ToListAsync();
-            _context.CarTypeDetails.RemoveRange(carTypeDetailsToRemove);
+            var carTypeDetailsToRemove = await _context.CarTypeDetails
+                                                .Where(p => p.CarTypeId == carTypeId)
+                                                .ToListAsync();
+            foreach(var carTypeDetail in carTypeDetailsToRemove)
+            {
+                _context.CarTypeDetails.Remove(carTypeDetail);
+            }    
             await _context.SaveChangesAsync();
         }
     }

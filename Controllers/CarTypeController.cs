@@ -43,8 +43,18 @@ namespace GoWheels_WebAPI.Controllers
         
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetById(int id)
-            => await _carTypeService.GetByIdAsync(id);            
+        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+            => await _carTypeService.GetByIdAsync(id);
 
+        [HttpPost("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CarTypeDTO carTypeDTO)
+        {
+            if(carTypeDTO == null || id != carTypeDTO.Id)
+            {
+                return BadRequest("Invalid request");
+            }    
+            var result = await _carTypeService.UpdateAsync(id, carTypeDTO);
+            return result;
+        }
     }
 }

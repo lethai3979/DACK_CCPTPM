@@ -35,19 +35,33 @@ namespace GoWheels_WebAPI.Repositories
         }
 
 
-        public async Task UpdateAsync(CarType carType, CarType newCarType)
+        public async Task UpdateAsync(CarType carType)
+    {
+        //Check if there's any obj with same id being tracked
+        var existingEntity = _context.ChangeTracker.Entries<CarType>()
+                                     .FirstOrDefault(e => e.Entity.Id == carType.Id);
+
+        //detached same id obj
+        if (existingEntity != null)
         {
-            _context.Entry(carType).State = EntityState.Modified;
-            _mapper.Map(newCarType, carType);
-            await _context.SaveChangesAsync();
+            _context.Entry(existingEntity.Entity).State = EntityState.Detached;
         }
+
+        _context.CarTypes.Attach(carType);  // Attach target modified object to context 
+        _context.Entry(carType).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+
+        //detached tracking obj after modified
+        _context.Entry(carType).State = EntityState.Detached;
+    }
 
         public async Task<List<CarType>> GetAllAsync()
             => await _context.CarTypes.AsNoTracking().Include(c => c.CarTypeDetail).ThenInclude(c => c.Company).Where(c => !c.IsDeleted).ToListAsync();
         
 
         public async Task<CarType?> GetByIdAsync(int id)
-            => await _context.CarTypes.Where(c => !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == id);
+            => await _context.CarTypes.AsNoTracking().Where(c => !c.IsDeleted).Include(c => c.CarTypeDetail).ThenInclude(c => c.Company).FirstOrDefaultAsync(c => c.Id == id);
 
     }
 }

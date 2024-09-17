@@ -45,7 +45,7 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<Company?> GetByIdAsync(int id)
             => await _context.Companies.Where(c => !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == id);
 
-        public Task UpdateAsync(Company entity, Company newEntity)
+        public Task UpdateAsync(Company entity)
         {
             throw new NotImplementedException();
         }

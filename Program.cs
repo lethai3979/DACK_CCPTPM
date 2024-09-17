@@ -57,6 +57,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 //Inject dependency
+builder.Services.AddScoped<CarTypeDetailRepository>();
 builder.Services.AddScoped<CompanyRepository>();
 builder.Services.AddScoped<CompanyService>();
 builder.Services.AddScoped<CarTypeRepository>();
