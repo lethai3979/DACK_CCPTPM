@@ -40,14 +40,30 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<Company>> GetAllAsync()
-            => await _context.Companies.Where(c => !c.IsDeleted).Include(c => c.CarTypeDetail).ThenInclude(c => c.CarType).ToListAsync();
+            => await _context.Companies.AsNoTracking().Include(c => c.CarTypeDetail).ThenInclude(c => c.CarType).ToListAsync();
 
         public async Task<Company?> GetByIdAsync(int id)
-            => await _context.Companies.Where(c => !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == id);
+            => await _context.Companies.AsNoTracking().Where(c => !c.IsDeleted).Include(c => c.CarTypeDetail).ThenInclude(c => c.CarType).FirstOrDefaultAsync(c => c.Id == id);
 
-        public Task UpdateAsync(Company entity)
+        public async Task UpdateAsync(Company company)
         {
-            throw new NotImplementedException();
+            //Check if there's any obj with same id being tracked
+            var existingCompany = _context.ChangeTracker.Entries<Company>()
+                                         .FirstOrDefault(e => e.Entity.Id == company.Id);
+
+            //detached same id obj
+            if (existingCompany != null)
+            {
+                _context.Entry(existingCompany.Entity).State = EntityState.Detached;
+            }
+
+            _context.Companies.Attach(company);  // Attach target modified obj to context 
+            _context.Entry(company).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            //detached tracking obj after modified
+            _context.Entry(company).State = EntityState.Detached;
         }
     }
 }

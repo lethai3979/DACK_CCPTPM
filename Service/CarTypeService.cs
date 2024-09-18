@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Service
             var companies = await _companyRepository.GetAllAsync();
             foreach (var company in companies)
             {
-                bool previousChecked = previousDetails != null && previousDetails.Any(c => c.Company.Id.Equals(company.Id));
+                bool previousChecked = previousDetails != null && previousDetails.Any(c => c.CompanyId.Equals(company.Id));
                 bool currentChecked = selectedCompanies.Contains(company.Id);
                 if (previousChecked != currentChecked)
                 {
@@ -118,35 +118,49 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
+        private async Task UpdateCarTypeDetails(int carTypeId, List<int> companyIds)
+        {
+            await _carTypeDetailRepository.ClearCarTypeDetailsAsync(carTypeId);//Clear previous CarTypeDetails
+            await _carTypeDetailRepository.AddCompaniesListAsync(carTypeId, companyIds);//Add new CarTypeDetails
+        }
+
         public async Task<OperationResult> UpdateAsync(int id, CarTypeDTO carTypeDTO)
         {
   
             try
             {
-                var carType = _mapper.Map<CarType>(carTypeDTO);
+                //Check if cartype exist
                 var existingCarType = await _carTypeRepository.GetByIdAsync(id);
                 if (existingCarType == null) 
                 {
                     return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
                 }
 
+                // Map DTO to CarType entity and retain the original creation metadata
+                var carType = _mapper.Map<CarType>(carTypeDTO);
                 carType.CreateOn = existingCarType.CreateOn;
                 carType.CreateById = existingCarType.CreateById;
                 carType.ModifiedById = existingCarType.ModifiedById;
                 carType.ModifiedOn = existingCarType.ModifiedOn;
+
+                //Compare new CarTypeDetails with existing CarTypeDetails
+                if (carTypeDTO.CompanyIds.Contains(0))
+                {
+                    carTypeDTO.CompanyIds.Clear();
+                }
                 var isDetailsChange = await IsCarTypeDetailChange(carTypeDTO.CompanyIds, existingCarType.Id);
                 if (isDetailsChange)
                 {
-                    await _carTypeDetailRepository.ClearCarTypeDetailsAsync(existingCarType.Id);
-                    await _carTypeDetailRepository.AddCompaniesListAsync(existingCarType.Id, carTypeDTO.CompanyIds);
+
+                    await UpdateCarTypeDetails(existingCarType.Id, carTypeDTO.CompanyIds); 
                     EditHelper<CarType>.SetModifiedIfNecessary(carType, true, existingCarType, "NewUserId");
                 }
                 else
                 {
-                    bool isValueChange = EditHelper<CarType>.HasChanges(carType,existingCarType);
+                    bool isValueChange = EditHelper<CarType>
+                                            .HasChanges(carType,existingCarType);//Check if CarType data changed
                     EditHelper<CarType>.SetModifiedIfNecessary(carType, isValueChange, existingCarType, "NewUserId"); 
                 }
-
                 await _carTypeRepository.UpdateAsync(carType);
                 return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);
             }

@@ -12,12 +12,10 @@ namespace GoWheels_WebAPI.Repositories
     public class CarTypeRepository : IGenericRepository<CarType>
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
 
-        public CarTypeRepository(ApplicationDbContext context, IMapper mapper)
+        public CarTypeRepository(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
 
@@ -38,16 +36,16 @@ namespace GoWheels_WebAPI.Repositories
         public async Task UpdateAsync(CarType carType)
     {
         //Check if there's any obj with same id being tracked
-        var existingEntity = _context.ChangeTracker.Entries<CarType>()
+        var existingCarType = _context.ChangeTracker.Entries<CarType>()
                                      .FirstOrDefault(e => e.Entity.Id == carType.Id);
 
         //detached same id obj
-        if (existingEntity != null)
+        if (existingCarType != null)
         {
-            _context.Entry(existingEntity.Entity).State = EntityState.Detached;
+            _context.Entry(existingCarType.Entity).State = EntityState.Detached;
         }
 
-        _context.CarTypes.Attach(carType);  // Attach target modified object to context 
+        _context.CarTypes.Attach(carType);  // Attach target modified obj to context 
         _context.Entry(carType).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();

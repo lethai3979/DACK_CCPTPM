@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         [JsonPropertyOrder(100)]
         public List<CarTypeDetailDTO> carTypeDetail { get; set; } = new List<CarTypeDetailDTO>();
 
-        [JsonIgnore]
         public List<int> CarTypeIds { get; set; } = new List<int>();
 
     }
