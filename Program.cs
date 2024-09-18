@@ -45,6 +45,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
     };
 });
+
+//cho vuejs
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
@@ -55,7 +68,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddControllers();
-
+builder.Services.AddScoped<AmenityRepository>();
+builder.Services.AddScoped<AmenityService>();
 //Inject dependency
 builder.Services.AddScoped<CarTypeDetailRepository>();
 builder.Services.AddScoped<CompanyRepository>();
@@ -127,11 +141,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
+app.UseCors("AllowAllOrigins");
 // seed data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     var repository = services.GetRequiredService<SalePromotionTypeRepository>();
     await repository.SeedSalePromotionTypeAsync();
 }

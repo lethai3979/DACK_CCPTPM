@@ -2,7 +2,7 @@
 
 namespace GoWheels_WebAPI.Models.Entities
 {
-    public class Amentity : BaseModel
+    public class Amenity : BaseModel
     {
         [Required]
         public required string Name { get; set; }
