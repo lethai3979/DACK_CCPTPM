@@ -18,15 +18,17 @@ namespace GoWheels_WebAPI.Controllers
             _carTypeService = carTypeService;
         }
 
-        [HttpGet("GetAllCarType")]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
-        {
-            var result = await _carTypeService.GetAllAsync();
-            return result;
-        }
-        [HttpPost("AddCarType")]
+            => await _carTypeService.GetAllAsync();
+
+        [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] CarTypeDTO carTypeDTO)
         {
+            if (carTypeDTO == null)
+            {
+                return BadRequest("Car type value is null");
+            }
             if (ModelState.IsValid)
             {
                 var result = await _carTypeService.AddAsync(carTypeDTO);
@@ -37,10 +39,22 @@ namespace GoWheels_WebAPI.Controllers
 
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+            => await _carTypeService.DeletedByIdAsync(id);
+        
+
+        [HttpGet("GetById/{id}")]
+        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+            => await _carTypeService.GetByIdAsync(id);
+
+        [HttpPost("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CarTypeDTO carTypeDTO)
         {
-            var result = await _carTypeService.DeletedByIdAsync(id);
+            if(carTypeDTO == null || id != carTypeDTO.Id)
+            {
+                return BadRequest("Invalid request");
+            }    
+            var result = await _carTypeService.UpdateAsync(id, carTypeDTO);
             return result;
         }
-
     }
 }

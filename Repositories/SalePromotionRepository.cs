@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Data;
-using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
@@ -39,6 +39,29 @@ namespace GoWheels_WebAPI.Repositories
             _context.Entry(promotion).State = EntityState.Modified;
             _mapper.Map(newPromotion, promotion);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Promotion>> GetAllByPromotionTypeAsync(int typeId)
+                    => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted && p.PromotionType.Id == typeId).Include(p => p.PromotionType).ToListAsync();
+
+        public async Task UpdateAsync(Promotion promotion)
+        {
+            var existingPromotion = _context.ChangeTracker.Entries<Promotion>()
+                                     .FirstOrDefault(e => e.Entity.Id == promotion.Id);
+
+            //detached same id obj
+            if (existingPromotion != null)
+            {
+                _context.Entry(existingPromotion.Entity).State = EntityState.Detached;
+            }
+
+            _context.CarTypes.Attach(promotion);  // Attach target modified obj to context 
+            _context.Entry(promotion).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            //detached tracking obj after modified
+            _context.Entry(promotion).State = EntityState.Detached;
         }
     }
 }

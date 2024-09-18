@@ -1,7 +1,7 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace GoWheels_WebAPI.Interfaces
+namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IUserRepository
     {

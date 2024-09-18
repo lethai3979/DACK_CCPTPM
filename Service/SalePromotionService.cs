@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.DTOs.SalePromotionDTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
@@ -23,8 +22,8 @@ namespace GoWheels_WebAPI.Service
         }
         private int DeterminePromotionType()
         {
-            var user = _httpContextAccessor.HttpContext?.User;
-            if (user.IsInRole("Admin") || user.IsInRole("Employee"))
+            var user = _httpContextAccessor.HttpContext?.User!;
+            if (user.IsInRole("Admin"))
             {
                 return 1;
             }
@@ -40,8 +39,17 @@ namespace GoWheels_WebAPI.Service
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
+        public async Task<OperationResult> GetAllByPromotionTypeAsync(int typeId)
+        {
+            var promolist = await _salepromotionRepository.GetAllByPromotionTypeAsync(typeId);
+            if (!promolist.IsNullOrEmpty())
+            {
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promolist);
+            }
+            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+        }
 
-        public async Task<OperationResult> AddAsync(SalePromotionDto salePromotionDto)
+        public async Task<OperationResult> AddAsync(SalePromotionDTO salePromotionDto)
         {
             salePromotionDto.CreateById = _httpContextAccessor.HttpContext?.User?
                                     .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -96,7 +104,7 @@ namespace GoWheels_WebAPI.Service
                 var promotion = await _salepromotionRepository.GetByIdAsync(id);
                 if (promotion != null)
                 {
-                    var promotionDto = _mapper.Map<SalePromotionDto>(promotion);
+                    var promotionDto = _mapper.Map<SalePromotionDTO>(promotion);
                     return new OperationResult(true, "Promotion found", StatusCodes.Status200OK, promotionDto);
                 }
                 return new OperationResult(false, "Promotion not found", StatusCodes.Status404NotFound);
@@ -106,5 +114,17 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
             }
         }
+
+/*        public async Task<OperationResult> UpdateAsync(int id, SalePromotionDTO promotionDTO)
+        {
+            try
+            {
+
+            }
+            catch
+            {
+
+            }
+        } */
     }
 }
