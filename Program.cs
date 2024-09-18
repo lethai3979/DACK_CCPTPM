@@ -1,5 +1,4 @@
 ﻿using GoWheels_WebAPI.Data;
-using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
@@ -132,8 +131,6 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    context.Database.Migrate();
 
     var repository = services.GetRequiredService<SalePromotionTypeRepository>();
     await repository.SeedSalePromotionTypeAsync();

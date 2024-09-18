@@ -1,6 +1,4 @@
-﻿using GoWheels_WebAPI.Interfaces;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.DTOs.SalePromotionDTOs;
+﻿using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
@@ -25,6 +23,14 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _salePromotionService.GetAllAsync();
             return result;
         }
+
+        [HttpGet("GetAllByPromotionType/{id}")]
+        public async Task<ActionResult<OperationResult>> GetAllByPromotionType(int id)
+        {
+            var result = await _salePromotionService.GetAllByPromotionTypeAsync(id);
+            return result;
+        }
+
         [HttpGet("GetSalePromotion/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
@@ -32,7 +38,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
         [HttpPost("AddSalePromotion")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDto salePromotionDto)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
         {
             if (ModelState.IsValid)
             {

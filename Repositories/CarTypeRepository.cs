@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Data;
-using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories.Interface;

@@ -38,7 +38,7 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, "Company not found", StatusCodes.Status404NotFound);
             }
             var companyDTO = _mapper.Map<CompanyDTO>(company);
-            return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: companyDTO);
+            return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: company);
         }
 
         public async Task<OperationResult> GetAllAsync()

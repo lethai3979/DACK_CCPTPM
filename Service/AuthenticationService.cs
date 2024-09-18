@@ -1,5 +1,4 @@
-﻿using GoWheels_WebAPI.Interfaces;
-using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
