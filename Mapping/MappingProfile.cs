@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.DTOs.SalePromotionDTOs;
 using GoWheels_WebAPI.Models.Entities;
 
 namespace GoWheels_WebAPI.Mapping
@@ -17,6 +18,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Company, CompanyDTO>();
             CreateMap<Promotion, PromotionType>();
             CreateMap<PromotionType, Promotion>();
+            CreateMap<SalePromotionDto, Promotion>().ReverseMap();
 
             //For Update 
             CreateMap<CarType, CarType>();

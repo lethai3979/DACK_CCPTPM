@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
@@ -60,6 +61,9 @@ builder.Services.AddScoped<CarTypeRepository>();
 builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<SalePromotionRepository>();
+builder.Services.AddScoped<SalePromotionTypeRepository>();
+builder.Services.AddScoped<SalePromotionService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -89,6 +93,12 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+// Add NewtonsoftJSON for serializing/deserializing JSON
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
+// Add Interfaces and Repositories
 
 var app = builder.Build();
 
@@ -114,5 +124,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
+// seed data
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
 
+    var repository = services.GetRequiredService<SalePromotionTypeRepository>();
+    await repository.SeedSalePromotionTypeAsync();
+}
 app.Run();
