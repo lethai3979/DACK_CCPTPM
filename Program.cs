@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Interfaces;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +56,11 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddControllers();
+
+//Inject dependency
+builder.Services.AddScoped<CarTypeDetailRepository>();
+builder.Services.AddScoped<CompanyRepository>();
+builder.Services.AddScoped<CompanyService>();
 builder.Services.AddScoped<CarTypeRepository>();
 builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();

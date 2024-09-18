@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
     public class BaseModelDTO
     {
         public int Id { get; set; }
+
         public string? CreateById { get; set; }
+
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]
         public DateTime CreateOn { get; set; }
 
