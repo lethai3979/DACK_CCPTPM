@@ -79,24 +79,24 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        public async Task<OperationResult> UpdateAsync(Amenity entity, Amenity newEntity)
-        {
-            try
-            {
-                await _amenityRepository.UpdateAsync(newEntity, entity);
-                return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
-            }
+        //public async Task<OperationResult> UpdateAsync(Amenity entity, Amenity newEntity)
+        //{
+        //    try
+        //    {
+        //        await _amenityRepository.UpdateAsync(newEntit);
+        //        return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
+        //    }
 
-            catch (DbUpdateException dbEx)
-            {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
+        //    catch (DbUpdateException dbEx)
+        //    {
+        //        var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+        //        return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+        //        return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+        //    }
+        //}
     }
 }

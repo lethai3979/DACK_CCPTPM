@@ -2,6 +2,7 @@
 using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
@@ -35,11 +36,11 @@ namespace GoWheels_WebAPI.Repositories
         {
             return await _context.Amentities.Where(x => x.IsDeleted == false).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task UpdateAsync(Amenity entity, Amenity newEntity)
+        public async Task UpdateAsync(Amenity newEntity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _mapper.Map(newEntity, entity);
-            await _context.SaveChangesAsync();
+            //_context.Entry(entity).State = EntityState.Modified;
+            //_mapper.Map(newEntity, entity);
+            //await _context.SaveChangesAsync();
         }
     }
 }
