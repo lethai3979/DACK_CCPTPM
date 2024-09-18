@@ -55,7 +55,7 @@ namespace GoWheels_WebAPI.Repositories
                 _context.Entry(existingPromotion.Entity).State = EntityState.Detached;
             }
 
-            _context.CarTypes.Attach(promotion);  // Attach target modified obj to context 
+            _context.Promotions.Attach(promotion);  // Attach target modified obj to context 
             _context.Entry(promotion).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();

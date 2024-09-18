@@ -52,8 +52,14 @@ namespace GoWheels_WebAPI.Controllers
             {
                 return BadRequest("Invalid request");
             }
-            var result = await _companyService.UpdateAsync(id, companyDTO);
-            return result;
+            if (ModelState.IsValid)
+            {
+
+                var result = await _companyService.UpdateAsync(id, companyDTO);
+                return result;
+            }
+            return BadRequest("Company value invalid");
+
         }
     }
 }

@@ -115,16 +115,35 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-/*        public async Task<OperationResult> UpdateAsync(int id, SalePromotionDTO promotionDTO)
+        public async Task<OperationResult> UpdateAsync(int id, SalePromotionDTO promotionDTO)
         {
             try
             {
-
+                var existingPromotion = await _salepromotionRepository.GetByIdAsync(id);
+                if (existingPromotion == null)
+                {
+                    return new OperationResult(true, "Promotion not found", StatusCodes.Status404NotFound);
+                }
+                var promotion = _mapper.Map<Promotion>(promotionDTO);
+                promotion.CreateOn = existingPromotion.CreateOn;
+                promotion.CreateById = existingPromotion.CreateById;
+                promotion.ModifiedById = existingPromotion.ModifiedById;
+                promotion.ModifiedOn = existingPromotion.ModifiedOn;
+                var isValueChange = EditHelper<Promotion>.HasChanges(promotion,existingPromotion);
+                EditHelper<Promotion>.SetModifiedIfNecessary(promotion,isValueChange,existingPromotion,"NewUserId");
+                await _salepromotionRepository.UpdateAsync(promotion);
+                return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
             }
-            catch
+            catch (DbUpdateException dbEx)
             {
-
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
             }
-        } */
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

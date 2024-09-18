@@ -40,6 +40,10 @@ namespace GoWheels_WebAPI.Controllers
         [HttpPost("AddSalePromotion")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
         {
+            if(salePromotionDto == null)
+            {
+                return BadRequest("Promotion is null");
+            }    
             if (ModelState.IsValid)
             {
                 var result = await _salePromotionService.AddAsync(salePromotionDto);
@@ -53,6 +57,21 @@ namespace GoWheels_WebAPI.Controllers
         {
             var result = await _salePromotionService.DeletedByIdAsync(id);
             return result;
+        }
+
+        [HttpPost("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionDTO salePromotionDto)
+        {
+            if(salePromotionDto == null || id != salePromotionDto.Id)
+            {
+                return BadRequest("Promotion is null");
+            }    
+            if (ModelState.IsValid)
+            {
+                var result = await _salePromotionService.UpdateAsync(id, salePromotionDto);
+                return result;
+            }
+            return BadRequest("Sale Promotion data invalid");
         }
     }
 }

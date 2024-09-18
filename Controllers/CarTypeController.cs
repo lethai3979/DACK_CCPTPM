@@ -52,9 +52,13 @@ namespace GoWheels_WebAPI.Controllers
             if(carTypeDTO == null || id != carTypeDTO.Id)
             {
                 return BadRequest("Invalid request");
-            }    
-            var result = await _carTypeService.UpdateAsync(id, carTypeDTO);
-            return result;
+            }
+            if (ModelState.IsValid)
+            {
+                var result = await _carTypeService.UpdateAsync(id, carTypeDTO);
+                return result;
+            }
+            return BadRequest("Car type data invalid");
         }
     }
 }
