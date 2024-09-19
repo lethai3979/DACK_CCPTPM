@@ -18,7 +18,7 @@ namespace GoWheels_WebAPI.Models.Entities
 
         [Required]
         [ForeignKey(nameof(PromotionType))]
-        public int PromotionTypeId { get; set; }
+        public required int PromotionTypeId { get; set; }
 
         [ValidateNever]
         public PromotionType PromotionType { get; set; } = null!;
