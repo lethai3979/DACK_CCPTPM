@@ -64,7 +64,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             if(salePromotionDto == null || id != salePromotionDto.Id)
             {
-                return BadRequest("Promotion is null");
+                return BadRequest("Invalid request");
             }    
             if (ModelState.IsValid)
             {

@@ -23,6 +23,14 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _amenityService.GetAllAsync();
             return result;
         }
+
+        [HttpGet("GetById/{id}")]
+        public async Task<ActionResult<OperationResult>> GetById(int id)
+        {
+            var result = await _amenityService.GetByIdAsync(id);
+            return result;
+        }
+
         [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] AmenityDTO amenityDTO)
         {
@@ -40,12 +48,21 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _amenityService.DeletedByIdAsync(id);
             return result;
         }
-        //[HttpPut("Update/{id}")]
-        //public async Task<ActionResult<OperationResult>> UpdateAsync(Amenity entity, Amenity newEntity)
-        //{
-        //    var result = await _amenityService.UpdateAsync(newEntity,entity);
-        //    return result;
-        //}
+
+        [HttpPut("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, AmenityDTO amenityDTO)
+        {
+            if (amenityDTO == null || id != amenityDTO.Id)
+            {
+                return BadRequest("Invalid request");
+            }
+            if (ModelState.IsValid)
+            {
+                var result = await _amenityService.UpdateAsync(id, amenityDTO);
+                return result;
+            }
+            return BadRequest("Amenity data invalid");
+        }
 
     }
 }
