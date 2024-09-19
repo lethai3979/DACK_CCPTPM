@@ -34,9 +34,9 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
         {
-            amenityDTO.CreateById = _httpContextAccessor.HttpContext?.User?
+            amenityDTO.CreatedById = _httpContextAccessor.HttpContext?.User?
                                     .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
-            amenityDTO.CreateOn = DateTime.Now;
+            amenityDTO.CreatedOn = DateTime.Now;
             try
             {
                 var amenity = _mapper.Map<Amenity>(amenityDTO);

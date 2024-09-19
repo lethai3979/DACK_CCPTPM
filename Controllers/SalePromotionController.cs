@@ -17,27 +17,27 @@ namespace GoWheels_WebAPI.Controllers
         {
             _salePromotionService = salePromotionService;
         }
-        [HttpGet("GetAllSalePromotion")]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
         {
             var result = await _salePromotionService.GetAllAsync();
             return result;
         }
 
-        [HttpGet("GetAllByPromotionType/{id}")]
+        [HttpGet("GetAllByType/{id}")]
         public async Task<ActionResult<OperationResult>> GetAllByPromotionType(int id)
         {
             var result = await _salePromotionService.GetAllByPromotionTypeAsync(id);
             return result;
         }
 
-        [HttpGet("GetSalePromotion/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             var result = await _salePromotionService.GetByIdAsync(id);
             return result;
         }
-        [HttpPost("AddSalePromotion")]
+        [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
         {
             if(salePromotionDto == null)

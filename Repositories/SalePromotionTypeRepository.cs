@@ -17,8 +17,8 @@ namespace GoWheels_WebAPI.Repositories
             {
                 var seedingitem = new List<PromotionType>
                 {
-                    new PromotionType { Name = "Web-SalePromotion", CreateById = "System", CreateOn = DateTime.Now },
-                    new PromotionType { Name = "User-SalePromotion", CreateById = "System", CreateOn = DateTime.Now }
+                    new PromotionType { Name = "Web-SalePromotion", CreatedById = "System", CreatedOn = DateTime.Now },
+                    new PromotionType { Name = "User-SalePromotion", CreatedById = "System", CreatedOn = DateTime.Now }
                 };
                 await _context.PromotionTypes.AddRangeAsync(seedingitem);
                 await _context.SaveChangesAsync();

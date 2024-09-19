@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
@@ -10,7 +11,9 @@ namespace GoWheels_WebAPI.Models.DTOs
         public required string Content { get; set; }
         public decimal DiscountValue { get; set; }
         public required DateTime ExpiredDate { get; set; }
-        public int PromotionId { get; set; }
-        public string? PromotionName { get; set; }
+        [JsonPropertyOrder(99)]
+        public int PromotionTypeId { get; set; }
+        [JsonPropertyOrder(100)]
+        public string? PromotionTypeName { get; set; }
     }
 }

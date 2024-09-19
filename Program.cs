@@ -119,11 +119,13 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 
 var app = builder.Build();
 
-//Initial default roles
+//Seed data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await ApplicationRole.InitialRoles(services);
+    await ApplicationRole.InitialRoles(services);//Initial default role
+    var repository = services.GetRequiredService<SalePromotionTypeRepository>();
+    await repository.SeedSalePromotionTypeAsync();//Initial default promotion type
 }
 
 // Configure the HTTP request pipeline.
@@ -142,11 +144,4 @@ app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
 app.UseCors("AllowAllOrigins");
-// seed data
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var repository = services.GetRequiredService<SalePromotionTypeRepository>();
-    await repository.SeedSalePromotionTypeAsync();
-}
 app.Run();

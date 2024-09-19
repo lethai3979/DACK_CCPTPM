@@ -14,7 +14,8 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<CompanyDTO, Company>().ReverseMap();
             CreateMap<SalePromotionDTO, Promotion>().ReverseMap();
             CreateMap<CarTypeDetailDTO, CarTypeDetail>().ReverseMap();
-            CreateMap<PromotionType, Promotion>().ReverseMap();
+            CreateMap<PromotionType, SalePromotionTypeDTO>().ReverseMap();
+            CreateMap<Promotion, SalePromotionDTO>().ReverseMap();
 
             //For Update 
             CreateMap<CarType, CarType>();

@@ -32,7 +32,7 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).ToListAsync();
 
         public async Task<Promotion?> GetByIdAsync(int id) 
-            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).FirstOrDefaultAsync();
+            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task UpdateAsync(Promotion promotion, Promotion newPromotion)
         {
@@ -56,8 +56,7 @@ namespace GoWheels_WebAPI.Repositories
             }
 
             _context.Promotions.Attach(promotion);  // Attach target modified obj to context 
-            _context.Entry(promotion).State = EntityState.Modified;
-
+            _context.Promotions.Update(promotion);
             await _context.SaveChangesAsync();
 
             //detached tracking obj after modified

@@ -54,9 +54,9 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<OperationResult> AddAsync(CompanyDTO companyDTO)
         {
-            companyDTO.CreateById = _httpContextAccessor.HttpContext?.User?
+            companyDTO.CreatedById = _httpContextAccessor.HttpContext?.User?
                                     .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
-            companyDTO.CreateOn = DateTime.Now;
+            companyDTO.CreatedOn = DateTime.Now;
             try
             {
                 var company = _mapper.Map<Company>(companyDTO);
@@ -113,8 +113,8 @@ namespace GoWheels_WebAPI.Service
 
                 // Map DTO to Company entity and retain the original creation metadata
                 var company = _mapper.Map<Company>(companyDTO);
-                company.CreateOn = existingCompany.CreateOn;
-                company.CreateById = existingCompany.CreateById;
+                company.CreatedOn = existingCompany.CreatedOn;
+                company.CreatedById = existingCompany.CreatedById;
                 company.ModifiedById = existingCompany.ModifiedById;
                 company.ModifiedOn = existingCompany.ModifiedOn;
 

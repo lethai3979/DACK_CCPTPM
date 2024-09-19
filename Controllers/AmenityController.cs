@@ -17,13 +17,13 @@ namespace GoWheels_WebAPI.Controllers
         {
             _amenityService = amenityService;
         }
-        [HttpGet("GetAllAmenity")]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
         {
             var result = await _amenityService.GetAllAsync();
             return result;
         }
-        [HttpPost("AddAmenity")]
+        [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] AmenityDTO amenityDTO)
         {
             if (ModelState.IsValid)
