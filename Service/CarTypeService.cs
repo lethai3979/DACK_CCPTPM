@@ -50,7 +50,7 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
             }
             var carTypeDTO = _mapper.Map<CarTypeDTO>(carType);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carType);
+            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeDTO);
         }
 
         public async Task<OperationResult> AddAsync(CarTypeDTO carTypeDTO)
