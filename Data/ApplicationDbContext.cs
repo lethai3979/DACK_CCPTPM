@@ -16,5 +16,6 @@ namespace GoWheels_WebAPI.Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<PromotionType> PromotionTypes { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
     }
 }
