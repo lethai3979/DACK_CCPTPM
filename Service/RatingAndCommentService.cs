@@ -80,6 +80,7 @@ namespace GoWheels_WebAPI.Service
             }
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
+
         public async Task<OperationResult> GetAllCommentAndRatingFormPostId(int postId)
         {
             var commentAndRatingFromPost = await _ratingAndCommentRepository.GetAllCommentFromPost(postId);
@@ -90,6 +91,54 @@ namespace GoWheels_WebAPI.Service
             }
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
+        public async Task<OperationResult> DeleteByIdAsync(int id)
+        {
+            try
+            {
+                var comment = await _ratingAndCommentRepository.GetByIdAsync(id);
+                if (comment == null)
+                {
+                    return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);
+                }
+                await _ratingAndCommentRepository.DeleteAsync(comment);
+                return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+        public async Task<OperationResult> GetByIdAsync(int id)
+        {
+            try
+            {
+                var rating = await _ratingAndCommentRepository.GetByIdAsync(id);
+                if (rating != null)
+                {
+                    var ratingAndCommentDTO = _mapper.Map<RatingDTO>(rating);
+                    return new OperationResult(true, "Comment found", StatusCodes.Status200OK, ratingAndCommentDTO);
+                }
+                return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
+            }
+        }
+        //public async Task<OperationResult> UpdateAsync(int id, RatingDTO rating)
+        //{
+        //    var exsistingComment = _ratingAndCommentRepository.GetByIdAsync(id);
+        //    if(exsistingComment != null) 
+        //    {
+
+        //    }
+        //}
     }
 }
     

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240919025420_UpdateModel")]
-    partial class UpdateModel
+    [Migration("20240920171708_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -586,7 +586,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Rating");
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Report", b =>

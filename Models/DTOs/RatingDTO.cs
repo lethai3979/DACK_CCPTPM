@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
-    public class RatingDTO
+    public class RatingDTO : BaseModelDTO
     {
         [Required(ErrorMessage = "Comment is required")]
         public string? Comment { get; set; }

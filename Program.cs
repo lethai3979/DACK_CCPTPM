@@ -82,6 +82,7 @@ builder.Services.AddScoped<SalePromotionRepository>();
 builder.Services.AddScoped<SalePromotionTypeRepository>();
 builder.Services.AddScoped<SalePromotionService>();
 builder.Services.AddScoped<RatingAndCommentRepository>();
+builder.Services.AddScoped<RatingAndCommentService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>

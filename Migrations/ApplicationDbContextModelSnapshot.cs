@@ -583,7 +583,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Rating");
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Report", b =>
