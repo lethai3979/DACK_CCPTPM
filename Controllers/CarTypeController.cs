@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.DTOs.PostDTOs;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +24,7 @@ namespace GoWheels_WebAPI.Controllers
             => await _carTypeService.GetAllAsync();
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] CarTypeDTO carTypeDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] AddCarTypeDTO carTypeDTO)
         {
             if (carTypeDTO == null)
             {

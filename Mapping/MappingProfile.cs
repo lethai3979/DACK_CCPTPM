@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.DTOs.PostDTOs;
 using GoWheels_WebAPI.Models.Entities;
 
 namespace GoWheels_WebAPI.Mapping
@@ -11,6 +12,7 @@ namespace GoWheels_WebAPI.Mapping
             //For Mapping
             CreateMap<AmenityDTO, Amenity>().ReverseMap();
             CreateMap<CarTypeDTO, CarType>().ReverseMap();
+            CreateMap<CarType, AddCarTypeDTO>().ReverseMap();
             CreateMap<CompanyDTO, Company>().ReverseMap();
             CreateMap<Amenity,AmenityDTO>().ReverseMap();
             CreateMap<SalePromotionDTO, Promotion>().ReverseMap();
@@ -21,6 +23,7 @@ namespace GoWheels_WebAPI.Mapping
                 .ForMember(dest => dest.CarType, opt => opt.Ignore()) // Ánh xạ bằng tay nếu cần
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
             CreateMap<PostAmenity, PostAmenityDTO>().ReverseMap();
+
 
         }
     }
