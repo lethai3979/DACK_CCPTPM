@@ -25,9 +25,8 @@ namespace GoWheels_WebAPI.Models.DTOs
 
         public string? CompanyName { get; set; }
         public string? UserId { get; set; }
-
         public string? UserName { get; set; }
-        public List<PostAmenityDTO> Amenities { get; set; } = new List<PostAmenityDTO>();
+        public List<PostAmenityDTO> PostAmenities { get; set; } = new List<PostAmenityDTO>();
         public List<int> AmenitiesIdList { get; set; } = new List<int>();
     }
 }

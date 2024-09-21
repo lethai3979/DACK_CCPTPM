@@ -60,6 +60,10 @@ namespace GoWheels_WebAPI.Service
             carTypeDTO.CreatedOn = DateTime.Now;
             try
             {
+                if (carTypeDTO.CompanyIds.Contains(0))
+                {
+                    carTypeDTO.CompanyIds.Clear();
+                }
                 var carType = _mapper.Map<CarType>(carTypeDTO);
                 await _carTypeRepository.AddAsync(carType);
                 await _carTypeDetailRepository.AddCompaniesListAsync(carType.Id, carTypeDTO.CompanyIds);
@@ -157,9 +161,9 @@ namespace GoWheels_WebAPI.Service
                 }
                 else
                 {
-                    bool isValueChange = EditHelper<CarType>
+                    bool isCarTypeDataChange = EditHelper<CarType>
                                             .HasChanges(carType,existingCarType);//Check if CarType data changed
-                    EditHelper<CarType>.SetModifiedIfNecessary(carType, isValueChange, existingCarType, "NewUserId"); 
+                    EditHelper<CarType>.SetModifiedIfNecessary(carType, isCarTypeDataChange, existingCarType, "NewUserId"); 
                 }
                 await _carTypeRepository.UpdateAsync(carType);
                 return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);

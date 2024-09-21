@@ -10,5 +10,6 @@ namespace GoWheels_WebAPI.Models.Entities
         [Required]
         public required string IconImage { get; set; }
         public ICollection<CarTypeDetail> CarTypeDetail { get; set; } = new List<CarTypeDetail>();
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }

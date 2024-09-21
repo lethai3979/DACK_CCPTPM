@@ -42,9 +42,21 @@ namespace GoWheels_WebAPI.Repositories
                                     .ThenInclude(p => p.Amenity).FirstOrDefaultAsync(p => p.Id == id);
 
 
-        public Task UpdateAsync(Post entity)
+        public async Task UpdateAsync(Post post)
         {
-            throw new NotImplementedException();
+            var existingPost =  _context.ChangeTracker.Entries<Post>().FirstOrDefault(e => e.Entity.Id == post.Id);
+            if(existingPost != null)
+            {
+                _context.Entry(existingPost.Entity).State = EntityState.Detached;
+            }
+
+            _context.Posts.Attach(post);  // Attach target modified obj to context 
+            _context.Entry(post).State = EntityState.Modified;
+            _context.Posts.Update(post);
+            await _context.SaveChangesAsync();
+
+            //detached tracking obj after modified
+            _context.Entry(post).State = EntityState.Detached;
         }
     }
 }

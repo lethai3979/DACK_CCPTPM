@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240920155640_UpdateModelDbContext")]
-    partial class UpdateModelDbContext
+    [Migration("20240921021923_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -915,13 +915,13 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.CarType", "CarType")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("CarTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Company", "Company")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1086,11 +1086,15 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>
                 {
                     b.Navigation("CarTypeDetail");
+
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Company", b =>
                 {
                     b.Navigation("CarTypeDetail");
+
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>

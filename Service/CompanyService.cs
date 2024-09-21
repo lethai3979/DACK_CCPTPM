@@ -59,6 +59,10 @@ namespace GoWheels_WebAPI.Service
             companyDTO.CreatedOn = DateTime.Now;
             try
             {
+                if (companyDTO.CarTypeIds.Contains(0))
+                {
+                    companyDTO.CarTypeIds.Clear();
+                }
                 var company = _mapper.Map<Company>(companyDTO);
                 await _companyRepository.AddAsync(company);
                 await _companyRepository.AddCompanyDetailAsync(company.Id, companyDTO.CarTypeIds);

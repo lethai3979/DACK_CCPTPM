@@ -8,7 +8,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public int Id { get; set; }
 
         [Required]
-        public required string CreatedById { get; set; }
+        public string? CreatedById { get; set; }
         [Required]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]
         public required DateTime CreatedOn { get; set; } = DateTime.Now;

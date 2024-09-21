@@ -70,7 +70,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddScoped<AmenityRepository>();
 builder.Services.AddScoped<AmenityService>();
-//Inject dependency
+//Register dependency service
+
+builder.Services.AddScoped<PostAmenityRepository>();
+builder.Services.AddScoped<PostRepository>();
+builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<CarTypeDetailRepository>();
 builder.Services.AddScoped<CompanyRepository>();
 builder.Services.AddScoped<CompanyService>();
