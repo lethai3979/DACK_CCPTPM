@@ -19,23 +19,12 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<CarTypeDetailDTO, CarTypeDetail>().ReverseMap();
             CreateMap<PromotionType, SalePromotionTypeDTO>().ReverseMap();
             CreateMap<Promotion, SalePromotionDTO>().ReverseMap();
-<<<<<<< HEAD
             CreateMap<Post, PostDTO>().ReverseMap()
                 .ForMember(dest => dest.CarType, opt => opt.Ignore()) // Ánh xạ bằng tay nếu cần
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
             CreateMap<PostAmenity, PostAmenityDTO>().ReverseMap();
-
-=======
             CreateMap<Rating, RatingDTO>().ReverseMap();
 
-            //For Update 
-            CreateMap<CarType, CarType>();
-            CreateMap<Amenity, Amenity>();
-            CreateMap<Company, Company>();
-            CreateMap<PromotionType, PromotionType>();
-            CreateMap<Promotion, Promotion>();
-            CreateMap<Rating, Rating>();
->>>>>>> origin/NguyenThanhKy
 
         }
     }

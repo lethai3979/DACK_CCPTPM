@@ -16,7 +16,6 @@ namespace GoWheels_WebAPI.Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<PromotionType> PromotionTypes { get; set; }
-<<<<<<< HEAD
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostAmenity> PostAmenities { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
@@ -27,8 +26,5 @@ namespace GoWheels_WebAPI.Data
         public DbSet<ReportType> ReportTypes { get; set; }
         public DbSet<Booking> Bookings { get; set; }
 
-=======
-        public DbSet<Rating> Ratings { get; set; }
->>>>>>> origin/NguyenThanhKy
     }
 }
