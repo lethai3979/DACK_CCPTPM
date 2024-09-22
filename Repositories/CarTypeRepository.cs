@@ -55,11 +55,17 @@ namespace GoWheels_WebAPI.Repositories
     }
 
         public async Task<List<CarType>> GetAllAsync()
-            => await _context.CarTypes.AsNoTracking().Include(c => c.CarTypeDetail).ThenInclude(c => c.Company).Where(c => !c.IsDeleted).ToListAsync();
+            => await _context.CarTypes.AsNoTracking()
+                                        .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
+                                        .ThenInclude(c => c.Company)
+                                        .ToListAsync();
         
 
         public async Task<CarType?> GetByIdAsync(int id)
-            => await _context.CarTypes.AsNoTracking().Where(c => !c.IsDeleted).Include(c => c.CarTypeDetail).ThenInclude(c => c.Company).FirstOrDefaultAsync(c => c.Id == id);
+            => await _context.CarTypes.AsNoTracking()
+                                        .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
+                                        .ThenInclude(c => c.Company)
+                                        .FirstOrDefaultAsync(c => c.Id == id);
 
     }
 }

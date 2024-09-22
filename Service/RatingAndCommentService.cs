@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ namespace GoWheels_WebAPI.Service
             return commentList.Average(p => p.Point);
         }
 
-        public async Task<OperationResult> AddRatingAndComment(RatingDTO ratingDto , int PostId)
+        public async Task<OperationResult> AddRatingAndComment(RatingVM ratingDto , int PostId)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "No ratings found for this post", StatusCodes.Status404NotFound);
                 }
-                var ratingDtos = _mapper.Map<List<RatingDTO>>(ratings);
+                var ratingDtos = _mapper.Map<List<RatingVM>>(ratings);
                 return new OperationResult(true, "Ratings retrieved successfully", StatusCodes.Status200OK, ratingDtos);
             }
             catch (Exception ex)
@@ -121,7 +121,7 @@ namespace GoWheels_WebAPI.Service
                 var rating = await _ratingAndCommentRepository.GetByIdAsync(id);
                 if (rating != null)
                 {
-                    var ratingAndCommentDTO = _mapper.Map<RatingDTO>(rating);
+                    var ratingAndCommentDTO = _mapper.Map<RatingVM>(rating);
                     return new OperationResult(true, "Comment found", StatusCodes.Status200OK, ratingAndCommentDTO);
                 }
                 return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);

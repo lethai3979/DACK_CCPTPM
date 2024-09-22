@@ -1,6 +1,6 @@
-﻿namespace GoWheels_WebAPI.Models.DTOs
+﻿namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class CarTypeDetailDTO
+    public class CarTypeDetailVM
     {
         public int Id { get; set; }
         public int CarTypeId { get; set; }

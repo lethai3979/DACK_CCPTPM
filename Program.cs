@@ -13,7 +13,7 @@ using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args); 
+var builder = WebApplication.CreateBuilder(args);
 
 var secretKey = builder.Configuration["Jwt:SecretKey"];//Get SercretKey from appsetting.json
 
@@ -37,10 +37,10 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+        ValidateIssuerSigningKey = false,
         RoleClaimType = ClaimTypes.Role,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
     };
@@ -68,10 +68,9 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddControllers();
+//Register dependency service
 builder.Services.AddScoped<AmenityRepository>();
 builder.Services.AddScoped<AmenityService>();
-//Register dependency service
-
 builder.Services.AddScoped<PostAmenityRepository>();
 builder.Services.AddScoped<PostRepository>();
 builder.Services.AddScoped<PostService>();

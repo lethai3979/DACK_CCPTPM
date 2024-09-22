@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace GoWheels_WebAPI.Models.DTOs
+namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class RatingDTO : BaseModelDTO
+    public class RatingVM : BaseModelVM
     {
         [Required(ErrorMessage = "Comment is required")]
         public string? Comment { get; set; }

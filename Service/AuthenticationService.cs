@@ -58,15 +58,15 @@ namespace GoWheels_WebAPI.Service
             var authClaims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Name", user.Name!),
-                new Claim("Email", user.Email!),
-                new Claim("Id", user.Id)
+                new Claim(ClaimTypes.Name, user.Name!),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
             var userRoles = await _autheticationRepository.GetUserRolesAsync(user);
             foreach (var role in userRoles)
             {
-                authClaims.Add(new Claim("Role", role));
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
             }
 
             var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SecretKey"]!));

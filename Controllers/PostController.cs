@@ -1,7 +1,10 @@
 ﻿using Azure;
 using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +12,7 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = ApplicationRole.User)]
     public class PostController : ControllerBase
     {
         private readonly PostService _postService;

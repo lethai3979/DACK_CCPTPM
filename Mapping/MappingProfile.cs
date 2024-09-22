@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.DTOs.PostDTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 
 namespace GoWheels_WebAPI.Mapping
 {
@@ -9,23 +9,26 @@ namespace GoWheels_WebAPI.Mapping
     {
         public MappingProfile() 
         {
-            //For Mapping
-            CreateMap<AmenityDTO, Amenity>().ReverseMap();
-            CreateMap<CarTypeDTO, CarType>().ReverseMap();
-            CreateMap<CarType, AddCarTypeDTO>().ReverseMap();
-            CreateMap<CompanyDTO, Company>().ReverseMap();
-            CreateMap<Amenity,AmenityDTO>().ReverseMap();
-            CreateMap<SalePromotionDTO, Promotion>().ReverseMap();
-            CreateMap<CarTypeDetailDTO, CarTypeDetail>().ReverseMap();
-            CreateMap<PromotionType, SalePromotionTypeDTO>().ReverseMap();
-            CreateMap<Promotion, SalePromotionDTO>().ReverseMap();
-            CreateMap<Post, PostDTO>().ReverseMap()
-                .ForMember(dest => dest.CarType, opt => opt.Ignore()) // Ánh xạ bằng tay nếu cần
+            //View Model
+            CreateMap<AmenityVM, Amenity>().ReverseMap();
+            CreateMap<CarTypeVM, CarType>().ReverseMap();
+            CreateMap<CompanyVM, Company>().ReverseMap();
+            CreateMap<Amenity,AmenityVM>().ReverseMap();
+            CreateMap<SalePromotionVM, Promotion>().ReverseMap();
+            CreateMap<CarTypeDetailVM, CarTypeDetail>().ReverseMap();
+            CreateMap<PromotionType, SalePromotionTypeVM>().ReverseMap();
+            CreateMap<Promotion, SalePromotionVM>().ReverseMap();
+            CreateMap<Post, PostVM>().ReverseMap()
+                .ForMember(dest => dest.CarType, opt => opt.Ignore())
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
-            CreateMap<PostAmenity, PostAmenityDTO>().ReverseMap();
-            CreateMap<Rating, RatingDTO>().ReverseMap();
+            CreateMap<PostAmenity, PostAmenityVM>().ReverseMap();
+            CreateMap<Rating, RatingVM>().ReverseMap();
 
-
+            //DTOs
+            CreateMap<Amenity, AmenityDTO>().ReverseMap();
+            CreateMap<CarType, CarTypeDTO>().ReverseMap();
+            CreateMap<Company, CompanyDTO>().ReverseMap();
+            CreateMap<Post, PostDTO>().ReverseMap();
         }
     }
 }

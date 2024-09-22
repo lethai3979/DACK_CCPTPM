@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace GoWheels_WebAPI.Models.DTOs
+namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class BaseModelDTO
+    public class BaseModelVM
     {
         [JsonProperty(Order = -2)]
         public int Id { get; set; }
@@ -26,7 +26,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         public DateTime? ModifiedOn { get; set; }
 
         [JsonProperty(Order = -2)]
-        [Required]
         public bool IsDeleted { get; set; }
     }
 }

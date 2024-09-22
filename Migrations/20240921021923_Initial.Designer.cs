@@ -959,7 +959,7 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PostImage", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Post", "Post")
-                        .WithMany("Images")
+                        .WithMany("ImageUrls")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1103,7 +1103,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.Navigation("Favorites");
 
-                    b.Navigation("Images");
+                    b.Navigation("ImageUrls");
 
                     b.Navigation("PostAmenities");
 

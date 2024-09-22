@@ -2,7 +2,7 @@
 
 namespace GoWheels_WebAPI.Models.Entities
 {
-    public class Post :BaseModel
+    public class Post : BaseModel
     {
         public required string Name { get; set; }
         public required string Image { get; set; }

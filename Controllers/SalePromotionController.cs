@@ -1,5 +1,5 @@
-﻿using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +38,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionVM salePromotionDto)
         {
             if(salePromotionDto == null)
             {
@@ -60,7 +60,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionDTO salePromotionDto)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionVM salePromotionDto)
         {
             if(salePromotionDto == null || id != salePromotionDto.Id)
             {

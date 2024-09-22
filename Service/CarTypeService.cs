@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using GoWheels_WebAPI.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using GoWheels_WebAPI.Models.DTOs.PostDTOs;
+using GoWheels_WebAPI.Models.ViewModels;
+using GoWheels_WebAPI.Models.DTOs;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -36,8 +36,8 @@ namespace GoWheels_WebAPI.Service
             var carTypeList = await _carTypeRepository.GetAllAsync();
             if(carTypeList.Count != 0)
             {
-                var carTypeListDTO = _mapper.Map<List<CarTypeDTO>>(carTypeList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeListDTO);
+                var carTypeListVM = _mapper.Map<List<CarTypeVM>>(carTypeList);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeListVM);
             }
 
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
@@ -50,11 +50,11 @@ namespace GoWheels_WebAPI.Service
             {
                 return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
             }
-            var carTypeDTO = _mapper.Map<CarTypeDTO>(carType);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeDTO);
+            var carTypeVM = _mapper.Map<CarTypeVM>(carType);
+            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVM);
         }
 
-        public async Task<OperationResult> AddAsync(AddCarTypeDTO carTypeDTO)
+        public async Task<OperationResult> AddAsync(CarTypeDTO carTypeDTO)
         {
             try
             {
@@ -92,8 +92,12 @@ namespace GoWheels_WebAPI.Service
                 if(carType == null)
                 {
                     return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
-                }    
-                await _carTypeRepository.DeleteAsync(carType);
+                }
+                carType.ModifiedById = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                carType.ModifiedOn = DateTime.Now;
+                carType.IsDeleted = true;
+                await _carTypeRepository.UpdateAsync(carType);
                 return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

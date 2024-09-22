@@ -1,32 +1,38 @@
-﻿using GoWheels_WebAPI.Models.Entities;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
-    public class PostDTO : BaseModelDTO
+    public class PostDTO
     {
-        public required string Name { get; set; }
-        public required string Image { get; set; }
-        public List<PostImageDTO> Images { get; set; } = new List<PostImageDTO>();
+        public int Id { get; set; }
+        [Required]
+        public string? Name { get; set; }
+        [Required]
+        public string? Image { get; set; }
+        public List<string> ImageUrls { get; set; } = new List<string>();
         public string? Description { get; set; }
-        public required int Seat { get; set; }
+        [Required]
+        public int Seat { get; set; }
         public string? RentLocation { get; set; }
+        [Required]
         public bool HasDriver { get; set; }
-        public required decimal Price { get; set; }
+        [Required]
+        public decimal Price { get; set; }
+        [Required]
         public bool Gear { get; set; }
+        [Required]
         public string? Fuel { get; set; }
+        [Required]
         public decimal FuelConsumed { get; set; }
-        public int RideNumber { get; set; }
-        public float AvgRating { get; set; }
-        public bool IsAvailable { get; set; }
+        [Required]
         public int CarTypeId { get; set; }
-        public string? CarTypeName { get; set; }
+
+        [Required]
         public int CompanyId { get; set; }
 
-        public string? CompanyName { get; set; }
-        public string? UserId { get; set; }
-        public string? UserName { get; set; }
-        public List<PostAmenityDTO> PostAmenities { get; set; } = new List<PostAmenityDTO>();
-        public List<int> AmenitiesIdList { get; set; } = new List<int>();
+        public List<int> PostAmenitiesIds { get; set; } = new List<int>();
+        [Required]
+
+        public bool IsDeleted { get; set; }
     }
 }

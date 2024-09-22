@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Http;

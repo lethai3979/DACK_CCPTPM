@@ -1,8 +1,8 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
 
-namespace GoWheels_WebAPI.Models.DTOs
+namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class SalePromotionTypeDTO
+    public class SalePromotionTypeVM
     {
         public required string Name { get; set; }
         public List<Promotion> Promotions { get; set; } = new List<Promotion>();

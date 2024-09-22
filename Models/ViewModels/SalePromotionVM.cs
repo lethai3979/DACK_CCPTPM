@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace GoWheels_WebAPI.Models.DTOs
+namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class SalePromotionDTO : BaseModelDTO
+    public class SalePromotionVM : BaseModelVM
     {
         public required string Content { get; set; }
         public decimal DiscountValue { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -37,8 +38,8 @@ namespace GoWheels_WebAPI.Service
             {
                 return new OperationResult(false, "Company not found", StatusCodes.Status404NotFound);
             }
-            var companyDTO = _mapper.Map<CompanyDTO>(company);
-            return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: company);
+            var companyVM = _mapper.Map<CompanyVM>(company);
+            return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: companyVM);
         }
 
         public async Task<OperationResult> GetAllAsync()
@@ -48,15 +49,13 @@ namespace GoWheels_WebAPI.Service
             {
                return new OperationResult(false, "List is empty", StatusCodes.Status404NotFound);
             }
-            var companiesDTO = _mapper.Map<List<CompanyDTO>>(companies);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: companiesDTO);
+            var companiesVM = _mapper.Map<List<CompanyVM>>(companies);
+            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: companiesVM);
         }
 
         public async Task<OperationResult> AddAsync(CompanyDTO companyDTO)
         {
-            companyDTO.CreatedById = _httpContextAccessor.HttpContext?.User?
-                                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
-            companyDTO.CreatedOn = DateTime.Now;
+
             try
             {
                 if (companyDTO.CarTypeIds.Contains(0))
@@ -64,6 +63,10 @@ namespace GoWheels_WebAPI.Service
                     companyDTO.CarTypeIds.Clear();
                 }
                 var company = _mapper.Map<Company>(companyDTO);
+                company.CreatedById = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                company.CreatedOn = DateTime.Now;
+                company.IsDeleted = false;
                 await _companyRepository.AddAsync(company);
                 await _companyRepository.AddCompanyDetailAsync(company.Id, companyDTO.CarTypeIds);
                 return new OperationResult(true, "Company add successfully",StatusCodes.Status200OK);
@@ -84,12 +87,16 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var carType = await _companyRepository.GetByIdAsync(id);
-                if (carType == null)
+                var company = await _companyRepository.GetByIdAsync(id);
+                if (company == null)
                 {
                     return new OperationResult(false, "Company not found", StatusCodes.Status404NotFound);
                 }
-                await _companyRepository.DeleteAsync(carType);
+                company.ModifiedById = _httpContextAccessor.HttpContext?.User?
+                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                company.ModifiedOn = DateTime.Now;
+                company.IsDeleted = true;
+                await _companyRepository.UpdateAsync(company);
                 return new OperationResult(true, "Company deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

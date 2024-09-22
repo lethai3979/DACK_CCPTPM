@@ -16,7 +16,7 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<PostAmenity>> GetAmenityByPostIdAsync(int id)
             => await _context.PostAmenities.Include(p => p.Post)
                                             .Include(p => p.Amenity)
-                                            .Where(p => p.PostId == id)
+                                            .Where(p => p.PostId == id && !p.Amenity.IsDeleted)
                                             .ToListAsync();  
 
 

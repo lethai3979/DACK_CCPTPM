@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,7 @@ namespace GoWheels_WebAPI.Service
             var promotionlist = await _salepromotionRepository.GetAllAsync();
             if (!promotionlist.IsNullOrEmpty())
             {
-                var promotionListDTO = _mapper.Map<List<SalePromotionDTO>>(promotionlist);
+                var promotionListDTO = _mapper.Map<List<SalePromotionVM>>(promotionlist);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListDTO);
             }
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
@@ -50,7 +50,7 @@ namespace GoWheels_WebAPI.Service
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
-        public async Task<OperationResult> AddAsync(SalePromotionDTO salePromotionDto)
+        public async Task<OperationResult> AddAsync(SalePromotionVM salePromotionDto)
         {
             salePromotionDto.CreatedById = _httpContextAccessor.HttpContext?.User?
                                     .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -105,7 +105,7 @@ namespace GoWheels_WebAPI.Service
                 var promotion = await _salepromotionRepository.GetByIdAsync(id);
                 if (promotion != null)
                 {
-                    var promotionDto = _mapper.Map<SalePromotionDTO>(promotion);
+                    var promotionDto = _mapper.Map<SalePromotionVM>(promotion);
                     return new OperationResult(true, "Promotion found", StatusCodes.Status200OK, promotionDto);
                 }
                 return new OperationResult(false, "Promotion not found", StatusCodes.Status404NotFound);
@@ -116,7 +116,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, SalePromotionDTO promotionDTO)
+        public async Task<OperationResult> UpdateAsync(int id, SalePromotionVM promotionDTO)
         {
             try
             {

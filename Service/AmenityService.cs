@@ -2,6 +2,7 @@
 using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -26,8 +27,8 @@ namespace GoWheels_WebAPI.Service
             var amenityList = await _amenityRepository.GetAllAsync();
             if (amenityList.Count != 0)
             {
-                var amenityListDTO = _mapper.Map<List<AmenityDTO>>(amenityList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityListDTO);
+                var amenityListVM = _mapper.Map<List<AmenityVM>>(amenityList);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityListVM);
             }
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
@@ -39,8 +40,8 @@ namespace GoWheels_WebAPI.Service
                 var amenity = await _amenityRepository.GetByIdAsync(id);
                 if (amenity != null)
                 {
-                    var amenityDTO = _mapper.Map<AmenityDTO>(amenity);
-                    return new OperationResult(true, "Amenity found", StatusCodes.Status200OK, amenityDTO);
+                    var amenityVM = _mapper.Map<AmenityVM>(amenity);
+                    return new OperationResult(true, "Amenity found", StatusCodes.Status200OK, amenityVM);
                 }
                 return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
             }
@@ -52,12 +53,14 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
         {
-            amenityDTO.CreatedById = _httpContextAccessor.HttpContext?.User?
-                                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
-            amenityDTO.CreatedOn = DateTime.Now;
+
             try
             {
                 var amenity = _mapper.Map<Amenity>(amenityDTO);
+                amenity.CreatedById = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                amenity.CreatedOn = DateTime.Now;
+                amenity.IsDeleted = false;
                 await _amenityRepository.AddAsync(amenity);
                 return new OperationResult(true, "Amenity add succesfully", StatusCodes.Status200OK);
             }
@@ -83,7 +86,11 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
                 }
-                await _amenityRepository.DeleteAsync(amenity);
+                amenity.ModifiedById = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                amenity.ModifiedOn = DateTime.Now;
+                amenity.IsDeleted = true;
+                await _amenityRepository.UpdateAsync(amenity);
                 return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

@@ -30,11 +30,11 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<List<Amenity>> GetAllAsync()
         {
-            return await _context.Amentities.Where(a => a.IsDeleted == false).ToListAsync();
+            return await _context.Amentities.ToListAsync();
         }
         public async Task<Amenity?> GetByIdAsync(int id)
         {
-            return await _context.Amentities.Where(a => a.IsDeleted == false).FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.Amentities.FirstOrDefaultAsync(a => a.Id == id);
         }
         public async Task UpdateAsync(Amenity amenity)
         {

@@ -14,6 +14,20 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
+        public async Task AddPostImagesAsync(List<string> postImageUrls, int postId)
+        {
+            foreach (var url in postImageUrls)
+            {
+                var postImage = new PostImage()
+                {
+                    PostId = postId,
+                    Url = url
+                };
+            }
+            await _context.SaveChangesAsync();
+
+        }
+
         public async Task AddAsync(Post post)
         {
             await _context.Posts.AddAsync(post);
@@ -31,6 +45,7 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<Post>> GetAllAsync()
             => await _context.Posts.Include(p => p.CarType)
                                     .Include(p => p.Company)
+                                    .Include(p => p.Images)
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity).ToListAsync();
                                     
