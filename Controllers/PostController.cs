@@ -60,6 +60,10 @@ namespace GoWheels_WebAPI.Controllers
             return BadRequest("Post data invalid");
         }
 
+        [HttpPost("UpdateImages/{postId}")]
+        public async Task<ActionResult<OperationResult>> UpdatePostImagesAsync(int postId, List<string> imagesUrls)
+            => await _postService.UpdatePostImagesAsync(imagesUrls, postId);
+
         [HttpPost("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
             => await _postService.DeleteByIdAsync(id);

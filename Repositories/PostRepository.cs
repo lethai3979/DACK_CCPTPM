@@ -23,9 +23,16 @@ namespace GoWheels_WebAPI.Repositories
                     PostId = postId,
                     Url = url
                 };
+                await _context.PostImages.AddAsync(postImage);
             }
             await _context.SaveChangesAsync();
 
+        }
+
+        public async Task DeletePosImagesAsync(int postId)
+        {
+            var imagesList = await _context.PostImages.Where(p => p.PostId == postId).ToListAsync();
+            _context.PostImages.RemoveRange(imagesList);
         }
 
         public async Task AddAsync(Post post)
@@ -46,6 +53,7 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Posts.Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
+                                    .Include(p => p.User)
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity).ToListAsync();
                                     
@@ -53,8 +61,10 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<Post?> GetByIdAsync(int id)
             => await _context.Posts.Include(p => p.CarType)
                                     .Include(p => p.Company)
+                                    .Include(p => p.Images)
                                     .Include(p => p.PostAmenities)
-                                    .ThenInclude(p => p.Amenity).FirstOrDefaultAsync(p => p.Id == id);
+                                    .ThenInclude(p => p.Amenity)
+                                    .FirstOrDefaultAsync(p => p.Id == id);
 
 
         public async Task UpdateAsync(Post post)

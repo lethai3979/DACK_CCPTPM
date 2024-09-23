@@ -128,7 +128,7 @@ namespace GoWheels_WebAPI.Service
             }   
         }
 
-        public async Task<OperationResult> UpdatePostImages(List<string> imageUrl, int postId)
+        public async Task<OperationResult> UpdatePostImagesAsync(List<string> imageUrl, int postId)
         {
             try
             {
@@ -141,6 +141,7 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
                 post.ModifiedOn = DateTime.Now;
                 await _postRepository.UpdateAsync(post);
+                await _postRepository.DeletePosImagesAsync(post.Id);
                 await _postRepository.AddPostImagesAsync(imageUrl, postId);
                 return new OperationResult(true, "Post images update succesfully", StatusCodes.Status200OK);
             }

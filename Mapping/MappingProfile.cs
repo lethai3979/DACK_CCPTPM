@@ -21,6 +21,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Post, PostVM>().ReverseMap()
                 .ForMember(dest => dest.CarType, opt => opt.Ignore())
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
+            CreateMap<PostImage, PostImageVM>().ReverseMap();
             CreateMap<PostAmenity, PostAmenityVM>().ReverseMap();
             CreateMap<Rating, RatingVM>().ReverseMap();
 
