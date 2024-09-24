@@ -31,8 +31,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         public int CompanyId { get; set; }
 
         public List<int> PostAmenitiesIds { get; set; } = new List<int>();
-        [Required]
-
-        public bool IsDeleted { get; set; }
     }
 }

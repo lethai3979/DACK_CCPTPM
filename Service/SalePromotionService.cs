@@ -44,12 +44,22 @@ namespace GoWheels_WebAPI.Service
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
-        public async Task<OperationResult> GetPromotionByRole()
+        public async Task<OperationResult> GetPromotionsByRole()
         {
-            var promolist = await _salepromotionRepository.GetPromotionsByUserIdAsync(typeId);
-            if (!promolist.IsNullOrEmpty())
+            var userRole = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
+            List<Promotion> promoList = new List<Promotion>();
+            if(userRole == "Admin")
             {
-                var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promolist);
+                promoList = await _salepromotionRepository.GetAdminPromotionsAsync();
+            }    
+            else
+            {
+                promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+            }
+            if (!promoList.IsNullOrEmpty())
+            {
+                var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promoList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListVM);
             }
             return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
@@ -57,11 +67,10 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<OperationResult> AddAsync(SalePromotionDTO salePromotionDto)
         {
-
-            salePromotionDto.PromotionTypeId = DeterminePromotionType();
             try
             {
                 var promotion = _mapper.Map<Promotion>(salePromotionDto);
+                promotion.PromotionTypeId = DeterminePromotionType();
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
@@ -95,7 +104,9 @@ namespace GoWheels_WebAPI.Service
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
                 promotion.ModifiedOn = existingPromotion.ModifiedOn;
-                promotion.PromotionTypeId = DeterminePromotionType();
+                promotion.PromotionTypeId = existingPromotion.PromotionTypeId;
+                promotion.PromotionType = existingPromotion.PromotionType;
+                promotion.IsDeleted = existingPromotion.IsDeleted;
                 var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                 EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
                 await _salepromotionRepository.UpdateAsync(promotion);

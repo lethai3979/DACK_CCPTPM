@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
@@ -39,7 +40,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingVM ratingDTO, int postId)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO, int postId)
         {
             if (ratingDTO == null)
             {

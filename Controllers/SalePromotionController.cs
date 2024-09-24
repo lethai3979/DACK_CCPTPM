@@ -26,10 +26,10 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpGet("GetAllByType/{id}")]
-        public async Task<ActionResult<OperationResult>> GetAllByPromotionType(int id)
+        [HttpGet("GetAllByRole")]
+        public async Task<ActionResult<OperationResult>> GetPromotionsByRole()
         {
-            var result = await _salePromotionService.GetPromotionByUserId(id);
+            var result = await _salePromotionService.GetPromotionsByRole();
             return result;
         }
 

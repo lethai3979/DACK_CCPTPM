@@ -55,21 +55,17 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(Promotion promotion)
         {
-            var existingPromotion = _context.ChangeTracker.Entries<Promotion>()
-                                     .FirstOrDefault(e => e.Entity.Id == promotion.Id);
+            var existingPromotion = await _context.Promotions.AsNoTracking()
+                                      .FirstOrDefaultAsync(p => p.Id == promotion.Id);
 
-            //detached same id obj
-            if (existingPromotion != null)
+            if (existingPromotion == null)
             {
-                _context.Entry(existingPromotion.Entity).State = EntityState.Detached;
+                throw new KeyNotFoundException($"Promotion with ID {promotion.Id} not found.");
             }
 
-            _context.Promotions.Attach(promotion);  // Attach target modified obj to context 
-            _context.Promotions.Update(promotion);
+            // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
+            _context.Entry(promotion).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
-            //detached tracking obj after modified
-            _context.Entry(promotion).State = EntityState.Detached;
         }
     }
 }

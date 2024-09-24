@@ -12,7 +12,5 @@ namespace GoWheels_WebAPI.Models.ViewModels
 
         [JsonPropertyOrder(100)]
         public List<CarTypeDetailVM> carTypeDetail { get; set; } = new List<CarTypeDetailVM>();
-
-        public ICollection<PostVM> Posts { get; set; } = new List<PostVM>();
     }
 }

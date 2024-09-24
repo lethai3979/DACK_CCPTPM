@@ -15,9 +15,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal DiscountValue { get; set; }
         [Required]
         public required DateTime ExpiredDate { get; set; }
-        [Required]
-        public int PromotionTypeId { get; set; }
-        [Required]
-        public bool IsDeleted { get; set; }
     }
 }

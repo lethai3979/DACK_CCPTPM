@@ -9,6 +9,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         public string? Name { get; set; }
         [Required]
         public string? IconImage { get; set; }
-        public bool IsDeleted { get; set; } = false!;
     }
 }

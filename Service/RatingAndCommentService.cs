@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
@@ -13,13 +14,16 @@ namespace GoWheels_WebAPI.Service
     public class RatingAndCommentService
     {
         private readonly RatingAndCommentRepository _ratingAndCommentRepository;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly string _userId;
         public RatingAndCommentService(RatingAndCommentRepository ratingAndCommentRepository, IHttpContextAccessor contextAccessor, IMapper mapper)
         {
             _ratingAndCommentRepository = ratingAndCommentRepository;
-            _contextAccessor = contextAccessor;
+            _httpContextAccessor = contextAccessor;
             _mapper = mapper;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
         private async Task<float> GetAverageRatingFromPost(int postId)
@@ -32,13 +36,14 @@ namespace GoWheels_WebAPI.Service
             return commentList.Average(p => p.Point);
         }
 
-        public async Task<OperationResult> AddRatingAndComment(RatingVM ratingDto , int PostId)
+        public async Task<OperationResult> AddRatingAndComment(RatingDTO ratingDto , int PostId)
         {
             try
             {
                 var rating = _mapper.Map<Rating>(ratingDto);
-                rating.UserId = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
+                rating.UserId = _userId;
                 rating.PostId = PostId;
+                rating.CreatedById = _userId;
                 rating.CreatedOn = DateTime.Now;
                 await _ratingAndCommentRepository.AddAsync(rating);
                 return new OperationResult(true, "Rating and comment added successfully", StatusCodes.Status201Created);
@@ -100,6 +105,9 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);
                 }
+                comment.IsDeleted = true;
+                comment.ModifiedById = _userId;
+                comment.ModifiedOn = DateTime.Now;
                 await _ratingAndCommentRepository.DeleteAsync(comment);
                 return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
             }

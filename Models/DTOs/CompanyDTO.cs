@@ -12,7 +12,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public string? IconImage { get; set; }
         public List<int> CarTypeIds { get; set; } = new List<int>();
-        [Required]
-        public bool IsDeleted { get; set; } = false!;
     }
 }
