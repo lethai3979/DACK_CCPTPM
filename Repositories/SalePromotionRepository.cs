@@ -41,8 +41,17 @@ namespace GoWheels_WebAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Promotion>> GetAllByPromotionTypeAsync(int typeId)
-                    => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted && p.PromotionType.Id == typeId).Include(p => p.PromotionType).ToListAsync();
+        public async Task<List<Promotion>> GetPromotionsByUserIdAsync(string userId)
+                    => await _context.Promotions.AsNoTracking()
+                                                .Where(p => !p.IsDeleted && p.CreatedById == userId)
+                                                .Include(p => p.PromotionType)
+                                                .ToListAsync();
+
+        public async Task<List<Promotion>> GetAdminPromotionsAsync()
+                    => await _context.Promotions.AsNoTracking()
+                                                .Where(p => !p.IsDeleted && p.PromotionTypeId == 1)
+                                                .Include(p => p.PromotionType)
+                                                .ToListAsync();
 
         public async Task UpdateAsync(Promotion promotion)
         {

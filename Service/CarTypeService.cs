@@ -16,6 +16,7 @@ namespace GoWheels_WebAPI.Service
         private readonly CompanyRepository _companyRepository;
         private readonly CarTypeDetailRepository _carTypeDetailRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _userId;
         private readonly IMapper _mapper;
 
         public CarTypeService(CarTypeRepository carTypeRepository,
@@ -29,6 +30,8 @@ namespace GoWheels_WebAPI.Service
             _httpContextAccessor = httpContextAccessor;
             _companyRepository = companyRepository;
             _carTypeDetailRepository = carTypeDetailRepository;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
         public async Task<OperationResult> GetAllAsync()
@@ -63,8 +66,7 @@ namespace GoWheels_WebAPI.Service
                     carTypeDTO.CompanyIds.Clear();
                 }
                 var carType = _mapper.Map<CarType>(carTypeDTO);
-                carType.CreatedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                carType.CreatedById = _userId;
                 carType.CreatedOn = DateTime.Now;
                 carType.IsDeleted = false;  
                 await _carTypeRepository.AddAsync(carType);
@@ -93,8 +95,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
                 }
-                carType.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                carType.ModifiedById = _userId;
                 carType.ModifiedOn = DateTime.Now;
                 carType.IsDeleted = true;
                 await _carTypeRepository.UpdateAsync(carType);
@@ -163,13 +164,13 @@ namespace GoWheels_WebAPI.Service
                 {
 
                     await UpdateCarTypeDetails(existingCarType.Id, carTypeDTO.CompanyIds); 
-                    EditHelper<CarType>.SetModifiedIfNecessary(carType, true, existingCarType, "NewUserId");
+                    EditHelper<CarType>.SetModifiedIfNecessary(carType, true, existingCarType, _userId);
                 }
                 else
                 {
                     bool isCarTypeDataChange = EditHelper<CarType>
                                             .HasChanges(carType,existingCarType);//Check if CarType data changed
-                    EditHelper<CarType>.SetModifiedIfNecessary(carType, isCarTypeDataChange, existingCarType, "NewUserId"); 
+                    EditHelper<CarType>.SetModifiedIfNecessary(carType, isCarTypeDataChange, existingCarType, _userId); 
                 }
                 await _carTypeRepository.UpdateAsync(carType);
                 return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);

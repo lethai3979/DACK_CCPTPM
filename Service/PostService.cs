@@ -11,11 +11,13 @@ namespace GoWheels_WebAPI.Service
 {
     public class PostService
     {
+
         private readonly PostRepository _postRepository;
         private readonly PostAmenityRepository _postAmenityRepository;
         private readonly AmenityRepository _amenityRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private  readonly string _userId;
 
         public PostService(PostRepository postRepository,
                             PostAmenityRepository postAmenityRepository,
@@ -28,6 +30,8 @@ namespace GoWheels_WebAPI.Service
             _amenityRepository = amenityRepository;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
         public async Task<OperationResult> AddAsync(PostDTO postDTO)
@@ -38,7 +42,7 @@ namespace GoWheels_WebAPI.Service
                 var post = _mapper.Map<Post>(postDTO);
                 post.CreatedById = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 post.CreatedOn = DateTime.Now;
-                post.UserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                post.UserId = _userId;
                 post.IsDeleted = false;
                 post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
@@ -83,8 +87,6 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<OperationResult> UpdateAsync(int id, PostDTO postDTO)
         {
-            var userId = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "NewUserId";//Get user Id
             try
             {
                 var existingPost = await _postRepository.GetByIdAsync(id);
@@ -106,12 +108,12 @@ namespace GoWheels_WebAPI.Service
                 if(isPostAmenitiesChange)
                 {
                     await UpdatePostAmenitiesAsync(existingPost.Id, postDTO.PostAmenitiesIds);
-                    EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, userId);
+                    EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
                 }    
                 else
                 {
                     var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);
-                    EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, userId);
+                    EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, _userId);
                 }
                 await _postRepository.UpdateAsync(post);
                 return new OperationResult(true, "Post update succesfully", StatusCodes.Status200OK);

@@ -55,7 +55,8 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.Images)
                                     .Include(p => p.User)
                                     .Include(p => p.PostAmenities)
-                                    .ThenInclude(p => p.Amenity).ToListAsync();
+                                    .ThenInclude(p => p.Amenity)
+                                    .ToListAsync();
                                     
 
         public async Task<Post?> GetByIdAsync(int id)

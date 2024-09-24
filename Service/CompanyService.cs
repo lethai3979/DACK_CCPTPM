@@ -17,6 +17,7 @@ namespace GoWheels_WebAPI.Service
         private readonly CarTypeRepository _carTypeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly string _userId;
 
         public CompanyService(CompanyRepository companyRepository, 
                             IMapper mapper, 
@@ -29,6 +30,8 @@ namespace GoWheels_WebAPI.Service
             _httpContextAccessor = httpContextAccessor;
             _carTypeDetailRepository = carTypeDetailRepository;
             _carTypeRepository = carTypeRepository;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
         public async Task<OperationResult> GetByIdAsync(int id)
@@ -63,8 +66,7 @@ namespace GoWheels_WebAPI.Service
                     companyDTO.CarTypeIds.Clear();
                 }
                 var company = _mapper.Map<Company>(companyDTO);
-                company.CreatedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                company.CreatedById = _userId;
                 company.CreatedOn = DateTime.Now;
                 company.IsDeleted = false;
                 await _companyRepository.AddAsync(company);
@@ -92,8 +94,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Company not found", StatusCodes.Status404NotFound);
                 }
-                company.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                company.ModifiedById = _userId;
                 company.ModifiedOn = DateTime.Now;
                 company.IsDeleted = true;
                 await _companyRepository.UpdateAsync(company);
@@ -139,13 +140,13 @@ namespace GoWheels_WebAPI.Service
                 if (isDetailsChange)
                 {
                     await UpdateCompanyDetails(existingCompany.Id, companyDTO.CarTypeIds);
-                    EditHelper<Company>.SetModifiedIfNecessary(company, true, existingCompany, "NewUserId");
+                    EditHelper<Company>.SetModifiedIfNecessary(company, true, existingCompany, _userId);
                 }
                 else
                 {
                     bool isValueChange = EditHelper<Company>
                                             .HasChanges(company, existingCompany);//Check if Company data changed
-                    EditHelper<Company>.SetModifiedIfNecessary(company, isValueChange, existingCompany, "NewUserId");
+                    EditHelper<Company>.SetModifiedIfNecessary(company, isValueChange, existingCompany, _userId);
                 }
                 await _companyRepository.UpdateAsync(company);
                 return new OperationResult(true, "Company update succesfully", StatusCodes.Status200OK);

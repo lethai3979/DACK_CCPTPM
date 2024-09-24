@@ -1,7 +1,8 @@
-﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+﻿using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
@@ -10,6 +11,7 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = ("Admin, User"))]
     public class SalePromotionController : ControllerBase
     {
         private readonly SalePromotionService _salePromotionService;
@@ -27,7 +29,7 @@ namespace GoWheels_WebAPI.Controllers
         [HttpGet("GetAllByType/{id}")]
         public async Task<ActionResult<OperationResult>> GetAllByPromotionType(int id)
         {
-            var result = await _salePromotionService.GetAllByPromotionTypeAsync(id);
+            var result = await _salePromotionService.GetPromotionByUserId(id);
             return result;
         }
 
@@ -38,7 +40,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionVM salePromotionDto)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
         {
             if(salePromotionDto == null)
             {
@@ -60,7 +62,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionVM salePromotionDto)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionDTO salePromotionDto)
         {
             if(salePromotionDto == null || id != salePromotionDto.Id)
             {

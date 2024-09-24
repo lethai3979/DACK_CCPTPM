@@ -14,12 +14,15 @@ namespace GoWheels_WebAPI.Service
     {
         public readonly AmenityRepository _amenityRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _userId;
         private readonly IMapper _mapper;
         public AmenityService(AmenityRepository amenityRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _amenityRepository = amenityRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
         public async Task<OperationResult> GetAllAsync()
@@ -57,8 +60,7 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var amenity = _mapper.Map<Amenity>(amenityDTO);
-                amenity.CreatedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                amenity.CreatedById = _userId;
                 amenity.CreatedOn = DateTime.Now;
                 amenity.IsDeleted = false;
                 await _amenityRepository.AddAsync(amenity);
@@ -86,8 +88,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
                 }
-                amenity.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";//Get user Id
+                amenity.ModifiedById = _userId;
                 amenity.ModifiedOn = DateTime.Now;
                 amenity.IsDeleted = true;
                 await _amenityRepository.UpdateAsync(amenity);
@@ -119,7 +120,7 @@ namespace GoWheels_WebAPI.Service
                 amenity.ModifiedById = existingAmenity.ModifiedById;
                 amenity.ModifiedOn = existingAmenity.ModifiedOn;
                 var isValueChange = EditHelper<Amenity>.HasChanges(amenity, existingAmenity);
-                EditHelper<Amenity>.SetModifiedIfNecessary(amenity, isValueChange, existingAmenity, "NewUserId");
+                EditHelper<Amenity>.SetModifiedIfNecessary(amenity, isValueChange, existingAmenity, _userId);
                 await _amenityRepository.UpdateAsync(amenity);
                 return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
             }
