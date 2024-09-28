@@ -96,7 +96,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 company.ModifiedById = _userId;
                 company.ModifiedOn = DateTime.Now;
-                company.IsDeleted = true;
+                company.IsDeleted = !company.IsDeleted;
                 await _companyRepository.UpdateAsync(company);
                 return new OperationResult(true, "Company deleted succesfully", StatusCodes.Status200OK);
             }

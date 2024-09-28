@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GoWheels_WebAPI.Controllers
+namespace GoWheels_WebAPI.Controllers.Customer
 {
-    [Route("api/[controller]")]
+    [Area("User")]
+    [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize(Roles = ApplicationRole.User)]
+    [Authorize(Roles = "User")]
     public class PostController : ControllerBase
     {
         private readonly PostService _postService;
@@ -26,14 +27,18 @@ namespace GoWheels_WebAPI.Controllers
         public async Task<ActionResult<OperationResult>> GetAllAsync()
             => await _postService.GetAllAsync();
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetPersonalPosts")]
+        public async Task<ActionResult<OperationResult>> GetAllByUserId()
+            => await _postService.GetByUserId();
+
+        [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
             => await _postService.GetByIdAsync(id);
 
         [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync(PostDTO postDTO)
         {
-            if(postDTO == null) 
+            if (postDTO == null)
             {
                 return BadRequest("Post data is null");
             }

@@ -5,6 +5,7 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
@@ -43,7 +44,10 @@ namespace GoWheels_WebAPI.Service
                 post.CreatedById = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 post.CreatedOn = DateTime.Now;
                 post.UserId = _userId;
+                post.AvgRating = 0;
                 post.IsDeleted = false;
+                post.IsDisabled = false;
+                post.IsHidden = false;  
                 post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
                 await _postRepository.AddPostImagesAsync(postDTO.ImageUrls, post.Id);
@@ -99,7 +103,11 @@ namespace GoWheels_WebAPI.Service
                 post.CreatedById = existingPost.CreatedById;
                 post.ModifiedById = existingPost.ModifiedById;
                 post.ModifiedOn = existingPost.ModifiedOn;
-
+                post.AvgRating = existingPost.AvgRating;
+                post.IsAvailable = existingPost.IsAvailable;
+                post.Favorites = existingPost.Favorites;
+                post.Ratings = existingPost.Ratings;
+                post.Reports = existingPost.Reports;
                 if(postDTO.PostAmenitiesIds.Contains(0))
                 {
                     postDTO.PostAmenitiesIds.Clear();
@@ -143,7 +151,7 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
                 post.ModifiedOn = DateTime.Now;
                 await _postRepository.UpdateAsync(post);
-                await _postRepository.DeletePosImagesAsync(post.Id);
+                await _postRepository.DeletePostImagesAsync(post.Id);
                 await _postRepository.AddPostImagesAsync(imageUrl, postId);
                 return new OperationResult(true, "Post images update succesfully", StatusCodes.Status200OK);
             }
@@ -158,6 +166,28 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
+
+        public async Task UpdatePostAverageRating(int postId, float avgRating)
+        {
+            try
+            {
+                var post = await _postRepository.GetByIdAsync(postId);
+                if (post == null) throw new InvalidOperationException("Post not found");
+                post.AvgRating = avgRating;
+                await _postRepository.UpdateAsync(post);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                throw new DbUpdateException(dbExMessage);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                throw new InvalidOperationException(exMessage);
+            }
+        }
+
 
         public async Task<OperationResult> DeleteByIdAsync(int id)
         {
@@ -202,6 +232,17 @@ namespace GoWheels_WebAPI.Service
         public async Task<OperationResult> GetAllAsync()
         {
             var postList = await _postRepository.GetAllAsync();
+            if (postList.Count != 0)
+            {
+                var postListVM = _mapper.Map<List<PostVM>>(postList);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
+            }
+            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+        }
+
+        public async Task<OperationResult> GetByUserId()
+        {
+            var postList = await _postRepository.GetPostsByUserIdAsync(_userId);
             if (postList.Count != 0)
             {
                 var postListVM = _mapper.Map<List<PostVM>>(postList);

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
 
 namespace GoWheels_WebAPI.Models.ViewModels
 {

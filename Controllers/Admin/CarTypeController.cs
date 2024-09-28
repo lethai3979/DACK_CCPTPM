@@ -2,13 +2,16 @@
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GoWheels_WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Area("Admin")]
+    [Route("api/[area]/[controller]")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class CarTypeController : ControllerBase
     {
@@ -43,7 +46,7 @@ namespace GoWheels_WebAPI.Controllers
             => await _carTypeService.DeletedByIdAsync(id);
         
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
             => await _carTypeService.GetByIdAsync(id);
 

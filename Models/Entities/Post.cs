@@ -18,6 +18,8 @@ namespace GoWheels_WebAPI.Models.Entities
         public int RideNumber { get; set; }
         public float AvgRating { get; set; }
         public bool IsAvailable { get; set; }
+        public bool IsDisabled { get; set; }
+        public bool IsHidden { get; set; }
         public int CarTypeId { get; set; }
         [ValidateNever]
         public CarType CarType { get; set; } = null!;

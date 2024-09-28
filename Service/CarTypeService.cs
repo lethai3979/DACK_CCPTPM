@@ -97,7 +97,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 carType.ModifiedById = _userId;
                 carType.ModifiedOn = DateTime.Now;
-                carType.IsDeleted = true;
+                carType.IsDeleted = !carType.IsDeleted;
                 await _carTypeRepository.UpdateAsync(carType);
                 return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }

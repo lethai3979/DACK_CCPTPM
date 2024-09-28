@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             var result = await _salePromotionService.GetByIdAsync(id);

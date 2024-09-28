@@ -1,20 +1,24 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GoWheels_WebAPI.Controllers
+namespace GoWheels_WebAPI.Controllers.Customer
 {
-    [Route("api/[controller]")]
+    [Area("User")]
+    [Route("api/[area]/[controller]")]
     [ApiController]
+    [Authorize(Roles = "User")]
     public class RatingAndCommentController : ControllerBase
     {
-        private readonly RatingAndCommentService _ratingAndCommentService;
+        private readonly RatingService _ratingAndCommentService;
         private readonly IMapper _mapper;
-        public RatingAndCommentController(RatingAndCommentService ratingAndCommentService, IMapper mapper)
+        public RatingAndCommentController(RatingService ratingAndCommentService, IMapper mapper)
         {
             _ratingAndCommentService = ratingAndCommentService;
             _mapper = mapper;
@@ -29,18 +33,18 @@ namespace GoWheels_WebAPI.Controllers
         [HttpGet("GetCommentFromPostId/{id}")]
         public async Task<ActionResult<OperationResult>> GetCommentFromPostId(int id)
         {
-            var result = await _ratingAndCommentService.GetAllCommentAndRatingFormPostId(id);
+            var result = await _ratingAndCommentService.GetAllRatingFromPostId(id);
             return result;
         }
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             var result = await _ratingAndCommentService.GetByIdAsync(id);
             return result;
         }
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO, int postId)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO)
         {
             if (ratingDTO == null)
             {
@@ -48,7 +52,7 @@ namespace GoWheels_WebAPI.Controllers
             }
             if (ModelState.IsValid)
             {
-                var result = await _ratingAndCommentService.AddRatingAndComment(ratingDTO, postId);
+                var result = await _ratingAndCommentService.AddAsync(ratingDTO);
                 return result;
             }
             return BadRequest("Comment data invalid");
@@ -61,19 +65,19 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        //[HttpPost("Update/{id}")]
-        //public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] RatingDTO ratingDTO)
-        //{
-        //    if (ratingDTO == null || id != ratingDTO.Id)
-        //    {
-        //        return BadRequest("Invalid request");
-        //    }
-        //    if (ModelState.IsValid)
-        //    {
-        //        var result = await _ratingAndCommentService.UpdateAsync(id, salePromotionDto);
-        //        return result;
-        //    }
-        //    return BadRequest("Comment data invalid");
-        //}
+        [HttpPost("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] RatingDTO ratingDTO)
+        {
+            if (ratingDTO == null || id != ratingDTO.Id)
+            {
+                return BadRequest("Invalid request");
+            }
+            if (ModelState.IsValid)
+            {
+                var result = await _ratingAndCommentService.UpdateAsync(id, ratingDTO);
+                return result;
+            }
+            return BadRequest("Comment data invalid");
+        }
     }
 }

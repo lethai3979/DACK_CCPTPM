@@ -57,17 +57,11 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
 builder.Services.AddControllers();
 //Register dependency service
+
+builder.Services.AddScoped<ReportTypeRepository>();
+builder.Services.AddScoped<ReportTypeService>();
 builder.Services.AddScoped<AmenityRepository>();
 builder.Services.AddScoped<AmenityService>();
 builder.Services.AddScoped<PostAmenityRepository>();
@@ -83,8 +77,10 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<SalePromotionRepository>();
 builder.Services.AddScoped<SalePromotionTypeRepository>();
 builder.Services.AddScoped<SalePromotionService>();
-builder.Services.AddScoped<RatingAndCommentRepository>();
-builder.Services.AddScoped<RatingAndCommentService>();
+builder.Services.AddScoped<RatingRepository>();
+builder.Services.AddScoped<RatingService>();
+builder.Services.AddScoped<FavoriteRepository>();
+builder.Services.AddScoped<FavoriteService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -145,7 +141,9 @@ app.UseStaticFiles();
 app.UseDefaultFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors();
+app.MapControllerRoute(
+    name: "Admin",
+    pattern: "api/{area:exists}/{controller}/{action=GetAll}/{id?}");
 app.MapControllers();
 app.UseCors("AllowAllOrigins");
 app.Run();

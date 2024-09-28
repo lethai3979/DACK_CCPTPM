@@ -25,6 +25,9 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<PostImage, PostImageVM>().ReverseMap();
             CreateMap<PostAmenity, PostAmenityVM>().ReverseMap();
             CreateMap<Rating, RatingVM>().ReverseMap();
+            CreateMap<ReportType, ReportTypeVM>().ReverseMap();
+            CreateMap<Report, ReportVM>().ReverseMap();
+            CreateMap<Favorite, FavoriteVM>().ReverseMap();
 
 
             //DTOs
@@ -33,6 +36,9 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Company, CompanyDTO>().ReverseMap();
             CreateMap<Post, PostDTO>().ReverseMap();
             CreateMap<Promotion, SalePromotionDTO>().ReverseMap();
+            CreateMap<Rating, RatingDTO>().ReverseMap();
+            CreateMap<ReportType, ReportTypeDTO>().ReverseMap();
+            CreateMap<Favorite, FavoriteDTO>().ReverseMap();
         }
     }
 }

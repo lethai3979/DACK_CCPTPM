@@ -32,7 +32,10 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).ToListAsync();
 
         public async Task<Promotion?> GetByIdAsync(int id) 
-            => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).FirstOrDefaultAsync(p => p.Id == id);
+            => await _context.Promotions.AsNoTracking()
+                                        .Where(p => !p.IsDeleted)
+                                        .Include(p => p.PromotionType)
+                                        .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task UpdateAsync(Promotion promotion, Promotion newPromotion)
         {

@@ -3,12 +3,15 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoWheels_WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Area("Admin")]
+    [Route("api/[area]/[controller]")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class AmenityController : ControllerBase
     {
@@ -25,7 +28,7 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpGet("GetById/{id}")]
+        [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetById(int id)
         {
             var result = await _amenityService.GetByIdAsync(id);

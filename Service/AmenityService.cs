@@ -66,7 +66,6 @@ namespace GoWheels_WebAPI.Service
                 await _amenityRepository.AddAsync(amenity);
                 return new OperationResult(true, "Amenity add succesfully", StatusCodes.Status200OK);
             }
-
             catch (DbUpdateException dbEx)
             {
                 var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
@@ -90,7 +89,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 amenity.ModifiedById = _userId;
                 amenity.ModifiedOn = DateTime.Now;
-                amenity.IsDeleted = true;
+                amenity.IsDeleted = !amenity.IsDeleted;
                 await _amenityRepository.UpdateAsync(amenity);
                 return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
