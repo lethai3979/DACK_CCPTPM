@@ -28,6 +28,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<ReportType, ReportTypeVM>().ReverseMap();
             CreateMap<Report, ReportVM>().ReverseMap();
             CreateMap<Favorite, FavoriteVM>().ReverseMap();
+            CreateMap<Booking, BookingVM>().ReverseMap();
 
 
             //DTOs
@@ -39,6 +40,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Rating, RatingDTO>().ReverseMap();
             CreateMap<ReportType, ReportTypeDTO>().ReverseMap();
             CreateMap<Favorite, FavoriteDTO>().ReverseMap();
+            CreateMap<Booking, BookingDTO>().ReverseMap();
         }
     }
 }

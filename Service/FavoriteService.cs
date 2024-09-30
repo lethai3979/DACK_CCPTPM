@@ -55,7 +55,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<OperationResult> RemoveAsync(int id)
+        public async Task<OperationResult> DeletedAsync(int id)
         {
             try
             {

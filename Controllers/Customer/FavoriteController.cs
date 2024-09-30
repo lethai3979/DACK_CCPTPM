@@ -38,7 +38,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpDelete("RemoveFavorite/{id}")]
         public async Task<ActionResult<OperationResult>> RemoveAsync(int id)
-            => await _favoriteService.RemoveAsync(id);
+            => await _favoriteService.DeletedAsync(id);
 
         [HttpGet("GetAllFavorite")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
