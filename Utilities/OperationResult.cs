@@ -2,12 +2,12 @@
 {
     public class OperationResult
     {
-        public bool? Success { get; set; }
+        public bool Success { get; set; }
         public string? Message { get; set; }
         public int StatusCode { get; set; }
         public object? Data { get; set; }
 
-        public OperationResult(bool? success = true, string? message = null, int statusCode = 200, object? data = null)
+        public OperationResult(bool success, string? message = null, int statusCode = 200, object? data = null)
         {
             Success = success;
             Message = message;

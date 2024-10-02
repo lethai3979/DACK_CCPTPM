@@ -22,7 +22,7 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task DeleteAsync(Booking booking)
         {
-            _context.Entry(booking).State = Entity.State.Modified;
+            _context.Entry(booking).State = EntityState.Modified;
             booking.IsDeleted = true;
             await _context.SaveChangesAsync();
         }

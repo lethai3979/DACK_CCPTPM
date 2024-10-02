@@ -237,7 +237,7 @@ namespace GoWheels_WebAPI.Service
                 var postListVM = _mapper.Map<List<PostVM>>(postList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> GetByUserId()
@@ -248,7 +248,7 @@ namespace GoWheels_WebAPI.Service
                 var postListVM = _mapper.Map<List<PostVM>>(postList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
     }

@@ -56,10 +56,14 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader();
         });
 });
-
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 //Register dependency service
-
+builder.Services.AddScoped<InvoiceRepository>();
+builder.Services.AddScoped<BookingRepository>();
+builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<BookingService>();
+builder.Services.AddScoped<ReportTypeService>();
 builder.Services.AddScoped<ReportTypeRepository>();
 builder.Services.AddScoped<ReportTypeService>();
 builder.Services.AddScoped<AmenityRepository>();
@@ -139,11 +143,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
     name: "Admin",
     pattern: "api/{area:exists}/{controller}/{action=GetAll}/{id?}");
 app.MapControllers();
-app.UseCors("AllowAllOrigins");
 app.Run();

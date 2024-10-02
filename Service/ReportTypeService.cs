@@ -113,7 +113,7 @@ namespace GoWheels_WebAPI.Service
             var reportTypes = await _reportTypeRepository.GetAllAsync();
             if(reportTypes.Count == 0)
             {
-                return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
             }
             var reportTypeVMs = _mapper.Map<List<ReportTypeVM>>(reportTypes);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVMs);

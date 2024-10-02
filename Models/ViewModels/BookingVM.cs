@@ -2,6 +2,8 @@
 {
     public class BookingVM
     {
+
+        public int Id { get; set; }
         public decimal PrePayment { get; set; }
         public decimal Total { get; set; }
         public decimal FinalValue { get; set; }

@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Service
                 var amenityListVM = _mapper.Map<List<AmenityVM>>(amenityList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityListVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> GetByIdAsync(int id)

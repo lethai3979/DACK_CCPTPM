@@ -41,7 +41,7 @@ namespace GoWheels_WebAPI.Service
                 var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promotionlist);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> GetPromotionsByRole()
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Service
                 var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promoList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> AddAsync(SalePromotionDTO salePromotionDto)

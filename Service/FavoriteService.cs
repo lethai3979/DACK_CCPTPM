@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Service
                     var favoriteVMs = _mapper.Map<List<FavoriteVM>>(favorites);
                     return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: favoriteVMs);
                 }
-                return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
     }
 }

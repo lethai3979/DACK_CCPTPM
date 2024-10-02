@@ -89,7 +89,7 @@ namespace GoWheels_WebAPI.Service
                 var commentAndRatingVM = _mapper.Map<List<RatingVM>>(commentAndRatingList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: commentAndRatingVM);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> GetAllRatingFromPostId(int postId)
@@ -100,7 +100,7 @@ namespace GoWheels_WebAPI.Service
                 var commentAndRatingDTO = _mapper.Map<List<Rating>>(commentAndRatingFromPost);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: commentAndRatingDTO);
             }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
         public async Task<OperationResult> DeleteByIdAsync(int id)
         {

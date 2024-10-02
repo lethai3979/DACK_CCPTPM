@@ -34,6 +34,7 @@ namespace GoWheels_WebAPI.Service
             {
                 var booking = _mapper.Map<Booking>(bookingDTO);
                 booking.CreatedById = _userId;
+                booking.UserId = _userId;
                 booking.CreatedOn = DateTime.Now;
                 if(booking.RecieveOn == DateTime.Now)
                 {
@@ -48,7 +49,7 @@ namespace GoWheels_WebAPI.Service
                 booking.IsPay = false;
                 booking.IsRequest = false;
                 await _bookingRepository.AddAsync(booking);
-                return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK, booking.Id);
             }
             catch (DbUpdateException dbEx)
             {
@@ -200,7 +201,7 @@ namespace GoWheels_WebAPI.Service
             var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
         }
-        public async Task<OperationResult> GetPersonalBooking()
+        public async Task<OperationResult> GetPersonalBookingAsync()
         {
             var bookings = await _bookingRepository.GetAllPersonalAsync(_userId);
             if (bookings.Count == 0)
@@ -209,6 +210,11 @@ namespace GoWheels_WebAPI.Service
             }
             var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+        }
+
+        internal async Task GetByIdAsync(object? data)
+        {
+            throw new NotImplementedException();
         }
     }
 }
