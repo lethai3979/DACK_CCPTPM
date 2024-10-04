@@ -71,7 +71,7 @@ namespace GoWheels_WebAPI.Service
                 if (existingBooking == null) {
                     return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
                 }
-                var booking = _mapper.Map<Booking>(bookingDTO);
+                var booking = _mapper.Map(bookingDTO, existingBooking);
                 booking.CreatedById = existingBooking.CreatedById;
                 booking.CreatedOn = existingBooking.CreatedOn;
                 booking.ModifiedById = existingBooking.ModifiedById;
@@ -92,6 +92,31 @@ namespace GoWheels_WebAPI.Service
                 EditHelper<Booking>.SetModifiedIfNecessary(booking, isValueChange, existingBooking, _userId);
                 await _bookingRepository.UpdateAsync(booking);
                 return new OperationResult(true, "Booking update succesfully", StatusCodes.Status200OK);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        public async Task<OperationResult> DeleteAsync(int id)
+        {
+            try
+            {
+                var booking = await _bookingRepository.GetByIdAsync(id);
+                if (booking == null)
+                {
+                    return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
+                }
+                booking.IsDeleted = true;
+                await _bookingRepository.UpdateAsync(booking);
+                return new OperationResult(true, "Booking remove succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
@@ -133,7 +158,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<OperationResult> ExamineCancelBookingRequest(int bookingId, bool isCancel)
+        public async Task<OperationResult> ExamineCancelBookingRequest(int bookingId, bool isAccept)
         {
             try
             {
@@ -142,8 +167,8 @@ namespace GoWheels_WebAPI.Service
                 {
                     return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
                 }
-                existingBooking.IsRequest = existingBooking.IsDeleted = isCancel;
-                if(isCancel)
+                existingBooking.IsRequest = existingBooking.IsDeleted = isAccept;
+                if(isAccept)
                 {
                     existingBooking.Status = "Đã trả cọc";
                 }    
@@ -210,11 +235,6 @@ namespace GoWheels_WebAPI.Service
             }
             var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
-        }
-
-        internal async Task GetByIdAsync(object? data)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -6,29 +6,30 @@ using System.Security.Claims;
 using GoWheels_WebAPI.Utilities;
 using GoWheels_WebAPI.Payment;
 using Newtonsoft.Json.Linq;
+using GoWheels_WebAPI.Models.DTOs;
 
 namespace GoWheels_WebAPI.Service
 {
     public class InvoiceService
     {
         private readonly InvoiceRepository _invoiceRepository;
-        private readonly BookingRepository _bookingRepository;
-        private readonly PostRepository _postRepository;
+        private readonly BookingService _bookingService;
+        private readonly PostService _postService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IConfiguration _configuration;
 
         public InvoiceService(InvoiceRepository invoiceRepository,
-                                BookingRepository bookingRepository,
-                                PostRepository postRepository,
+                                BookingService bookingService,
+                                PostService postService,
                                 IMapper mapper,
                                 IHttpContextAccessor httpContextAccessor,
                                 IConfiguration configuration)
         {
             _invoiceRepository = invoiceRepository;
-            _bookingRepository = bookingRepository;
-            _postRepository = postRepository;
+            _bookingService = bookingService;
+            _postService = postService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -81,11 +82,12 @@ namespace GoWheels_WebAPI.Service
             string notifyUrl = _configuration.GetValue<string>("MomoAPI:NotifyUrl") ?? string.Empty;
             string partnerCode = _configuration.GetValue<string>("MomoAPI:PartnerCode") ?? string.Empty;
 
-            string orderInfo = newBookingIdStr;
+            string orderInfo = _httpContextAccessor.HttpContext?.User?
+                     .FindFirstValue(ClaimTypes.Name) ?? "UnknownUser" + " chuyển tiền";
             string amount = priceStr;
             string orderid = DateTime.Now.Ticks.ToString(); // Order ID
             string requestId = DateTime.Now.Ticks.ToString();
-            string extraData = "";
+            string extraData = newBookingIdStr;
             // Create the signature
             string rawHash = $"partnerCode={partnerCode}&accessKey={accessKey}&requestId={requestId}&amount={amount}&orderId={orderid}&orderInfo={orderInfo}&returnUrl={returnUrl}&notifyUrl={notifyUrl}&extraData={extraData}";
 
@@ -109,98 +111,85 @@ namespace GoWheels_WebAPI.Service
             };
 
             // Send payment request through the repository
-            var jsonResponse =  PaymentRequest.sendPaymentRequest(endpoint, message.ToString());
+            var jsonResponse = await PaymentRequest.SendPaymentRequestAsync(endpoint, message.ToString());
             return jsonResponse;
         }
 
         public async Task<OperationResult> ProcessReturnUrlAsync(IQueryCollection queryParams)
         {
-            string param = "";
-            param += "partnerCode=" + queryParams["partnerCode"];
-            param += "&accessKey=" + queryParams["accessKey"];
-            param += "&requestId=" + queryParams["requestId"];
-            param += "&amount=" + queryParams["amount"];
-            param += "&orderId=" + queryParams["orderId"];
-            param += "&orderInfo=" + queryParams["orderInfo"];
-            param += "&orderType=" + queryParams["orderType"];
-            param += "&transId=" + queryParams["transId"];
-            param += "&message=" + queryParams["message"];
-            param += "&localMessage=" + queryParams["localMessage"];
-            param += "&responseTime=" + queryParams["responseTime"];
-            param += "&errorCode=" + queryParams["errorCode"];
-            param += "&payType=" + queryParams["payType"];
-            param += "&extraData=" + queryParams["extraData"];
-
-            string bookingIdStr = queryParams["orderInfo"].ToString() ?? "";
-            if (!int.TryParse(bookingIdStr, out int bookingIdNum))
+            try
             {
-                return new OperationResult(false, message: "Invalid booking ID", statusCode: StatusCodes.Status400BadRequest);
+                string param = "";
+                param += "partnerCode=" + queryParams["partnerCode"];
+                param += "&accessKey=" + queryParams["accessKey"];
+                param += "&requestId=" + queryParams["requestId"];
+                param += "&amount=" + queryParams["amount"];
+                param += "&orderId=" + queryParams["orderId"];
+                param += "&orderInfo=" + queryParams["orderInfo"];
+                param += "&orderType=" + queryParams["orderType"];
+                param += "&transId=" + queryParams["transId"];
+                param += "&message=" + queryParams["message"];
+                param += "&localMessage=" + queryParams["localMessage"];
+                param += "&responseTime=" + queryParams["responseTime"];
+                param += "&errorCode=" + queryParams["errorCode"];
+                param += "&payType=" + queryParams["payType"];
+                param += "&extraData=" + queryParams["extraData"];
+
+                string bookingIdStr = queryParams["extraData"].ToString() ?? "";
+                if (!int.TryParse(bookingIdStr, out int bookingIdNum))
+                {
+                    return new OperationResult(false, message: "Invalid booking ID", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                var bookingResult = await _bookingService.GetByIdAsync(bookingIdNum);
+
+                if (bookingResult.Data == null)
+                {
+                    return new OperationResult(false, message: "Booking not found", statusCode: StatusCodes.Status404NotFound);
+                }
+                var booking = _mapper.Map<Booking>((BookingVM)bookingResult.Data);
+                MomoSecurity crypto = new();
+                string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? "";
+                string signature = crypto.signSHA256(param, serectkey);
+
+                if (signature != queryParams["signature"].ToString())
+                {
+                    return new OperationResult(false, message: "Invalid request signature", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                if (queryParams["errorCode"] != "0" || queryParams["errorCode"] == "1006" || queryParams["message"].ToString().Contains("Transaction denied by user"))
+                {
+                    booking.IsDeleted = true;
+                    await _bookingService.DeleteAsync(booking.Id);
+                    await _postService.UpdatePostInfoAsync(booking, true, -1);
+                    return new OperationResult(false, message: "Payment failed", statusCode: StatusCodes.Status400BadRequest);
+                }
+                booking.IsPay = true;
+                var bookingDTO = _mapper.Map<BookingDTO>(booking);
+                var updateBookingResult = await _bookingService.UpdateAsync(booking.Id, bookingDTO);
+                if (!updateBookingResult.Success)
+                {
+                    return updateBookingResult;
+                }
+                var invoice = new Invoice()
+                {
+                    Total = booking.PrePayment,
+                    ReturnOn = booking.RecieveOn.AddDays(2),
+                    BookingId = booking.Id,
+                    CreatedById = _userId,
+                    CreatedOn = DateTime.Now
+                };
+                await _invoiceRepository.AddAsync(invoice);
+                bool isAvailable = booking.RecieveOn > DateTime.Now;
+                await _postService.UpdatePostInfoAsync(booking, isAvailable, 1);
+
+                return new OperationResult(true, message: "Payment successful", statusCode: StatusCodes.Status200OK);
             }
-
-            var booking = await _bookingRepository.GetByIdAsync(bookingIdNum);
-            if (booking == null)
+            catch (Exception ex)
             {
-                return new OperationResult(false, message: "Booking not found", statusCode: StatusCodes.Status404NotFound);
+                throw new Exception(ex.InnerException?.Message);
             }
-
-            MomoSecurity crypto = new();
-            string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? "";
-            string signature = crypto.signSHA256(param, serectkey);
-
-            if (signature != queryParams["signature"].ToString())
-            {
-                return new OperationResult(false, message: "Invalid request signature", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            if (queryParams["errorCode"] != "0" || queryParams["errorCode"] == "1006" || queryParams["message"].ToString().Contains("Transaction denied by user"))
-            {
-                booking.IsDeleted = true;
-                await _bookingRepository.UpdateAsync(booking);
-                await UpdatePostInfoAsync(booking, true, -1);
-                return new OperationResult(false, message: "Payment failed", statusCode: StatusCodes.Status400BadRequest); 
-            }
-            booking.IsPay = true;
-
-            var invoice = new Invoice()
-            {
-                Total = booking.PrePayment,
-                ReturnOn = booking.RecieveOn.AddDays(2),
-                BookingId = booking.Id,
-                CreatedById = booking.CreatedById,
-                CreatedOn = booking.CreatedOn,
-            };
-
-            await _invoiceRepository.AddAsync(invoice);
-
-            bool isAvailable = booking.RecieveOn > DateTime.Now;
-            await UpdatePostInfoAsync(booking, isAvailable, 1);
-
-            return new OperationResult(true, message: "Payment successful", statusCode: StatusCodes.Status200OK); 
         }
 
-        private async Task UpdatePostInfoAsync(Booking booking, bool isAvailable, int rideNumber)
-        {
-            var post = await _postRepository.GetByIdAsync(booking.PostId);
-            if (post != null)
-            {
-                post.IsAvailable = isAvailable;
-                if (post.RideNumber == 0 && rideNumber < 0)
-                {
-                    post.RideNumber = 0;
-                }
-                else
-                {
-                    post.RideNumber += rideNumber;
-                }
-                try
-                {
-                    await _postRepository.UpdateAsync(post);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.InnerException?.Message);
-                }
-            }
-        }
     }
 }

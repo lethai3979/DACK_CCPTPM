@@ -29,7 +29,7 @@ namespace GoWheels_WebAPI.Repositories
 
             if (existingPromotion == null)
             {
-                throw new KeyNotFoundException($"Promotion with ID {rating.Id} not found.");
+                throw new KeyNotFoundException($"Rating with ID {rating.Id} not found.");
             }
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi

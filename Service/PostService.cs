@@ -251,5 +251,30 @@ namespace GoWheels_WebAPI.Service
             return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
+
+        public async Task UpdatePostInfoAsync(Booking booking, bool isAvailable, int rideNumber)
+        {
+            var post = await _postRepository.GetByIdAsync(booking.PostId);
+            if (post != null)
+            {
+                post.IsAvailable = isAvailable;
+                if (post.RideNumber == 0 && rideNumber < 0)
+                {
+                    post.RideNumber = 0;
+                }
+                else
+                {
+                    post.RideNumber += rideNumber;
+                }
+                try
+                {
+                    await _postRepository.UpdateAsync(post);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.InnerException?.Message);
+                }
+            }
+        }
     }
 }

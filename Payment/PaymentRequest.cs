@@ -1,55 +1,43 @@
-﻿using System.Net;
+﻿using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GoWheels_WebAPI.Payment
 {
     public static class PaymentRequest
     {
-        public static string sendPaymentRequest(string endpoint, string postJsonString)
+        public static async Task<string> SendPaymentRequestAsync(string endpoint, string postJsonString)
         {
-
             try
             {
-                HttpWebRequest httpWReq = (HttpWebRequest)WebRequest.Create(endpoint);
-
-                var postData = postJsonString;
-
-                var data = Encoding.UTF8.GetBytes(postData);
-
-                httpWReq.ProtocolVersion = HttpVersion.Version11;
-                httpWReq.Method = "POST";
-                httpWReq.ContentType = "application/json";
-
-                httpWReq.ContentLength = data.Length;
-                httpWReq.ReadWriteTimeout = 30000;
-                httpWReq.Timeout = 15000;
-                Stream stream = httpWReq.GetRequestStream();
-                stream.Write(data, 0, data.Length);
-                stream.Close();
-
-                HttpWebResponse response = (HttpWebResponse)httpWReq.GetResponse();
-
-                string jsonresponse = "";
-
-                using (var reader = new StreamReader(response.GetResponseStream()))
+                using (HttpClient client = new HttpClient())
                 {
+                    var content = new StringContent(postJsonString, Encoding.UTF8, "application/json");
 
-                    string temp = null;
-                    while ((temp = reader.ReadLine()) != null)
-                    {
-                        jsonresponse += temp;
-                    }
+                    // Set timeout cho HttpClient
+                    client.Timeout = TimeSpan.FromSeconds(15); // tương tự như Timeout trong HttpWebRequest
+
+                    // Gửi yêu cầu POST bất đồng bộ
+                    HttpResponseMessage response = await client.PostAsync(endpoint, content);
+
+                    // Đảm bảo yêu cầu đã thành công
+                    response.EnsureSuccessStatusCode();
+
+                    // Đọc nội dung phản hồi bất đồng bộ
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                    return jsonResponse;
                 }
-
-
-                //todo parse it
-                return jsonresponse;
-                //return new MomoResponse(mtid, jsonresponse);
-
             }
-            catch (WebException e)
+            catch (HttpRequestException e)
             {
-                return e.Message;
+                // Xử lý lỗi trong khi gửi yêu cầu
+                return $"Request error: {e.Message}";
+            }
+            catch (TaskCanceledException e)
+            {
+                // Xử lý lỗi do hết thời gian chờ (timeout)
+                return $"Request timed out: {e.Message}";
             }
         }
     }

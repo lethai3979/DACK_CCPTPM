@@ -13,6 +13,7 @@
         public bool IsRequest { get; set; }
         public bool IsPay { get; set; }
         public PostVM Post { get; set; } = null!;
+        public int PromotionId { get; set; }
         public string? PromotionContent { get; set; }
     }
 }

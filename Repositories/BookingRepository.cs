@@ -1,7 +1,9 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace GoWheels_WebAPI.Repositories
 {
@@ -28,14 +30,14 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<Booking>> GetAllAsync()
-            => await _context.Bookings.Include(b => b.Post)
+            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted).ToListAsync();
 
         public async Task<List<Booking>> GetAllPersonalAsync(string userId)
-           => await _context.Bookings.Include(b => b.Post)
+           => await _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
@@ -43,7 +45,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .ToListAsync();
 
         public async Task<List<Booking>> GetAllCancelRequestAsync()
-            => await _context.Bookings.Include(b => b.Post)
+            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
@@ -51,7 +53,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .ToListAsync();
 
         public async Task<Booking?> GetByIdAsync(int id)
-            => await _context.Bookings.Include(b => b.Post)
+            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
@@ -59,17 +61,22 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(Booking booking)
         {
-            var existingBooking = await _context.Bookings.AsNoTracking()
-                          .FirstOrDefaultAsync(p => p.Id == booking.Id);
-
-            if (existingBooking == null)
+            // Kiểm tra và detach đối tượng nếu đang bị theo dõi bởi DbContext
+            var existingBooking = _context.ChangeTracker.Entries<Booking>().FirstOrDefault(e => e.Entity.Id == booking.Id);
+            if (existingBooking != null)
             {
-                throw new KeyNotFoundException($"Promotion with ID {booking.Id} not found.");
+                _context.Entry(existingBooking.Entity).State = EntityState.Detached;
             }
 
-            // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
-            _context.Entry(booking).State = EntityState.Modified;
+            // Không cần gọi Attach nữa nếu bạn dùng Update trực tiếp
+            _context.Bookings.Update(booking);
+
+            // Lưu thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
+
+            // Detached sau khi update
+            _context.Entry(booking).State = EntityState.Detached;
         }
+
     }
 }

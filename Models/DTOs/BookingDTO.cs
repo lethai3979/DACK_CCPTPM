@@ -4,6 +4,7 @@ namespace GoWheels_WebAPI.Models.DTOs
 {
     public class BookingDTO
     {
+        public int Id { get; set; }
         public decimal PrePayment { get; set; }
         public decimal Total { get; set; }
         public decimal FinalValue { get; set; }
