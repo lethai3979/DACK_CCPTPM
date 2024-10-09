@@ -37,7 +37,7 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task DeleteAsync(ReportType reportType)
         {
-            var existingReport = await _context.Reports.Where(r => r.ReportId == reportType.Id).ToListAsync();
+            var existingReport = await _context.Reports.Where(r => r.ReportTypeId == reportType.Id).ToListAsync();
             _context.Reports.RemoveRange(existingReport);
             _context.ReportTypes.Remove(reportType);
             await _context.SaveChangesAsync();

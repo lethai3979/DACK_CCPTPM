@@ -12,6 +12,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public bool IsPay { get; set; }
         public required string Status { get; set; }
         public bool IsRequest { get; set; }
+        public bool IsResponse { get; set; }
         public int PostId { get; set; }
         [ValidateNever]
         public Post Post { get; set; } = null!;

@@ -38,17 +38,33 @@ namespace GoWheels_WebAPI.Controllers.Customer
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
             => await _bookingService.GetPersonalBookingAsync();
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllBookings()
-            => await _bookingService.GetAllAsync();
+        [HttpPost("SendCancelRequest/{id}")]
+        public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)
+        {
+            var isPaidResult = await _invoiceService.GetByBookingIdAsync(id);
+            if (isPaidResult.Data != null)
+            {
+                return await _bookingService.RequestCancelBookingAsync(id);
+            }
+            return isPaidResult;
 
-        [HttpGet("GetAllCancelRequestBooking")]
-        public async Task<ActionResult<OperationResult>> GetAllCancelRequestBooking()
-            => await _bookingService.GetAllCancelRequestAsync();
+        }
+
 
         [HttpPost("AddAsync")]
         public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
-            => await _bookingService.AddAsync(bookingDTO);
+        {
+            if(bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+            {
+                return BadRequest("return date or recieve date invalid");
+            }    
+            if(ModelState.IsValid)
+            {
+                await _bookingService.AddAsync(bookingDTO);
+            }
+            return BadRequest("Booking data invalid");
+        }
+
 
 
 

@@ -34,82 +34,71 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<OperationResult> GetAllAsync()
+        public async Task<List<CarType>> GetAllAsync()
         {
             var carTypeList = await _carTypeRepository.GetAllAsync();
-            if(carTypeList.Count != 0)
+            if(carTypeList.Count == 0)
             {
-                var carTypeListVM = _mapper.Map<List<CarTypeVM>>(carTypeList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeListVM);
+                throw new NullReferenceException("List is empty");
             }
-
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return carTypeList;
         }
 
-        public async Task<OperationResult> GetByIdAsync(int id)
+        public async Task<CarType> GetByIdAsync(int id)
         {
             var carType = await _carTypeRepository.GetByIdAsync(id);
-            if (carType == null)
-            {
-                return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
-            }
-            var carTypeVM = _mapper.Map<CarTypeVM>(carType);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVM);
+            return carType;
         }
 
-        public async Task<OperationResult> AddAsync(CarTypeDTO carTypeDTO)
+        public async Task AddAsync(CarType carType, List<int> companyList)
         {
             try
             {
-                if (carTypeDTO.CompanyIds.Contains(0))
+                if (companyList.Contains(0) || companyList.Count == 0)
                 {
-                    carTypeDTO.CompanyIds.Clear();
+                    companyList.Clear();
                 }
-                var carType = _mapper.Map<CarType>(carTypeDTO);
                 carType.CreatedById = _userId;
                 carType.CreatedOn = DateTime.Now;
                 carType.IsDeleted = false;  
                 await _carTypeRepository.AddAsync(carType);
-                await _carTypeDetailRepository.AddCompaniesListAsync(carType.Id, carTypeDTO.CompanyIds);
-                return new OperationResult(true, "Car type add succesfully", StatusCodes.Status200OK);
+                await _carTypeDetailRepository.AddCompaniesListAsync(carType.Id, companyList);
             }
-
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
         
-        public async Task<OperationResult> DeletedByIdAsync(int id)
+        public async Task DeletedByIdAsync(int id)
         {
             try
             {
                 var carType = await _carTypeRepository.GetByIdAsync(id);
-                if(carType == null)
-                {
-                    return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
-                }
                 carType.ModifiedById = _userId;
                 carType.ModifiedOn = DateTime.Now;
                 carType.IsDeleted = !carType.IsDeleted;
                 await _carTypeRepository.UpdateAsync(carType);
-                return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException ioEx)
+            {
+                throw new InvalidOperationException(ioEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -135,35 +124,28 @@ namespace GoWheels_WebAPI.Service
             await _carTypeDetailRepository.AddCompaniesListAsync(carTypeId, companyIds);//Add new CarTypeDetails
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, CarTypeDTO carTypeDTO)
+        public async Task UpdateAsync(int id, CarType carType, List<int> companyIds)
         {
   
             try
             {
-                //Check if cartype exist
-                var existingCarType = await _carTypeRepository.GetByIdAsync(id);
-                if (existingCarType == null) 
-                {
-                    return new OperationResult(false, "Car type not found", StatusCodes.Status404NotFound);
-                }
-
-                // Map DTO to CarType entity and retain the original creation metadata
-                var carType = _mapper.Map<CarType>(carTypeDTO);
-                carType.CreatedOn = existingCarType.CreatedOn;
+                var existingCarType = await _carTypeRepository.GetByIdAsync(id) ;
                 carType.CreatedById = existingCarType.CreatedById;
+                carType.CreatedOn = existingCarType.CreatedOn;
                 carType.ModifiedById = existingCarType.ModifiedById;
                 carType.ModifiedOn = existingCarType.ModifiedOn;
 
-                //Compare new CarTypeDetails with existing CarTypeDetails
-                if (carTypeDTO.CompanyIds.Contains(0))
+
+                if (companyIds.Contains(0) || companyIds.Count == 0)
                 {
-                    carTypeDTO.CompanyIds.Clear();
+                    companyIds.Clear();
                 }
-                var isDetailsChange = await IsCarTypeDetailChange(carTypeDTO.CompanyIds, existingCarType.Id);
+                //Compare new CarTypeDetails with existing CarTypeDetails
+                var isDetailsChange = await IsCarTypeDetailChange(companyIds, existingCarType.Id);
                 if (isDetailsChange)
                 {
 
-                    await UpdateCarTypeDetails(existingCarType.Id, carTypeDTO.CompanyIds); 
+                    await UpdateCarTypeDetails(existingCarType.Id, companyIds); 
                     EditHelper<CarType>.SetModifiedIfNecessary(carType, true, existingCarType, _userId);
                 }
                 else
@@ -173,17 +155,18 @@ namespace GoWheels_WebAPI.Service
                     EditHelper<CarType>.SetModifiedIfNecessary(carType, isCarTypeDataChange, existingCarType, _userId); 
                 }
                 await _carTypeRepository.UpdateAsync(carType);
-                return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);
             }
-            catch(DbUpdateException dbEx)
+            catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException ioEx)
+            {
+                throw new InvalidOperationException(ioEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
     }

@@ -5,6 +5,7 @@ namespace GoWheels_WebAPI.Models.ViewModels
 {
     public class ReportVM
     {
+        public int Id { get; set; }
         public string? Content { get; set; }
         public required int PostId { get; set; }
         public PostVM Post { get; set; } = null!;

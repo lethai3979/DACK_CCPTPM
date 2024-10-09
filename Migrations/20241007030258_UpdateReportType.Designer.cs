@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240921021923_Initial")]
-    partial class Initial
+    [Migration("20241007030258_UpdateReportType")]
+    partial class UpdateReportType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -169,6 +169,9 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<bool>("IsRequest")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsResponse")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ModifiedById")
                         .HasColumnType("nvarchar(max)");
 
@@ -322,6 +325,7 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -420,6 +424,12 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDisabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedById")
@@ -558,21 +568,8 @@ namespace GoWheels_WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedById")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -657,9 +654,6 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ReportTypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("ReportTypeId")
@@ -894,7 +888,9 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "User")
                         .WithMany("Favorites")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
 
@@ -959,7 +955,7 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PostImage", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Post", "Post")
-                        .WithMany("ImageUrls")
+                        .WithMany("Images")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1103,7 +1099,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.Navigation("Favorites");
 
-                    b.Navigation("ImageUrls");
+                    b.Navigation("Images");
 
                     b.Navigation("PostAmenities");
 

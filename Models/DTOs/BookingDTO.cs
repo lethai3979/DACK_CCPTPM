@@ -15,6 +15,8 @@ namespace GoWheels_WebAPI.Models.DTOs
         [JsonIgnore]
         public bool IsRequest { get; set; }
         [JsonIgnore]
+        public bool IsResponse { get; set; }
+        [JsonIgnore]
         public bool IsPay {  get; set; }
         public int PostId { get; set; }
         public int PromotionId { get; set; }

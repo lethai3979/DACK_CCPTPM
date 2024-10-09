@@ -40,8 +40,10 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Promotion, SalePromotionDTO>().ReverseMap();
             CreateMap<Rating, RatingDTO>().ReverseMap();
             CreateMap<ReportType, ReportTypeDTO>().ReverseMap();
+            CreateMap<Report, ReportDTO>().ReverseMap();
             CreateMap<Favorite, FavoriteDTO>().ReverseMap();
             CreateMap<Booking, BookingDTO>().ReverseMap();
+
         }
     }
 }

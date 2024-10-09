@@ -119,7 +119,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
-// Add Interfaces and Repositories
+
 
 var app = builder.Build();
 
@@ -139,15 +139,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
 app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllerRoute(
-    name: "Admin",
-    pattern: "api/{area:exists}/{controller}/{action=GetAll}/{id?}");
 app.MapControllers();
 app.Run();

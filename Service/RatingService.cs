@@ -48,7 +48,7 @@ namespace GoWheels_WebAPI.Service
                 rating.CreatedOn = DateTime.Now;
                 await _ratingRepository.AddAsync(rating);
                 var avgRating = await _ratingRepository.GetAveragePostRatingAsync(rating.PostId);
-                await _postService.UpdatePostAverageRating(rating.PostId, avgRating);
+                await _postService.UpdatePostAverageRatingAsync(rating.PostId, avgRating);
                 return new OperationResult(true, "Rating and comment added successfully", StatusCodes.Status201Created);
             }
             catch (DbUpdateException dbEx)

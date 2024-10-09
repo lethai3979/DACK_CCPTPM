@@ -32,9 +32,10 @@ namespace GoWheels_WebAPI.Repositories
         {
             return await _context.Amentities.ToListAsync();
         }
-        public async Task<Amenity?> GetByIdAsync(int id)
+        public async Task<Amenity> GetByIdAsync(int id)
         {
-            return await _context.Amentities.FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.Amentities.FirstOrDefaultAsync(a => a.Id == id) 
+                                                ?? throw new NullReferenceException("Amenity not found");
         }
         public async Task UpdateAsync(Amenity amenity)
         {

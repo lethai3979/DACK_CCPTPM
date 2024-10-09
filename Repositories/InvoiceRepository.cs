@@ -1,5 +1,6 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,26 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Invoices.AsNoTracking().Include(i => i.Booking).ToListAsync();
 
         public async Task<List<Invoice>> GetAllByUserIdAsync(string userId)
-            => await _context.Invoices.AsNoTracking().Include(i => i.Booking).ToListAsync();
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .Where(i => i.CreatedById == userId)
+                                        .ToListAsync();
+
+        public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .Where(i => i.Booking.Status.Equals("Refunded") && i.Total <= 0)
+                                        .ToListAsync();
+
         public async Task<Invoice?> GetByIdAsync(int id)
             => await _context.Invoices.AsNoTracking().Include(i => i.Booking).FirstOrDefaultAsync(i => i.Id == id);
+
+        public async Task<Invoice?> GetByBookingIdAsync(int bookingId)
+        => await _context.Invoices.AsNoTracking()
+                                    .Include(i => i.Booking)
+                                    .Where(i => i.BookingId == bookingId)
+                                    .OrderByDescending(b => b.Id)
+                                    .FirstOrDefaultAsync();
 
         public async Task AddAsync(Invoice invoice)
         {

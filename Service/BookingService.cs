@@ -12,16 +12,19 @@ namespace GoWheels_WebAPI.Service
     public class BookingService
     {
         private readonly BookingRepository _bookingRepository;
+        private readonly PostService _postService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
 
         public BookingService(BookingRepository bookingRepository, 
+                                PostService postService,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
+            _postService = postService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -36,18 +39,11 @@ namespace GoWheels_WebAPI.Service
                 booking.CreatedById = _userId;
                 booking.UserId = _userId;
                 booking.CreatedOn = DateTime.Now;
-                if(booking.RecieveOn == DateTime.Now)
-                {
-                    booking.Status = "Waiting";
-                }
-                else
-                {
-                    booking.Status = "Renting";
-                }
-
+                booking.Status = "Waiting";
                 booking.IsDeleted = false;
                 booking.IsPay = false;
                 booking.IsRequest = false;
+                booking.IsResponse = false;
                 await _bookingRepository.AddAsync(booking);
                 return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK, booking.Id);
             }
@@ -92,6 +88,41 @@ namespace GoWheels_WebAPI.Service
                 EditHelper<Booking>.SetModifiedIfNecessary(booking, isValueChange, existingBooking, _userId);
                 await _bookingRepository.UpdateAsync(booking);
                 return new OperationResult(true, "Booking update succesfully", StatusCodes.Status200OK);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        public async Task<OperationResult> UpdateBookingStatus()
+        {
+            try
+            {
+                var bookings = await _bookingRepository.GetAllAsync();
+                if (bookings.Count == 0)
+                {
+                    return new OperationResult(true, "No booking to update", StatusCodes.Status200OK);
+                }
+                foreach (var booking in bookings)
+                {
+                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn > DateTime.Now)
+                    {
+                        booking.Status = "Renting";
+                    }
+                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn > DateTime.Now)
+                    {
+                        booking.Status = "Conplete";
+                    }
+                    await _bookingRepository.UpdateAsync(booking);
+                }
+                return new OperationResult(true, "Update successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
@@ -158,40 +189,21 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<OperationResult> ExamineCancelBookingRequest(int bookingId, bool isAccept)
+        public async Task ExamineCancelBookingRequestAsync(Booking booking, bool isAccept)
         {
-            try
+            if(isAccept)
             {
-                var existingBooking = await _bookingRepository.GetByIdAsync(bookingId);
-                if (existingBooking == null)
-                {
-                    return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
-                }
-                existingBooking.IsRequest = existingBooking.IsDeleted = isAccept;
-                if(isAccept)
-                {
-                    existingBooking.Status = "Đã trả cọc";
-                }    
-                else
-                {
-                    existingBooking.Status = "Từ chối hủy cọc";
-
-                }    
-                existingBooking.ModifiedById = _userId;
-                existingBooking.ModifiedOn = DateTime.Now;
-                await _bookingRepository.UpdateAsync(existingBooking);
-                return new OperationResult(true, "Cancel booking request sent successfully", StatusCodes.Status200OK);
-            }
-            catch (DbUpdateException dbEx)
+                booking.Status = "Refunded";
+                booking.IsResponse = true;
+            }    
+            else
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
+                booking.Status = "Request denied";
+                booking.IsResponse = false;
+            }    
+            booking.ModifiedById = _userId;
+            booking.ModifiedOn = DateTime.Now;
+            await _bookingRepository.UpdateAsync(booking);
         }
 
         public async Task<OperationResult> GetAllCancelRequestAsync()
@@ -215,6 +227,10 @@ namespace GoWheels_WebAPI.Service
             var bookingVM = _mapper.Map<BookingVM>(booking);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVM);
         }
+
+        public async Task<List<Booking>> GetAllWaitingBookingAsync(int postId)
+            => await _bookingRepository.GetAllWaitingBookingAsync(postId);   
+        
 
         public async Task<OperationResult> GetAllAsync()
         {

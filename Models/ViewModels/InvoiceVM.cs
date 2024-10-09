@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class InvoiceVM
+    public class InvoiceVM : BaseModel
     {
         public decimal Total { get; set; }
         public DateTime ReturnOn { get; set; }

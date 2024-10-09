@@ -34,49 +34,62 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
+                                        .ThenInclude(b => b.PromotionType)
                                         .Where(b => !b.IsDeleted).ToListAsync();
 
         public async Task<List<Booking>> GetAllPersonalAsync(string userId)
-           => await _context.Bookings.AsNoTracking().Include(b => b.Post)
+           => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted && b.UserId == userId)
+                                        .ThenInclude(b => b.PromotionType)
+                                        .Where(b => b.UserId == userId)
                                         .ToListAsync();
 
         public async Task<List<Booking>> GetAllCancelRequestAsync()
-            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
+            => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted && b.IsRequest)
+                                        .ThenInclude(b => b.PromotionType)
+                                        .Where(b => b.IsRequest && !b.IsResponse)
+                                        .ToListAsync();
+
+        public async Task<List<Booking>> GetAllWaitingBookingAsync(int postId)
+            => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
+                                        .Include(b => b.User)
+                                        .Include(b => b.Post)
+                                        .Include(b => b.Promotion)
+                                        .ThenInclude(b => b.PromotionType)
+                                        .Where(b => b.PostId == postId && b.Status != "Waiting")
                                         .ToListAsync();
 
         public async Task<Booking?> GetByIdAsync(int id)
-            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
+            => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
+                                        .ThenInclude(b => b.PromotionType)
                                         .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
 
         public async Task UpdateAsync(Booking booking)
         {
-            // Kiểm tra và detach đối tượng nếu đang bị theo dõi bởi DbContext
-            var existingBooking = _context.ChangeTracker.Entries<Booking>().FirstOrDefault(e => e.Entity.Id == booking.Id);
-            if (existingBooking != null)
+            var trackedBooking = _context.Bookings.Local.FirstOrDefault(b => b.Id == booking.Id);
+
+            if (trackedBooking != null)
             {
-                _context.Entry(existingBooking.Entity).State = EntityState.Detached;
+                _context.Entry(trackedBooking).State = EntityState.Detached;
             }
 
-            // Không cần gọi Attach nữa nếu bạn dùng Update trực tiếp
-            _context.Bookings.Update(booking);
+            _context.Entry(booking).State = EntityState.Modified;
 
-            // Lưu thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
-
-            // Detached sau khi update
-            _context.Entry(booking).State = EntityState.Detached;
         }
+
 
     }
 }

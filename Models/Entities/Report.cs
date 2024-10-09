@@ -8,7 +8,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public required int PostId { get; set; }
         [ValidateNever]
         public Post Post { get; set; } = null!;
-        public required int ReportId { get; set; }
+        public required int ReportTypeId { get; set; }
         [ValidateNever]
         public ReportType ReportType { get; set; } = null!;
     }

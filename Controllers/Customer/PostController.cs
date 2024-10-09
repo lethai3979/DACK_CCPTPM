@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Area("User")]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
     public class PostController : ControllerBase
     {
         private readonly PostService _postService;

@@ -25,6 +25,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
             _mapper = mapper;
         }
 
+        [HttpGet("GetPersonalInvoices")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<OperationResult>> GetPersonalInvoicesAsync()
+            => await _invoiceService.GetPersonalInvoicesAsync();
+
         [HttpPost("MomoPayment")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)

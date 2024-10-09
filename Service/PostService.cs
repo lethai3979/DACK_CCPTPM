@@ -167,7 +167,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdatePostAverageRating(int postId, float avgRating)
+        public async Task UpdatePostAverageRatingAsync(int postId, float avgRating)
         {
             try
             {
@@ -186,6 +186,35 @@ namespace GoWheels_WebAPI.Service
                 var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
                 throw new InvalidOperationException(exMessage);
             }
+        }
+
+        public async Task UpdateRideNumberAsync(List<Booking> bookings)
+        {
+            try
+            {
+                foreach (var booking in bookings)
+                {
+                    if(booking.RecieveOn >= DateTime.Now && booking.IsPay && !booking.IsResponse)
+                    {
+                        var post = await _postRepository.GetByIdWithoutConditionAsync(booking.Id);
+                        if (post == null) throw new InvalidOperationException("Post not found");
+                        post.RideNumber ++;
+                        await _postRepository.UpdateAsync(post);
+                    }                       
+                }
+
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                throw new DbUpdateException(dbExMessage);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                throw new InvalidOperationException(exMessage);
+            }
+
         }
 
 
@@ -217,6 +246,16 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
+        public async Task<OperationResult> GetAllAsync()
+        {
+            var postList = await _postRepository.GetAllAsync();
+            if (postList.Count != 0)
+            {
+                var postListVM = _mapper.Map<List<PostVM>>(postList);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
+            }
+            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+        }
 
         public async Task<OperationResult> GetByIdAsync(int id)
         {
@@ -227,17 +266,6 @@ namespace GoWheels_WebAPI.Service
             }
             var postVM = _mapper.Map<PostVM>(post);
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVM);
-        }
-
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var postList = await _postRepository.GetAllAsync();
-            if (postList.Count != 0)
-            {
-                var postListVM = _mapper.Map<List<PostVM>>(postList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
-            }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
         public async Task<OperationResult> GetByUserId()
@@ -252,9 +280,9 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        public async Task UpdatePostInfoAsync(Booking booking, bool isAvailable, int rideNumber)
+        public async Task UpdateRideNumberAndIsAvailableAsync(int postId, bool isAvailable, int rideNumber)
         {
-            var post = await _postRepository.GetByIdAsync(booking.PostId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post != null)
             {
                 post.IsAvailable = isAvailable;

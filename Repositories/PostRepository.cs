@@ -53,7 +53,6 @@ namespace GoWheels_WebAPI.Repositories
 
             _context.Posts.Attach(post);  // Attach target modified obj to context 
             _context.Entry(post).State = EntityState.Modified;
-            _context.Posts.Update(post);
             await _context.SaveChangesAsync();
 
             //detached tracking obj after modified
@@ -88,6 +87,16 @@ namespace GoWheels_WebAPI.Repositories
                                     .ThenInclude(p => p.Amenity)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
                                     .FirstOrDefaultAsync(p => p.Id == id);
+
+        public async Task<Post?> GetByIdWithoutConditionAsync(int id)
+            => await _context.Posts.Include(p => p.CarType)
+                                    .Include(p => p.Company)
+                                    .Include(p => p.Images)
+                                    .Include(p => p.Ratings.Where(r => !r.IsDeleted))
+                                    .Include(p => p.PostAmenities)
+                                    .ThenInclude(p => p.Amenity)
+                                    .FirstOrDefaultAsync(p => p.Id == id);
+
 
         public async Task<List<Post>> GetPostsByUserIdAsync(string userId)
             => await _context.Posts.Include(p => p.CarType)

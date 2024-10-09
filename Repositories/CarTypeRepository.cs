@@ -61,11 +61,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .ToListAsync();
         
 
-        public async Task<CarType?> GetByIdAsync(int id)
+        public async Task<CarType> GetByIdAsync(int id)
             => await _context.CarTypes.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.Company)
-                                        .FirstOrDefaultAsync(c => c.Id == id);
+                                        .FirstOrDefaultAsync(c => c.Id == id) 
+                                        ?? throw new NullReferenceException("Amenity not found");
 
     }
 }

@@ -665,7 +665,7 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReportId")
+                    b.Property<int>("ReportTypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("ReportTypeId")
