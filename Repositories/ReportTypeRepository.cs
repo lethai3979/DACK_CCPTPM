@@ -46,8 +46,11 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<ReportType>> GetAllAsync()
             => await _context.ReportTypes.AsNoTracking().ToListAsync();
 
-        public async Task<ReportType?> GetByIdAsync(int id)
-            => await _context.ReportTypes.AsNoTracking().Include(r => r.Reports).FirstOrDefaultAsync(r => r.Id == id);
+        public async Task<ReportType> GetByIdAsync(int id)
+            => await _context.ReportTypes.AsNoTracking()
+                                            .Include(r => r.Reports)
+                                            .FirstOrDefaultAsync(r => r.Id == id) 
+                                            ?? throw new NullReferenceException("Report type not found");
 
 
     }

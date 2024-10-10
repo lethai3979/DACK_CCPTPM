@@ -27,68 +27,68 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<OperationResult> AddAsync(FavoriteDTO favoriteDTO)
+        public async Task<List<Favorite>> GetAllAsync()
+        {
+            var favorites = await _favoriteRepository.GetAllByUserIdAsync(_userId);
+            if (favorites.Count != 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return favorites;
+        }
+
+        public async Task AddAsync(Favorite favorite)
         {
             try
             {
-                var favorite = await _favoriteRepository.GetByPostIdAsync(favoriteDTO.PostId, _userId);
-                if (favorite == null) {
-                    favorite = _mapper.Map<Favorite>(favoriteDTO);
-                    favorite.UserId = _userId;
-                    favorite.IsDeleted = false;
-                    await _favoriteRepository.AddToFavoriteAsync(favorite);
-                    return new OperationResult(true, "Favorite add succesfully", StatusCodes.Status200OK);
+                var existingFavorite = await _favoriteRepository.GetByPostIdAsync(favorite.PostId, _userId);
+                if (existingFavorite == null) {
+                    existingFavorite = _mapper.Map<Favorite>(favorite);
+                    existingFavorite.UserId = _userId;
+                    existingFavorite.IsDeleted = false;
+                    await _favoriteRepository.AddAsync(existingFavorite);
                 }
-                favorite.IsDeleted = false;
-                await _favoriteRepository.UpdateFavoriteAsync(favorite);
-                return new OperationResult(true, "Favorite add succesfully", StatusCodes.Status200OK);
+                else
+                {
+                    existingFavorite.IsDeleted = false;
+                    await _favoriteRepository.UpdateAsync(existingFavorite);
+                }    
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> DeletedAsync(int id)
+        public async Task DeletedAsync(int id)
         {
             try
             {
                 var favorite = await _favoriteRepository.GetByIdAsync(id, _userId);
-                if(favorite == null)
-                {
-                    return new OperationResult(false, "Favorite not found", StatusCodes.Status404NotFound);
-                }
                 favorite.IsDeleted = true;
-                await _favoriteRepository.UpdateFavoriteAsync(favorite);
-                return new OperationResult(true, "Favorite remove succesfully", StatusCodes.Status200OK);
+                await _favoriteRepository.UpdateAsync(favorite);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> GetAllAsync()
-        {
-                var favorites = await _favoriteRepository.GetAllFavoriteAsync(_userId);
-                if(favorites.Count !=0)
-                {
-                    var favoriteVMs = _mapper.Map<List<FavoriteVM>>(favorites);
-                    return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: favoriteVMs);
-                }
-                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-        }
     }
 }

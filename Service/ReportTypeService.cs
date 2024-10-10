@@ -24,40 +24,47 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<OperationResult> AddAsync(ReportTypeDTO reportTypeDTO)
+        public async Task<List<ReportType>> GetAllAsync()
+        {
+            var reportTypes = await _reportTypeRepository.GetAllAsync();
+            if (reportTypes.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return reportTypes;
+        }
+
+        public async Task<ReportType> GetByIdAsync(int id)
+            => await _reportTypeRepository.GetByIdAsync(id);
+
+        public async Task AddAsync(ReportType reportType)
         {
             try
             {
-                var reportType = _mapper.Map<ReportType>(reportTypeDTO);
                 reportType.CreatedById = _userId;
                 reportType.CreatedOn = DateTime.Now;
                 reportType.IsDeleted = false;
                 await _reportTypeRepository.AddAsync(reportType);
-                return new OperationResult(true, "Report type add succesfully", StatusCodes.Status200OK);
             }
-
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, ReportTypeDTO reportTypeDTO)
+        public async Task UpdateAsync(int id, ReportType reportType)
         {
             try
             {
                 var existingReportType = await _reportTypeRepository.GetByIdAsync(id);
-                if(existingReportType == null)
-                {
-                    return new OperationResult(true, "Report type not found", StatusCodes.Status404NotFound);
-                }
-                var reportType = _mapper.Map<ReportType>(reportTypeDTO);
                 reportType.CreatedOn = existingReportType.CreatedOn;
                 reportType.CreatedById = existingReportType.CreatedById;
                 reportType.ModifiedById = existingReportType.ModifiedById;
@@ -66,69 +73,44 @@ namespace GoWheels_WebAPI.Service
                 var isNameChange = reportType.Name != existingReportType.Name;
                 EditHelper<ReportType>.SetModifiedIfNecessary(reportType, isNameChange, existingReportType, _userId);
                 await _reportTypeRepository.UpdateAsync(reportType);
-                return new OperationResult(true, "Report type update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
 
-        public async Task<OperationResult> DeletedByIdAsync(int id)
+        public async Task DeletedByIdAsync(int id)
         {
             try
             {
                 var reportType = await _reportTypeRepository.GetByIdAsync(id);
-                if (reportType == null)
-                {
-                    return new OperationResult(false, "Report type not found", StatusCodes.Status404NotFound);
-                }
                 reportType.ModifiedById = _userId;
                 reportType.ModifiedOn = DateTime.Now;
                 reportType.IsDeleted = !reportType.IsDeleted;
                 await _reportTypeRepository.UpdateAsync(reportType);
-                return new OperationResult(true, "Report type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
-
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var reportTypes = await _reportTypeRepository.GetAllAsync();
-            if(reportTypes.Count == 0)
-            {
-                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-            }
-            var reportTypeVMs = _mapper.Map<List<ReportTypeVM>>(reportTypes);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVMs);
-        }
-
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var reportType = await _reportTypeRepository.GetByIdAsync(id);
-            if(reportType == null)
-            {
-                return new OperationResult(false, "Report type not found", StatusCodes.Status404NotFound);
-            }
-            var reportTypeVM = _mapper.Map<ReportTypeVM>(reportType);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVM);
-        }
-
     }
 }

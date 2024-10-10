@@ -66,7 +66,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.Company)
                                         .FirstOrDefaultAsync(c => c.Id == id) 
-                                        ?? throw new NullReferenceException("Amenity not found");
+                                        ?? throw new NullReferenceException("Car type not found");
 
     }
 }

@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var carType = _mapper.Map<CarType>(carTypeDTO);
-                    await _carTypeService.AddAsync(carType!, carTypeDTO.CompanyIds);
+                    await _carTypeService.AddAsync(carType, carTypeDTO.CompanyIds);
                     return new OperationResult(true, "Car type add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Car type data invalid");
@@ -112,8 +112,8 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                await _carTypeService.DeletedByIdAsync(id);
-                return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
+                await _carTypeService.DeleteByIdAsync(id);
+                return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {

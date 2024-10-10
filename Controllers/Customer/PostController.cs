@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
@@ -16,15 +17,24 @@ namespace GoWheels_WebAPI.Controllers.Customer
     public class PostController : ControllerBase
     {
         private readonly PostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostController(PostService postService)
+        public PostController(PostService postService, IMapper mapper)
         {
             _postService = postService;
+            _mapper = mapper;
         }
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
-            => await _postService.GetAllAsync();
+        {
+            try
+            {
+                var posts = await _postService.GetAllAsync();
+                var postVMs = _mapper.Map<List<PostVM>>(posts)
+            }
+
+        }
 
         [HttpGet("GetPersonalPosts")]
         public async Task<ActionResult<OperationResult>> GetAllByUserId()

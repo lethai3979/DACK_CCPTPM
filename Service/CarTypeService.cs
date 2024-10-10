@@ -45,10 +45,7 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<CarType> GetByIdAsync(int id)
-        {
-            var carType = await _carTypeRepository.GetByIdAsync(id);
-            return carType;
-        }
+            => await _carTypeRepository.GetByIdAsync(id);
 
         public async Task AddAsync(CarType carType, List<int> companyList)
         {
@@ -78,7 +75,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
         
-        public async Task DeletedByIdAsync(int id)
+        public async Task DeleteByIdAsync(int id)
         {
             try
             {
@@ -92,9 +89,9 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new DbUpdateException(dbEx.InnerException!.Message);
             }
-            catch (InvalidOperationException ioEx)
+            catch (InvalidOperationException operationEx)
             {
-                throw new InvalidOperationException(ioEx.InnerException!.Message);
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
@@ -160,9 +157,9 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new DbUpdateException(dbEx.InnerException!.Message);
             }
-            catch (InvalidOperationException ioEx)
+            catch (InvalidOperationException operationEx)
             {
-                throw new InvalidOperationException(ioEx.InnerException!.Message);
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {

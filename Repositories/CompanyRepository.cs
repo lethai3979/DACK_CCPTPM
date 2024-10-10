@@ -45,11 +45,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(c => c.CarType)
                                         .ToListAsync();
 
-        public async Task<Company?> GetByIdAsync(int id)
+        public async Task<Company> GetByIdAsync(int id)
             => await _context.Companies.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.CarType)
-                                        .FirstOrDefaultAsync(c => c.Id == id);
+                                        .FirstOrDefaultAsync(c => c.Id == id) 
+                                        ?? throw new NullReferenceException("Company not found");
 
         public async Task UpdateAsync(Company company)
         {
