@@ -30,12 +30,26 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Favorites.AsNoTracking()
                                         .Where(p => p.UserId == userId && !p.IsDeleted)
                                         .Include(p => p.Post)
+                                        .ThenInclude(post => post.PostAmenities)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.Images)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.CarType)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.Company)
                                         .ToListAsync();
 
         public async Task<Favorite?> GetByPostIdAsync(int postId, string userId)
             => await _context.Favorites.AsNoTracking()
                                         .Where(p => p.UserId == userId)
                                         .Include(p => p.Post)
+                                        .ThenInclude(post => post.PostAmenities)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.Images)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.CarType)
+                                        .Include(p => p.Post)
+                                        .ThenInclude(post => post.Company)
                                         .FirstOrDefaultAsync(p => p.PostId == postId);
         
         public async Task<Favorite> GetByIdAsync(int id, string userId)

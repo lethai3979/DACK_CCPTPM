@@ -5,7 +5,6 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
@@ -15,33 +14,53 @@ namespace GoWheels_WebAPI.Service
 
         private readonly PostRepository _postRepository;
         private readonly PostAmenityRepository _postAmenityRepository;
-        private readonly AmenityRepository _amenityRepository;
+        private readonly AmenityService _amenityService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
         private  readonly string _userId;
 
         public PostService(PostRepository postRepository,
                             PostAmenityRepository postAmenityRepository,
-                            AmenityRepository amenityRepository,
+                            AmenityService amenityService,
                             IHttpContextAccessor httpContextAccessor,
                             IMapper mapper)
         {
             _postRepository = postRepository;
             _postAmenityRepository = postAmenityRepository;
-            _amenityRepository = amenityRepository;
+            _amenityService = amenityService;
             _httpContextAccessor = httpContextAccessor;
-            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<OperationResult> AddAsync(PostDTO postDTO)
+        public async Task<List<Post>> GetAllAsync()
+        {
+            var posts = await _postRepository.GetAllAsync();
+            if (posts.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return posts;
+        }
+
+        public async Task<Post> GetByIdAsync(int id)
+            => await _postRepository.GetByIdAsync(id);
+
+        public async Task<List<Post>> GetAllByUserId()
+        {
+            var posts = await _postRepository.GetPostsByUserIdAsync(_userId);
+            if (posts.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return posts;
+        }
+
+        public async Task AddAsync(Post post, List<string> imageUrls, List<int> amenitiesIds)
         {
 
             try
             {
-                var post = _mapper.Map<Post>(postDTO);
-                post.CreatedById = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                post.CreatedById = _userId;
                 post.CreatedOn = DateTime.Now;
                 post.UserId = _userId;
                 post.AvgRating = 0;
@@ -50,19 +69,26 @@ namespace GoWheels_WebAPI.Service
                 post.IsHidden = false;  
                 post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
-                await _postRepository.AddPostImagesAsync(postDTO.ImageUrls, post.Id);
-                await _postAmenityRepository.AddRangeAsync(postDTO.PostAmenitiesIds, post.Id);
-                return new OperationResult(true, "Post add succesfully", StatusCodes.Status200OK);
+                if(imageUrls.Count != 0)
+                {
+                    await _postRepository.AddPostImagesAsync(imageUrls, post.Id);
+                }
+                if(amenitiesIds.Count != 0)
+                {
+                    await _postAmenityRepository.AddRangeAsync(amenitiesIds, post.Id);
+                }
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -70,7 +96,7 @@ namespace GoWheels_WebAPI.Service
         private async Task<bool> IsPostAmenityChange(List<int> selectedAmenities, int existingPostId)
         {
             var previousDetails = await _postAmenityRepository.GetAmenityByPostIdAsync(existingPostId);
-            var amenities = await _amenityRepository.GetAllAsync();
+            var amenities = await _amenityService.GetAllAsync();
             foreach (var amenity in amenities)
             {
                 bool previousChecked = previousDetails != null && previousDetails.Any(c => c.AmenityId.Equals(amenity.Id));
@@ -83,39 +109,41 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
-        private async Task UpdatePostAmenitiesAsync(int postId, List<int> amenitiesIDs)
+        private async Task UpdatePostAmenitiesAsync(int postId, List<int> amenitiesIds)
         {
             await _postAmenityRepository.RemoveRangeAsync(postId);
-            await _postAmenityRepository.AddRangeAsync(amenitiesIDs, postId);
+            await _postAmenityRepository.AddRangeAsync(amenitiesIds, postId);
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, PostDTO postDTO)
+        public async Task UpdateAsync(int id, Post post, List<int> amenitiesIds)
         {
             try
             {
                 var existingPost = await _postRepository.GetByIdAsync(id);
-                if(existingPost == null)
+                if(_userId != existingPost.UserId)
                 {
-                    return new OperationResult(false, "Post not found", StatusCodes.Status404NotFound);
+                    throw new UnauthorizedAccessException("Unauthorize");
                 }
-                var post = _mapper.Map<Post>(postDTO);
                 post.CreatedOn = existingPost.CreatedOn;
                 post.CreatedById = existingPost.CreatedById;
                 post.ModifiedById = existingPost.ModifiedById;
                 post.ModifiedOn = existingPost.ModifiedOn;
                 post.AvgRating = existingPost.AvgRating;
                 post.IsAvailable = existingPost.IsAvailable;
+                post.IsDeleted = existingPost.IsDeleted;
                 post.Favorites = existingPost.Favorites;
+                post.UserId = existingPost.UserId;
+                post.User = existingPost.User;
                 post.Ratings = existingPost.Ratings;
                 post.Reports = existingPost.Reports;
-                if(postDTO.PostAmenitiesIds.Contains(0))
+                if(amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
                 {
-                    postDTO.PostAmenitiesIds.Clear();
+                    amenitiesIds.Clear();
                 }
-                var isPostAmenitiesChange = await IsPostAmenityChange(postDTO.PostAmenitiesIds, existingPost.Id);
+                var isPostAmenitiesChange = await IsPostAmenityChange(amenitiesIds, existingPost.Id);
                 if(isPostAmenitiesChange)
                 {
-                    await UpdatePostAmenitiesAsync(existingPost.Id, postDTO.PostAmenitiesIds);
+                    await UpdatePostAmenitiesAsync(existingPost.Id, amenitiesIds);
                     EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
                 }    
                 else
@@ -124,46 +152,47 @@ namespace GoWheels_WebAPI.Service
                     EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, _userId);
                 }
                 await _postRepository.UpdateAsync(post);
-                return new OperationResult(true, "Post update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }   
+                throw new Exception(ex.Message);
+            }
         }
 
-        public async Task<OperationResult> UpdatePostImagesAsync(List<string> imageUrl, int postId)
+        public async Task UpdatePostImagesAsync(List<string> imageUrl, int postId)
         {
             try
             {
                 var post = await _postRepository.GetByIdAsync(postId);
-                if(post == null)
+                if (_userId != post.UserId)
                 {
-                    return new OperationResult(false, "Post not found", StatusCodes.Status404NotFound);
+                    throw new UnauthorizedAccessException("Unauthorize");
                 }
-                post.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
+                post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now;
                 await _postRepository.UpdateAsync(post);
                 await _postRepository.DeletePostImagesAsync(post.Id);
                 await _postRepository.AddPostImagesAsync(imageUrl, postId);
-                return new OperationResult(true, "Post images update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -218,66 +247,35 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        public async Task<OperationResult> DeleteByIdAsync(int id)
+        public async Task DeleteByIdAsync(int id)
         {
             try
             {
                 var post = await _postRepository.GetByIdAsync(id);
-                if(post == null)
+                if (_userId != post.UserId)
                 {
-                    return new OperationResult(false, "Post not found", StatusCodes.Status404NotFound);
-                }    
+                    throw new UnauthorizedAccessException("Unauthorize");
+                }
                 post.IsDeleted = true;
-                post.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
+                post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now; 
                 await _postRepository.UpdateAsync(post);
-                return new OperationResult(true, "Post delete succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var postList = await _postRepository.GetAllAsync();
-            if (postList.Count != 0)
-            {
-                var postListVM = _mapper.Map<List<PostVM>>(postList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
-            }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-        }
 
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var post = await _postRepository.GetByIdAsync(id);
-            if (post == null)
-            {
-                return new OperationResult(false, "Post not found", StatusCodes.Status404NotFound);
-            }
-            var postVM = _mapper.Map<PostVM>(post);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVM);
-        }
-
-        public async Task<OperationResult> GetByUserId()
-        {
-            var postList = await _postRepository.GetPostsByUserIdAsync(_userId);
-            if (postList.Count != 0)
-            {
-                var postListVM = _mapper.Map<List<PostVM>>(postList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postListVM);
-            }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-        }
 
 
         public async Task UpdateRideNumberAndIsAvailableAsync(int postId, bool isAvailable, int rideNumber)

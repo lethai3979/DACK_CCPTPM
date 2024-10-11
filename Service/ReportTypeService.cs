@@ -12,13 +12,11 @@ namespace GoWheels_WebAPI.Service
     public class ReportTypeService
     {
         private readonly ReportTypeRepository _reportTypeRepository;
-        private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _userId;
-        public ReportTypeService(ReportTypeRepository reportTypeRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public ReportTypeService(ReportTypeRepository reportTypeRepository, IHttpContextAccessor httpContextAccessor)
         {
             _reportTypeRepository = reportTypeRepository;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";

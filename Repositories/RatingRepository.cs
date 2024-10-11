@@ -49,11 +49,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(r => r.User)
                                         .ToListAsync();
 
-        public async Task<Rating?> GetByIdAsync(int id)
+        public async Task<Rating> GetByIdAsync(int id)
             => await _context.Ratings.AsNoTracking()
                                         .Include(r => r.User)
-                                        .FirstOrDefaultAsync(p => p.Id == id);
-        public async Task<List<Rating>> GetAllRatingFromPost(int postId)
+                                        .FirstOrDefaultAsync(p => p.Id == id)
+                                                ?? throw new NullReferenceException("Rating not found");
+        public async Task<List<Rating>> GetAllByPostId(int postId)
             => await _context.Ratings.AsNoTracking().Where(p => !p.IsDeleted && p.PostId == postId).ToListAsync();
         public async Task<float> GetAveragePostRatingAsync(int postId)
             => await _context.Ratings.AsNoTracking()

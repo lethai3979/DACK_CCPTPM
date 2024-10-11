@@ -7,6 +7,7 @@ using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Controllers.Customer
 {
@@ -26,58 +27,158 @@ namespace GoWheels_WebAPI.Controllers.Customer
         [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
         {
-            var result = await _ratingAndCommentService.GetAllAsync();
-            return result;
+            try
+            {
+                var ratings = await _ratingAndCommentService.GetAllAsync();
+                var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
-        [HttpGet("GetCommentFromPostId/{id}")]
-        public async Task<ActionResult<OperationResult>> GetCommentFromPostId(int id)
+        [HttpGet("GetCommentByPostId/{id}")]
+        public async Task<ActionResult<OperationResult>> GetCommentByPostId(int id)
         {
-            var result = await _ratingAndCommentService.GetAllRatingFromPostId(id);
-            return result;
+            try
+            {
+                var ratings = await _ratingAndCommentService.GetAllByPostId(id);
+                var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
-            var result = await _ratingAndCommentService.GetByIdAsync(id);
-            return result;
+            try
+            {
+                var rating = await _ratingAndCommentService.GetByIdAsync(id);
+                var ratingVM = _mapper.Map<RatingVM>(rating);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVM);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
+
         [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO)
         {
-            if (ratingDTO == null)
+            try
             {
-                return BadRequest("Comment cannot be empty");
+                if (ratingDTO == null)
+                {
+                    return BadRequest("Comment cannot be empty");
+                }
+                if (ModelState.IsValid)
+                {
+                    var rating = _mapper.Map<Rating>(ratingDTO);
+                    await _ratingAndCommentService.AddAsync(rating);
+                    return new OperationResult(true, "Comment add succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Comment data invalid");
             }
-            if (ModelState.IsValid)
+            catch (DbUpdateException dbEx)
             {
-                var result = await _ratingAndCommentService.AddAsync(ratingDTO);
-                return result;
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
             }
-            return BadRequest("Comment data invalid");
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
-            var result = await _ratingAndCommentService.DeleteByIdAsync(id);
-            return result;
+            try
+            {
+                await _ratingAndCommentService.DeleteByIdAsync(id);
+                return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
+
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpPost("Update/{id}")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] RatingDTO ratingDTO)
         {
-            if (ratingDTO == null || id != ratingDTO.Id)
+            try
             {
-                return BadRequest("Invalid request");
+                if (ratingDTO == null || id != ratingDTO.Id)
+                {
+                    return BadRequest("Invalid request");
+                }
+                if (ModelState.IsValid)
+                {
+                    var rating = _mapper.Map<Rating>(ratingDTO);
+                    await _ratingAndCommentService.UpdateAsync(id, rating);
+                    return new OperationResult(true, "Comment update succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Comment data invalid");
             }
-            if (ModelState.IsValid)
+            catch (DbUpdateException dbEx)
             {
-                var result = await _ratingAndCommentService.UpdateAsync(id, ratingDTO);
-                return result;
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
             }
-            return BadRequest("Comment data invalid");
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
     }
 }

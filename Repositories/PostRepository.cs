@@ -78,7 +78,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .ToListAsync();
 
 
-        public async Task<Post?> GetByIdAsync(int id)
+        public async Task<Post> GetByIdAsync(int id)
             => await _context.Posts.Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
@@ -86,7 +86,8 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
-                                    .FirstOrDefaultAsync(p => p.Id == id);
+                                    .FirstOrDefaultAsync(p => p.Id == id)
+                                    ?? throw new NullReferenceException("Post not found");
 
         public async Task<Post?> GetByIdWithoutConditionAsync(int id)
             => await _context.Posts.Include(p => p.CarType)

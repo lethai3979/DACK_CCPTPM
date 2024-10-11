@@ -30,6 +30,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public int CompanyId { get; set; }
 
-        public List<int> PostAmenitiesIds { get; set; } = new List<int>();
+        public List<int> AmenitiesIds { get; set; } = new List<int>();
     }
 }

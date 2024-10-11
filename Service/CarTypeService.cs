@@ -17,16 +17,13 @@ namespace GoWheels_WebAPI.Service
         private readonly CarTypeDetailRepository _carTypeDetailRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        private readonly IMapper _mapper;
 
         public CarTypeService(CarTypeRepository carTypeRepository,
                             CompanyRepository companyRepository,
                             CarTypeDetailRepository carTypeDetailRepository,
-                            IMapper mapper, 
                             IHttpContextAccessor httpContextAccessor)
     {
             _carTypeRepository = carTypeRepository;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _companyRepository = companyRepository;
             _carTypeDetailRepository = carTypeDetailRepository;

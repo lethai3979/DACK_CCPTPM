@@ -16,146 +16,106 @@ namespace GoWheels_WebAPI.Service
         private readonly RatingRepository _ratingRepository;
         private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
         private readonly string _userId;
-        public RatingService(RatingRepository ratingAndCommentRepository, PostService postService, IHttpContextAccessor contextAccessor, IMapper mapper)
+        public RatingService(RatingRepository ratingAndCommentRepository
+                            , PostService postService
+                            , IHttpContextAccessor contextAccessor)
         {
             _ratingRepository = ratingAndCommentRepository;
             _postService = postService;
             _httpContextAccessor = contextAccessor;
-            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-/*        private async Task<float> GetAverageRatingFromPost(int postId)
+        /*        private async Task<float> GetAverageRatingFromPost(int postId)
+                {
+                    var commentList = await _ratingRepository.GetAllByPostId(postId);
+                    if (commentList == null || !commentList.Any())
+                    {
+                        return 0;
+                    }
+                    return commentList.Average(p => p.Point);
+                }*/
+        public async Task<List<Rating>> GetAllByPostId(int postId)
         {
-            var commentList = await _ratingRepository.GetAllRatingFromPost(postId);
-            if (commentList == null || !commentList.Any())
+            var ratings = await _ratingRepository.GetAllByPostId(postId);
+            if (ratings == null || !ratings.Any())
             {
-                return 0;
+                throw new NullReferenceException("List is empty");
             }
-            return commentList.Average(p => p.Point);
-        }*/
+            return ratings;
+        }
 
-        public async Task<OperationResult> AddAsync(RatingDTO ratingDto)
+        public async Task<List<Rating>> GetAllAsync()
+        {
+            var commentAndRatingList = await _ratingRepository.GetAllAsync();
+            if (commentAndRatingList.IsNullOrEmpty())
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return commentAndRatingList;
+        }
+
+        public async Task<Rating> GetByIdAsync(int id)
+            => await _ratingRepository.GetByIdAsync(id);
+
+        public async Task AddAsync(Rating rating)
         {
             try
             {
-                var rating = _mapper.Map<Rating>(ratingDto);
                 rating.UserId = _userId;
                 rating.CreatedById = _userId;
                 rating.CreatedOn = DateTime.Now;
                 await _ratingRepository.AddAsync(rating);
                 var avgRating = await _ratingRepository.GetAveragePostRatingAsync(rating.PostId);
                 await _postService.UpdatePostAverageRatingAsync(rating.PostId, avgRating);
-                return new OperationResult(true, "Rating and comment added successfully", StatusCodes.Status201Created);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage,  StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
-
-        public async Task<OperationResult> GetRatingsForPost(int postId)
-        {
-            try
-            {
-                var ratings = await _ratingRepository.GetAllRatingFromPost(postId);
-                if (ratings == null || !ratings.Any())
-                {
-                    return new OperationResult(false, "No ratings found for this post", StatusCodes.Status404NotFound);
-                }
-                var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
-                return new OperationResult(true, "Ratings retrieved successfully", StatusCodes.Status200OK, ratingVMs);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var commentAndRatingList = await _ratingRepository.GetAllAsync();
-            if (!commentAndRatingList.IsNullOrEmpty())
-            {
-                var commentAndRatingVM = _mapper.Map<List<RatingVM>>(commentAndRatingList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: commentAndRatingVM);
-            }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-        }
-
-        public async Task<OperationResult> GetAllRatingFromPostId(int postId)
-        {
-            var commentAndRatingFromPost = await _ratingRepository.GetAllRatingFromPost(postId);
-            if (!commentAndRatingFromPost.IsNullOrEmpty())
-            {
-                var commentAndRatingDTO = _mapper.Map<List<Rating>>(commentAndRatingFromPost);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: commentAndRatingDTO);
-            }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-        }
-        public async Task<OperationResult> DeleteByIdAsync(int id)
+    
+        public async Task DeleteByIdAsync(int id)
         {
             try
             {
                 var comment = await _ratingRepository.GetByIdAsync(id);
-                if (comment == null)
-                {
-                    return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);
-                }
                 comment.IsDeleted = true;
                 comment.ModifiedById = _userId;
                 comment.ModifiedOn = DateTime.Now;
                 await _ratingRepository.UpdateAsync(comment);
-                return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
+                var avgRating = await _ratingRepository.GetAveragePostRatingAsync(comment.PostId);
+                await _postService.UpdatePostAverageRatingAsync(comment.PostId, avgRating);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            try
-            {
-                var rating = await _ratingRepository.GetByIdAsync(id);
-                if (rating != null)
-                {
-                    var ratingAndCommentDTO = _mapper.Map<RatingVM>(rating);
-                    return new OperationResult(true, "Comment found", StatusCodes.Status200OK, ratingAndCommentDTO);
-                }
-                return new OperationResult(false, "Comment not found", StatusCodes.Status404NotFound);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-        public async Task<OperationResult> UpdateAsync(int id, RatingDTO ratingDTO)
+        
+        public async Task UpdateAsync(int id, Rating rating)
         {
             try
             {
                 var existingRating = await _ratingRepository.GetByIdAsync(id);
-                if (existingRating == null)
-                {
-                    return new OperationResult(true, "Rating not found", StatusCodes.Status404NotFound);
-                }
-                var rating = _mapper.Map<Rating>(ratingDTO);
                 rating.CreatedOn = existingRating.CreatedOn;
                 rating.CreatedById = existingRating.CreatedById;
                 rating.ModifiedById = existingRating.ModifiedById;
@@ -168,17 +128,23 @@ namespace GoWheels_WebAPI.Service
                 var isValueChange = EditHelper<Rating>.HasChanges(rating, existingRating);
                 EditHelper<Rating>.SetModifiedIfNecessary(rating, isValueChange, existingRating, _userId);
                 await _ratingRepository.UpdateAsync(rating);
-                return new OperationResult(true, "Rating update succesfully", StatusCodes.Status200OK);
+                if (rating.Point != existingRating.Point) 
+                {
+                    var avgRating = await _ratingRepository.GetAveragePostRatingAsync(rating.PostId);
+                    await _postService.UpdatePostAverageRatingAsync(rating.PostId, avgRating);
+                }
             }
-            catch(DbUpdateException dbEx)
+            catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
 
         }

@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _favoriteService.DeletedAsync(id);
-                return new OperationResult(true, "Favorite add succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Favorite deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
@@ -103,7 +103,5 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
-
-
     }
 }

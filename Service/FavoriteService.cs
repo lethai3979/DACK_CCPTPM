@@ -13,16 +13,13 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly FavoriteRepository _favoriteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
         private readonly string _userId;
 
         public FavoriteService(FavoriteRepository favoriteRepository,
-                                IHttpContextAccessor httpContextAccessor, 
-                                IMapper mapper)
+                                IHttpContextAccessor httpContextAccessor)
         {
             _favoriteRepository = favoriteRepository;
             _httpContextAccessor = httpContextAccessor;
-            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
@@ -30,7 +27,7 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Favorite>> GetAllAsync()
         {
             var favorites = await _favoriteRepository.GetAllByUserIdAsync(_userId);
-            if (favorites.Count != 0)
+            if (favorites.Count == 0)
             {
                 throw new NullReferenceException("List is empty");
             }
@@ -42,11 +39,11 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var existingFavorite = await _favoriteRepository.GetByPostIdAsync(favorite.PostId, _userId);
-                if (existingFavorite == null) {
-                    existingFavorite = _mapper.Map<Favorite>(favorite);
-                    existingFavorite.UserId = _userId;
-                    existingFavorite.IsDeleted = false;
-                    await _favoriteRepository.AddAsync(existingFavorite);
+                if (existingFavorite == null)
+                {
+                    favorite.UserId = _userId;
+                    favorite.IsDeleted = false;
+                    await _favoriteRepository.AddAsync(favorite);
                 }
                 else
                 {
