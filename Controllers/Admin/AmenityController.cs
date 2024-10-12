@@ -75,7 +75,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] AmenityDTO amenityDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] AmenityDTO amenityDTO)
         {
             try
             {
