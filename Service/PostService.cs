@@ -57,7 +57,6 @@ namespace GoWheels_WebAPI.Service
 
         public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {
-
             try
             {
                 string imageUrl = null;
