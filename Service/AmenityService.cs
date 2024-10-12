@@ -56,71 +56,35 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
+        public async Task AddAsync(Amenity amenity, IFormFile formFile)
         {
             try
             {
-                // Bước 1: Lưu tệp ảnh và lấy URL nếu có ảnh
-
-                var amenity = _mapper.Map<Amenity>(amenityDTO);
-                amenity.CreatedById = _userId;
-                amenity.CreatedOn = DateTime.Now;
-                amenity.IsDeleted = false;
-
-
-                // Bước 3: Lưu tiện nghi vào cơ sở dữ liệu
-                await _amenityRepository.AddAsync(amenity);
-
-                // Bước 4: Trả về kết quả thành công
-                return new OperationResult(true, "Amenity added successfully", StatusCodes.Status200OK);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
-        {
-            try
-            {
-                // Bước 1: Lưu tệp ảnh và lấy URL nếu có ảnh
                 string imageUrl = null;
-                if (amenityDTO.IconImage != null && amenityDTO.IconImage.Length > 0)
+                if (formFile != null && formFile.Length > 0)
                 {
-                    imageUrl = await SaveImage(amenityDTO.IconImage);
+                    imageUrl = await SaveImage(formFile);
                 }
-                // Bước 1: Map DTO sang entity
-                var amenity = _mapper.Map<Amenity>(amenityDTO);
-                // Bước 2: Thêm thông tin metadata
                 amenity.CreatedById = _userId;
                 amenity.CreatedOn = DateTime.Now;
                 amenity.IsDeleted = false;
                 amenity.IconImage = imageUrl;
-                // Bước 3: Lưu tiện nghi vào cơ sở dữ liệu
                 await _amenityRepository.AddAsync(amenity);
-
-                // Bước 4: Trả về kết quả thành công
-                return new OperationResult(true, "Amenity added successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
-
+        
         public async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)

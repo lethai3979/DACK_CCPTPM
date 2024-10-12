@@ -99,7 +99,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync(PostDTO postDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync(PostDTO postDTO, IFormFile formFile, List<IFormFile> formFiles)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.AddAsync(post, postDTO.ImageUrls, postDTO.AmenitiesIds);
+                    await _postService.AddAsync(post, formFile,formFiles, postDTO.AmenitiesIds);
                     return new OperationResult(true, "Post add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
