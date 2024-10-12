@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -48,11 +49,16 @@ namespace GoWheels_WebAPI.Service
             => await _companyRepository.GetByIdAsync(id);
 
 
-        public async Task AddAsync(Company company, List<int> carTypeIds)
+        public async Task AddAsync(Company company, List<int> carTypeIds, IFormFile formFile)
         {
 
             try
             {
+                string imageUrl = null;
+                if (formFile != null && formFile.Length > 0)
+                {
+                    imageUrl = await SaveImage(formFile);
+                }
                 if (carTypeIds.Contains(0) || carTypeIds.Count == 0)
                 {
                     carTypeIds.Clear();
@@ -60,6 +66,7 @@ namespace GoWheels_WebAPI.Service
                 company.CreatedById = _userId;
                 company.CreatedOn = DateTime.Now;
                 company.IsDeleted = false;
+                company.IconImage = imageUrl;
                 await _companyRepository.AddAsync(company);
                 await _companyRepository.AddCompanyDetailAsync(company.Id, carTypeIds);
             }
@@ -76,7 +83,41 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<string> SaveImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new ArgumentException("File cannot be null or empty");
+            }
 
+            // Đường dẫn tới thư mục lưu trữ ảnh
+            var savePath = "./wwwroot/images/companies/";
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
+            var filePath = Path.Combine(savePath, fileName);
+
+            try
+            {
+                // Tạo thư mục nếu chưa tồn tại
+                if (!Directory.Exists(savePath))
+                {
+                    Directory.CreateDirectory(savePath);
+                }
+
+                // Lưu ảnh vào thư mục
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                // Trả về URL để lưu vào database
+                return "https://localhost:7265/images/companies/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi
+                throw new Exception("Could not save file", ex);
+            }
+        }
         public async Task DeleteByIdAsync(int id)
         {
             try
@@ -101,12 +142,31 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(int id, Company company, List<int> carTypeIds)
+        public async Task UpdateAsync(int id, Company company, List<int> carTypeIds, IFormFile formFile)
         {
             try
             {
-                //Check if Company exist
+                string imageUrl = null;
+                if (formFile != null && formFile.Length > 0)
+                {
+                    imageUrl = await SaveImage(formFile);
+                }
                 var existingCompany = await _companyRepository.GetByIdAsync(id);
+                //if (existingCompany == null)
+                //{
+                //    return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
+                //}
+
+                if (imageUrl != null)
+                {
+                    company.IconImage = imageUrl;
+                }
+                else
+                {
+                    company.IconImage = existingCompany.IconImage;
+                }
+                //Check if Company exist
+                
                 company.CreatedOn = existingCompany.CreatedOn;
                 company.CreatedById = existingCompany.CreatedById;
                 company.ModifiedById = existingCompany.ModifiedById;
