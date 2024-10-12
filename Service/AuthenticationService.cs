@@ -26,7 +26,8 @@ namespace GoWheels_WebAPI.Service
             {
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
-                UserName = signUpViewModel.Email
+                UserName = signUpViewModel.Email,
+                Image = ''
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
             if (!result.Succeeded)
@@ -40,7 +41,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<string> LoginAsync(LoginVM loginViewModel)
         {
-            var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.UserName);
+            var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);
             if (user == null)
             {
                 return "Login failed";
