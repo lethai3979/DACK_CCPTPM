@@ -44,12 +44,12 @@ namespace GoWheels_WebAPI.Service
             var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);
             if (user == null)
             {
-                return "Login failed";
+                return "Login failed Email";
             }
             var isPasswordValid = await _autheticationRepository.ValidatePasswordAsync(user, loginViewModel.Password);
             if (!isPasswordValid)
             {
-                return "Login failed";
+                return "Login failed password";
             }
             var token = await GenerateJwtToken(user);
             return token;
