@@ -124,7 +124,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPut("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, AmenityDTO amenityDTO)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] AmenityDTO amenityDTO)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.UpdateAsync(id, amenity);
+                    await _amenityService.UpdateAsync(id, amenity, amenityDTO.IconImage);
                     return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");

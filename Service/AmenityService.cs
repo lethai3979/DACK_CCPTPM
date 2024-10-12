@@ -25,35 +25,23 @@ namespace GoWheels_WebAPI.Service
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _webHostEnvironment = webHostEnvironment;
-        }   
-
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var amenityList = await _amenityRepository.GetAllAsync();
-            if (amenityList.Count != 0)
-            {
-                var amenityListVM = _mapper.Map<List<AmenityVM>>(amenityList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityListVM);
-            }
-            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
-        public async Task<OperationResult> GetByIdAsync(int id)
+        public async Task<List<Amenity>> GetAllAsync()
         {
-            try
+            var amenityList = await _amenityRepository.GetAllAsync();
+            if (amenityList.Count == 0)
             {
-                var amenity = await _amenityRepository.GetByIdAsync(id);
-                if (amenity != null)
-                {
-                    var amenityVM = _mapper.Map<AmenityVM>(amenity);
-                    return new OperationResult(true, "Amenity found", StatusCodes.Status200OK, amenityVM);
-                }
-                return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
+                throw new NullReferenceException("List is empty");
             }
-            catch (Exception ex)
-            {
-                return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
-            }
+            return amenityList;
+        }
+
+        public async Task<Amenity> GetByIdAsync(int id)
+        {
+
+            var amenity = await _amenityRepository.GetByIdAsync(id);
+            return amenity;
         }
 
         public async Task AddAsync(Amenity amenity, IFormFile formFile)
@@ -151,22 +139,21 @@ namespace GoWheels_WebAPI.Service
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        public async Task<OperationResult> UpdateAsync(int id, AmenityDTO amenityDTO)
+        public async Task<OperationResult> UpdateAsync(int id, Amenity amenity, IFormFile formFile)
         {
             string imageUrl = null;
             try
             {
                 var existingAmenity = await _amenityRepository.GetByIdAsync(id);
-                if (amenityDTO.IconImage != null && amenityDTO.IconImage.Length > 0)
+                if (formFile != null && formFile.Length > 0)
                 {
-                    imageUrl = await SaveImage(amenityDTO.IconImage);
+                    imageUrl = await SaveImage(formFile);
                 }
                 
                 if (existingAmenity == null)
                 {
                     return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
                 }
-                var amenity = _mapper.Map<Amenity>(amenityDTO);
 
                 if (imageUrl != null)
                 {
