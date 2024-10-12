@@ -5,9 +5,9 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-
 namespace GoWheels_WebAPI.Service
 {
     public class AmenityService
@@ -15,42 +15,90 @@ namespace GoWheels_WebAPI.Service
         public readonly AmenityRepository _amenityRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        public AmenityService(AmenityRepository amenityRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public AmenityService(AmenityRepository amenityRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment)
         {
             _amenityRepository = amenityRepository;
+            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-        }
+            _webHostEnvironment = webHostEnvironment;
+        }   
 
-        public async Task<List<Amenity>> GetAllAsync()
+        public async Task<OperationResult> GetAllAsync()
         {
             var amenityList = await _amenityRepository.GetAllAsync();
-            if (amenityList.Count == 0)
+            if (amenityList.Count != 0)
             {
-                throw new NullReferenceException("List is empty");
+                var amenityListVM = _mapper.Map<List<AmenityVM>>(amenityList);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityListVM);
             }
-            return amenityList;
+            return new OperationResult(message: "List empty", statusCode: StatusCodes.Status204NoContent);
         }
 
-        public async Task<Amenity> GetByIdAsync(int id)
+        public async Task<OperationResult> GetByIdAsync(int id)
         {
-
-            var amenity = await _amenityRepository.GetByIdAsync(id);
-            return amenity;
+            try
+            {
+                var amenity = await _amenityRepository.GetByIdAsync(id);
+                if (amenity != null)
+                {
+                    var amenityVM = _mapper.Map<AmenityVM>(amenity);
+                    return new OperationResult(true, "Amenity found", StatusCodes.Status200OK, amenityVM);
+                }
+                return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
+            }
         }
 
+        public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
+        {
+            try
+            {
+                // Bước 1: Lưu tệp ảnh và lấy URL nếu có ảnh
 
-        public async Task<OperationResult> AddAsync(Amenity amenity)
+                var amenity = _mapper.Map<Amenity>(amenityDTO);
+                amenity.CreatedById = _userId;
+                amenity.CreatedOn = DateTime.Now;
+                amenity.IsDeleted = false;
+
+
+                // Bước 3: Lưu tiện nghi vào cơ sở dữ liệu
+                await _amenityRepository.AddAsync(amenity);
+
+                // Bước 4: Trả về kết quả thành công
+                return new OperationResult(true, "Amenity added successfully", StatusCodes.Status200OK);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        public async Task<OperationResult> AddAsync(AmenityDTO amenityDTO)
         {
             try
             {
                 // Bước 1: Lưu tệp ảnh và lấy URL nếu có ảnh
                 string imageUrl = null;
-                if (amenity.IconImage != null && amenity.IconImage.Length > 0)
+                if (amenityDTO.IconImage != null && amenityDTO.IconImage.Length > 0)
                 {
-                    imageUrl = await SaveImage(amenity.IconImage);
+                    imageUrl = await SaveImage(amenityDTO.IconImage);
                 }
+                // Bước 1: Map DTO sang entity
+                var amenity = _mapper.Map<Amenity>(amenityDTO);
+                // Bước 2: Thêm thông tin metadata
                 amenity.CreatedById = _userId;
                 amenity.CreatedOn = DateTime.Now;
                 amenity.IsDeleted = false;
@@ -111,34 +159,59 @@ namespace GoWheels_WebAPI.Service
 
 
 
-        public async Task DeletedByIdAsync(int id)
+
+
+        public async Task<OperationResult> DeletedByIdAsync(int id)
         {
             try
             {
                 var amenity = await _amenityRepository.GetByIdAsync(id);
+                if (amenity == null)
+                {
+                    return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
+                }
                 amenity.ModifiedById = _userId;
                 amenity.ModifiedOn = DateTime.Now;
-                amenity.IsDeleted = !amenity.IsDeleted;
+                amenity.IsDeleted = true;
                 await _amenityRepository.UpdateAsync(amenity);
+                return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException ioEx)
-            {
-                throw new InvalidOperationException(ioEx.InnerException!.Message);
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        public async Task UpdateAsync(int id, Amenity amenity)
+        public async Task<OperationResult> UpdateAsync(int id, AmenityDTO amenityDTO)
         {
+            string imageUrl = null;
             try
             {
                 var existingAmenity = await _amenityRepository.GetByIdAsync(id);
+                if (amenityDTO.IconImage != null && amenityDTO.IconImage.Length > 0)
+                {
+                    imageUrl = await SaveImage(amenityDTO.IconImage);
+                }
+                
+                if (existingAmenity == null)
+                {
+                    return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
+                }
+                var amenity = _mapper.Map<Amenity>(amenityDTO);
+
+                if (imageUrl != null)
+                {
+                    amenity.IconImage = imageUrl;
+                }
+                else
+                {
+                    amenity.IconImage = existingAmenity.IconImage;
+                }
                 amenity.CreatedOn = existingAmenity.CreatedOn;
                 amenity.CreatedById = existingAmenity.CreatedById;
                 amenity.ModifiedById = existingAmenity.ModifiedById;
@@ -146,19 +219,17 @@ namespace GoWheels_WebAPI.Service
                 var isValueChange = EditHelper<Amenity>.HasChanges(amenity, existingAmenity);
                 EditHelper<Amenity>.SetModifiedIfNecessary(amenity, isValueChange, existingAmenity, _userId);
                 await _amenityRepository.UpdateAsync(amenity);
-
+                return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException ioEx)
-            {
-                throw new InvalidOperationException(ioEx.InnerException!.Message);
+                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
     }

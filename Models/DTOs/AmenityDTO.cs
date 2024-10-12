@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GoWheels_WebAPI.Models.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
