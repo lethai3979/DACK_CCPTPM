@@ -24,8 +24,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task UpdatePostOnStartup()
         {
-            var result = await _bookingService.GetAllAsync();
-            var bookings = _mapper.Map<List<Booking>>((List<BookingVM>)result.Data!);
+            var bookings = await _bookingService.GetAllAsync();
             await _postService.UpdateRideNumberAsync(bookings);
         }
     }

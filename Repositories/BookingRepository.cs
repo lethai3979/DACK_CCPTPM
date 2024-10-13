@@ -37,7 +37,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(b => b.PromotionType)
                                         .Where(b => !b.IsDeleted).ToListAsync();
 
-        public async Task<List<Booking>> GetAllPersonalAsync(string userId)
+        public async Task<List<Booking>> GetAllPersonalBookingAsync(string userId)
            => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
@@ -67,14 +67,15 @@ namespace GoWheels_WebAPI.Repositories
                                         .Where(b => b.PostId == postId && b.Status != "Waiting")
                                         .ToListAsync();
 
-        public async Task<Booking?> GetByIdAsync(int id)
+        public async Task<Booking> GetByIdAsync(int id)
             => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .ThenInclude(b => b.PromotionType)
-                                        .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+                                        .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted)
+                                        ?? throw new NullReferenceException("Booking not found");
 
         public async Task UpdateAsync(Booking booking)
         {

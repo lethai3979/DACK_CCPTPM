@@ -30,15 +30,19 @@ namespace GoWheels_WebAPI.Repositories
                                         .Where(i => i.Booking.Status.Equals("Refunded") && i.Total <= 0)
                                         .ToListAsync();
 
-        public async Task<Invoice?> GetByIdAsync(int id)
-            => await _context.Invoices.AsNoTracking().Include(i => i.Booking).FirstOrDefaultAsync(i => i.Id == id);
+        public async Task<Invoice> GetByIdAsync(int id)
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .FirstOrDefaultAsync(i => i.Id == id)
+                                        ?? throw new NullReferenceException("Invoice not found");
 
-        public async Task<Invoice?> GetByBookingIdAsync(int bookingId)
+
+        public async Task<Invoice> GetByBookingIdAsync(int bookingId)
         => await _context.Invoices.AsNoTracking()
                                     .Include(i => i.Booking)
-                                    .Where(i => i.BookingId == bookingId)
                                     .OrderByDescending(b => b.Id)
-                                    .FirstOrDefaultAsync();
+                                    .FirstOrDefaultAsync(i => i.BookingId == bookingId)
+                                    ?? throw new NullReferenceException("Invoice not found");
 
         public async Task AddAsync(Invoice invoice)
         {

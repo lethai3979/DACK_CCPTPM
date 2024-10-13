@@ -97,9 +97,9 @@ namespace GoWheels_WebAPI.Controllers
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
             }
-            catch (InvalidOperationException ioEx)
+            catch (InvalidOperationException operationEx)
             {
-                return new OperationResult(false, ioEx.Message, StatusCodes.Status500InternalServerError);
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {

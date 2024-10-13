@@ -1,10 +1,13 @@
-﻿using GoWheels_WebAPI.Models.DTOs;
+﻿using AutoMapper;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
 namespace GoWheels_WebAPI.Controllers
@@ -15,65 +18,166 @@ namespace GoWheels_WebAPI.Controllers
     public class SalePromotionController : ControllerBase
     {
         private readonly SalePromotionService _salePromotionService;
-        public SalePromotionController(SalePromotionService salePromotionService)
+        private readonly IMapper _mapper;
+        public SalePromotionController(SalePromotionService salePromotionService, IMapper mapper)
         {
             _salePromotionService = salePromotionService;
+            _mapper = mapper;
         }
         [HttpGet("GetAll")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
         {
-            var result = await _salePromotionService.GetAllAsync();
-            return result;
+            try
+            {
+                var promotions = await _salePromotionService.GetAllAsync();
+                var promotionVMs = _mapper.Map<List<SalePromotionVM>>(promotions);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpGet("GetAllByRole")]
         public async Task<ActionResult<OperationResult>> GetPromotionsByRole()
         {
-            var result = await _salePromotionService.GetPromotionsByRole();
-            return result;
+            try
+            {
+                var promotions = await _salePromotionService.GetAllByRole();
+                var promotionVMs = _mapper.Map<List<SalePromotionVM>>(promotions);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
-            var result = await _salePromotionService.GetByIdAsync(id);
-            return result;
+            try
+            {
+                var promotion = await _salePromotionService.GetByIdAsync(id);
+                var promotionVM = _mapper.Map<SalePromotionVM>(promotion);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVM);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDto)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDTO)
         {
-            if(salePromotionDto == null)
+            try
             {
-                return BadRequest("Promotion is null");
-            }    
-            if (ModelState.IsValid)
-            {
-                var result = await _salePromotionService.AddAsync(salePromotionDto);
-                return result;
+                if (salePromotionDTO == null)
+                {
+                    return BadRequest("Promotion is null");
+                }
+                if (ModelState.IsValid)
+                {
+                    var promotion = _mapper.Map<Promotion>(salePromotionDTO);
+                    await _salePromotionService.AddAsync(promotion);
+                    return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Sale Promotion data invalid");
             }
-            return BadRequest("Sale Promotion data invalid");
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
-            var result = await _salePromotionService.DeletedByIdAsync(id);
-            return result;
+            try
+            {
+                await _salePromotionService.DeletedByIdAsync(id);
+                return new OperationResult(true, "Promotion deleted succesfully", StatusCodes.Status200OK);
+
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionDTO salePromotionDto)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] SalePromotionDTO salePromotionDTO)
         {
-            if(salePromotionDto == null || id != salePromotionDto.Id)
+            try
             {
-                return BadRequest("Invalid request");
-            }    
-            if (ModelState.IsValid)
-            {
-                var result = await _salePromotionService.UpdateAsync(id, salePromotionDto);
-                return result;
+                if (salePromotionDTO == null || id != salePromotionDTO.Id)
+                {
+                    return BadRequest("Invalid request");
+                }
+                if (ModelState.IsValid)
+                {
+                    var promotion = _mapper.Map<Promotion>(salePromotionDTO);
+                    await _salePromotionService.UpdateAsync(id, promotion);
+                    return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Sale Promotion data invalid");
             }
-            return BadRequest("Sale Promotion data invalid");
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
     }
 }

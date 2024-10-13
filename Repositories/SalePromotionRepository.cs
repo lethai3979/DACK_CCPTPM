@@ -31,11 +31,12 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<Promotion>> GetAllAsync()
             => await _context.Promotions.AsNoTracking().Where(p => !p.IsDeleted).Include(p => p.PromotionType).ToListAsync();
 
-        public async Task<Promotion?> GetByIdAsync(int id) 
+        public async Task<Promotion> GetByIdAsync(int id) 
             => await _context.Promotions.AsNoTracking()
                                         .Where(p => !p.IsDeleted)
                                         .Include(p => p.PromotionType)
-                                        .FirstOrDefaultAsync(p => p.Id == id);
+                                        .FirstOrDefaultAsync(p => p.Id == id)
+                                        ?? throw new NullReferenceException("Promotion not found");
 
         public async Task UpdateAsync(Promotion promotion, Promotion newPromotion)
         {

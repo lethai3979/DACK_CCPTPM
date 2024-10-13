@@ -115,6 +115,10 @@ namespace GoWheels_WebAPI.Controllers
                 await _companyService.DeleteByIdAsync(id);
                 return new OperationResult(true, "Company deleted succesfully", StatusCodes.Status200OK);
             }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
             catch (DbUpdateException dbEx)
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
@@ -146,6 +150,10 @@ namespace GoWheels_WebAPI.Controllers
                     return new OperationResult(true, "Company update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
             }
             catch (DbUpdateException dbEx)
             {
