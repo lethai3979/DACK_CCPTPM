@@ -59,6 +59,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 //Register dependency service
+builder.Services.AddScoped<StartupService>();
 builder.Services.AddScoped<InvoiceRepository>();
 builder.Services.AddScoped<BookingRepository>();
 builder.Services.AddScoped<InvoiceService>();
@@ -130,6 +131,14 @@ using (var scope = app.Services.CreateScope())
     await ApplicationRole.InitialRoles(services);//Initial default role
     var repository = services.GetRequiredService<SalePromotionTypeRepository>();
     await repository.SeedSalePromotionTypeAsync();//Initial default promotion type
+}
+
+//Startup Service
+using (var scope = app.Services.CreateScope())
+{
+    var startupService = scope.ServiceProvider.GetRequiredService<StartupService>();
+    await startupService.UpdateBookingsOnStartup();
+    await startupService.UpdatePostOnStartup();
 }
 
 // Configure the HTTP request pipeline.

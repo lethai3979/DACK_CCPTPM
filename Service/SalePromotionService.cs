@@ -29,9 +29,9 @@ namespace GoWheels_WebAPI.Service
             var user = _httpContextAccessor.HttpContext?.User!;
             if (user.IsInRole("Admin"))
             {
-                return 1;
+                return 2;
             }
-            return 2;
+            return 3;
         }
         public async Task<List<Promotion>> GetAllAsync()
         {
@@ -43,19 +43,26 @@ namespace GoWheels_WebAPI.Service
             return promotionlist;
         }
 
-        public async Task<List<Promotion>> GetAllByRole()
+        public async Task<List<Promotion>> GetAllByUserId()
+        {
+            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+            if (promoList.IsNullOrEmpty())
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return promoList;
+        }
+
+
+        public async Task<List<Promotion>> GetAllAdminPromotions()
         {
             var userRole = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
-            List<Promotion> promoList = new List<Promotion>();
-            if(userRole == "Admin")
+            .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
+            if (userRole != "Admin")
             {
-                promoList = await _salepromotionRepository.GetAdminPromotionsAsync();
-            }    
-            else
-            {
-                promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+                throw new UnauthorizedAccessException("Access denied");
             }
+            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
             if (promoList.IsNullOrEmpty())
             {
                 throw new NullReferenceException("List is empty");

@@ -67,7 +67,8 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<Post>> GetAllAsync()
-            => await _context.Posts.Include(p => p.CarType)
+            => await _context.Posts.AsNoTracking()
+                                    .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
@@ -79,7 +80,8 @@ namespace GoWheels_WebAPI.Repositories
 
 
         public async Task<Post> GetByIdAsync(int id)
-            => await _context.Posts.Include(p => p.CarType)
+            => await _context.Posts.AsNoTracking()
+                                    .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))

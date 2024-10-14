@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 var invoices = await _invoiceService.GetPersonalInvoicesAsync();
-                var invoiceVMs = _mapper.Map<InvoiceVM>(invoices);
+                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
             catch (NullReferenceException nullEx)

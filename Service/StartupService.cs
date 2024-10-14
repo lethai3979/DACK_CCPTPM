@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -19,7 +20,26 @@ namespace GoWheels_WebAPI.Service
 
         public async Task UpdateBookingsOnStartup()
         {
-            await _bookingService.UpdateBookingStatus();
+            try
+            {
+                await _bookingService.UpdateBookingStatus();
+            }
+            catch(NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.Message);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task UpdatePostOnStartup()

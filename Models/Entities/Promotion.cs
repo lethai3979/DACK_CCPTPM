@@ -15,6 +15,7 @@ namespace GoWheels_WebAPI.Models.Entities
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]
         [Required]
         public required DateTime ExpiredDate { get; set; }
+        public List<Booking> Booking { get; set; } = new List<Booking>();
 
         [Required]
         [ForeignKey(nameof(PromotionType))]

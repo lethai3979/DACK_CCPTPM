@@ -48,12 +48,12 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetAllByRole")]
-        public async Task<ActionResult<OperationResult>> GetPromotionsByRole()
+        [HttpGet("GetAllByUserId")]
+        public async Task<ActionResult<OperationResult>> GetPromotionsByUserId()
         {
             try
             {
-                var promotions = await _salePromotionService.GetAllByRole();
+                var promotions = await _salePromotionService.GetAllByUserId();
                 var promotionVMs = _mapper.Map<List<SalePromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -71,6 +71,36 @@ namespace GoWheels_WebAPI.Controllers
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
+
+
+        [HttpGet("GetAllAdminPromotions")]
+        public async Task<ActionResult<OperationResult>> GetAllAdminPromotions()
+        {
+            try
+            {
+                var promotions = await _salePromotionService.GetAllAdminPromotions();
+                var promotionVMs = _mapper.Map<List<SalePromotionVM>>(promotions);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (UnauthorizedAccessException authEx)
+            {
+                return new OperationResult(false, authEx.Message, StatusCodes.Status403Forbidden);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
 
         [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
