@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.AddAsync(company, companyDTO.CarTypeIds);
+                    await _companyService.AddAsync(company, companyDTO.CarTypeIds,companyDTO.IconImage);
                     return new OperationResult(true, "Company add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");
@@ -146,7 +146,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.UpdateAsync(id, company, companyDTO.CarTypeIds);
+                    await _companyService.UpdateAsync(id, company, companyDTO.CarTypeIds, companyDTO.IconImage);
                     return new OperationResult(true, "Company update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");

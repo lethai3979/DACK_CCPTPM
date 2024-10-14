@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GoWheels_WebAPI.Models.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
@@ -8,6 +9,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public string? Name { get; set; }
         [Required]
-        public string? IconImage { get; set; }
+        public IFormFile? IconImage { get; set; }
     }
 }

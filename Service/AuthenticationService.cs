@@ -26,7 +26,8 @@ namespace GoWheels_WebAPI.Service
             {
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
-                UserName = signUpViewModel.Email
+                UserName = signUpViewModel.Email,
+                Image = "https://localhost:7265/images/ImageUser/user.png"
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
             if (!result.Succeeded)
@@ -40,15 +41,15 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<string> LoginAsync(LoginVM loginViewModel)
         {
-            var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.UserName);
+            var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);
             if (user == null)
             {
-                return "Login failed";
+                return "Login failed Email";
             }
             var isPasswordValid = await _autheticationRepository.ValidatePasswordAsync(user, loginViewModel.Password);
             if (!isPasswordValid)
             {
-                return "Login failed";
+                return "Login failed password";
             }
             var token = await GenerateJwtToken(user);
             return token;
@@ -79,6 +80,58 @@ namespace GoWheels_WebAPI.Service
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public async Task<UserVM?> GetUserFromToken(string token)
+        {
+            // Định nghĩa các hằng số cho Claim Types
+            const string ClaimTypeUserId = ClaimTypes.NameIdentifier;
+            const string ClaimTypeUserName = ClaimTypes.Name;
+            const string ClaimTypeEmail = ClaimTypes.Email;
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+
+                var claims = jwtToken.Claims;
+
+                var userId = claims.FirstOrDefault(c => c.Type == ClaimTypeUserId)?.Value;
+                var userName = claims.FirstOrDefault(c => c.Type == ClaimTypeUserName)?.Value;
+                var email = claims.FirstOrDefault(c => c.Type == ClaimTypeEmail)?.Value;
+
+                if (userId == null || userName == null || email == null)
+                {
+                    return null;
+                }
+
+                var user = await _autheticationRepository.FindByUserNameAsync(userName);
+                if (user == null)
+                {
+                    return null;
+                }
+
+                var userRoles = await _autheticationRepository.GetUserRolesAsync(user);
+
+                return new UserVM
+                {
+                    UserId = user.Id,
+                    Name = user.UserName,
+                    License = user.License,
+                    Image = user.Image,
+                    Birthday = user.Birthday,
+                    //ReportPoint = user.ReportPoint,
+                    //Posts = user.Posts,
+                    //Booking = user.Booking,
+                    //Rating = user.Rating,
+                    //Favorites = user.Favorites,
+                    //Role = userRoles
+                };
+            }
+            catch (Exception ex)
+            {
+                // Ghi lại lỗi (cân nhắc sử dụng một framework ghi log)
+                Console.WriteLine($"Lỗi khi phân tích token: {ex.Message}");
+                return null;
+            }
         }
     }
 }

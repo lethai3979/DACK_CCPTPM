@@ -55,11 +55,18 @@ namespace GoWheels_WebAPI.Service
             return posts;
         }
 
-        public async Task AddAsync(Post post, List<string> imageUrls, List<int> amenitiesIds)
+        public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {
-
             try
             {
+                string imageUrl = null;
+                List<string> imgUrls = new List<string>();
+                if (formFile != null && formFile.Length > 0)
+                {
+                    imageUrl = await SaveImage(formFile);
+                }
+                post.Image = imageUrl;
+
                 post.CreatedById = _userId;
                 post.CreatedOn = DateTime.Now;
                 post.UserId = _userId;
@@ -69,9 +76,15 @@ namespace GoWheels_WebAPI.Service
                 post.IsHidden = false;  
                 post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
-                if(imageUrls.Count != 0)
+                if(formFiles.Count != 0)
                 {
-                    await _postRepository.AddPostImagesAsync(imageUrls, post.Id);
+                    foreach (var file in formFiles)
+                    {
+                        var img = await SaveImage(file);
+                        imgUrls.Add(img);
+                    }
+
+                    await _postRepository.AddPostImagesAsync(imgUrls, post.Id);
                 }
                 if(amenitiesIds.Count != 0)
                 {
@@ -89,6 +102,41 @@ namespace GoWheels_WebAPI.Service
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+        public async Task<string> SaveImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new ArgumentException("File cannot be null or empty");
+            }
+
+            // Đường dẫn tới thư mục lưu trữ ảnh
+            var savePath = "./wwwroot/images/posts/";
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
+            var filePath = Path.Combine(savePath, fileName);
+
+            try
+            {
+                // Tạo thư mục nếu chưa tồn tại
+                if (!Directory.Exists(savePath))
+                {
+                    Directory.CreateDirectory(savePath);
+                }
+
+                // Lưu ảnh vào thư mục
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                // Trả về URL để lưu vào database
+                return "https://localhost:7265/images/posts/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi
+                throw new Exception("Could not save file", ex);
             }
         }
 

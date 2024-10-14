@@ -30,5 +30,16 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _authenService.SignUpAsync(signUpViewModel);
             return result;
         }
+        [HttpPost("GetUser")]
+        public async Task<ActionResult<UserVM>> GetUser([FromBody] string token)
+        {
+            Console.WriteLine($"Token nhận được: {token}");
+            var result = await _authenService.GetUserFromToken(token);
+            if (result == null)
+            {
+                return NotFound("Người dùng không tồn tại hoặc token không hợp lệ");
+            }
+            return Ok(result);
+        }
     }
 }
