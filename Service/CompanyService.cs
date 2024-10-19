@@ -54,10 +54,9 @@ namespace GoWheels_WebAPI.Service
 
             try
             {
-                string imageUrl = null;
                 if (formFile != null && formFile.Length > 0)
                 {
-                    imageUrl = await SaveImage(formFile);
+                    company.IconImage = await SaveImage(formFile);
                 }
                 if (carTypeIds.Contains(0) || carTypeIds.Count == 0)
                 {
@@ -66,7 +65,6 @@ namespace GoWheels_WebAPI.Service
                 company.CreatedById = _userId;
                 company.CreatedOn = DateTime.Now;
                 company.IsDeleted = false;
-                company.IconImage = imageUrl;
                 await _companyRepository.AddAsync(company);
                 await _companyRepository.AddCompanyDetailAsync(company.Id, carTypeIds);
             }
@@ -92,7 +90,7 @@ namespace GoWheels_WebAPI.Service
 
             // Đường dẫn tới thư mục lưu trữ ảnh
             var savePath = "./wwwroot/images/companies/";
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
+            var fileName = Path.GetFileName(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
             var filePath = Path.Combine(savePath, fileName);
 
             try
@@ -152,10 +150,6 @@ namespace GoWheels_WebAPI.Service
                     imageUrl = await SaveImage(formFile);
                 }
                 var existingCompany = await _companyRepository.GetByIdAsync(id);
-                //if (existingCompany == null)
-                //{
-                //    return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
-                //}
 
                 if (imageUrl != null)
                 {

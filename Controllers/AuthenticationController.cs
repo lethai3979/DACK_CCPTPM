@@ -1,6 +1,6 @@
 ﻿using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
-using Microsoft.AspNetCore.Http;
+using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,10 +18,17 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<string> Login(LoginVM loginViewModel)
+        public async Task<ActionResult<OperationResult>> Login(LoginVM loginViewModel)
         {
-            var result = await _authenService.LoginAsync(loginViewModel);
-            return result;
+            try
+            {
+                var result = await _authenService.LoginAsync(loginViewModel);
+                return new OperationResult(true, result, StatusCodes.Status200OK);
+            }
+            catch (InvalidOperationException operationEx) 
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
         }
 
         [HttpPost("SignUp")]
