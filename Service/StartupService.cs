@@ -44,8 +44,28 @@ namespace GoWheels_WebAPI.Service
 
         public async Task UpdatePostOnStartup()
         {
-            var bookings = await _bookingService.GetAllAsync();
-            await _postService.UpdateRideNumberAsync(bookings);
+            try
+            {
+                var bookings = await _bookingService.GetAllAsync();
+                await _postService.UpdateRideNumberAsync(bookings);
+
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

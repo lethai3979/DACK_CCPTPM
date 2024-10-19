@@ -118,10 +118,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+/*                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
                 {
                     return BadRequest("return date or recieve date invalid");
-                }
+                }*/
                 if (ModelState.IsValid)
                 {
                     var booking = _mapper.Map<Booking>(bookingDTO);

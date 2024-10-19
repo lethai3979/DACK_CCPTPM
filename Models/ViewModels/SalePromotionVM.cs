@@ -11,6 +11,5 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public required string Content { get; set; }
         public decimal DiscountValue { get; set; }
         public required DateTime ExpiredDate { get; set; }
-        public SalePromotionTypeVM PromotionType { get; set; } = null!;
     }
 }

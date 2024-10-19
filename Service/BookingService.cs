@@ -31,9 +31,9 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Booking>> GetAllWaitingBookingAsync(int postId)
+        public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
         {
-            var bookings = await _bookingRepository.GetAllWaitingBookingAsync(postId);
+            var bookings = await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
             if (bookings.Count == 0)
             {
                 throw new NullReferenceException("List is empty");
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<Booking>> GetPersonalBookingsAsync()
         {
-            var bookings = await _bookingRepository.GetAllPersonalBookingAsync(_userId);
+            var bookings = await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
             if (bookings.Count == 0)
             {
                 throw new NullReferenceException("List is empty");
@@ -119,8 +119,6 @@ namespace GoWheels_WebAPI.Service
                 booking.User = existingBooking.User;
                 booking.PostId = existingBooking.PostId;
                 booking.Post = existingBooking.Post;
-                booking.PromotionId = existingBooking.PromotionId;
-                booking.Promotion = existingBooking.Promotion;
                 booking.IsDeleted = existingBooking.IsDeleted;
                 var isValueChange = EditHelper<Booking>.HasChanges(booking, existingBooking);
                 EditHelper<Booking>.SetModifiedIfNecessary(booking, isValueChange, existingBooking, _userId);
@@ -147,15 +145,15 @@ namespace GoWheels_WebAPI.Service
                 var bookings = await _bookingRepository.GetAllAsync();
                 if (bookings.Count == 0)
                 {
-                    throw new NullReferenceException("No booking to update");
+                    return;
                 }
                 foreach (var booking in bookings)
                 {
-                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn > DateTime.Now)
+                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn <= DateTime.Now)
                     {
                         booking.Status = "Renting";
                     }
-                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn > DateTime.Now)
+                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn < DateTime.Now)
                     {
                         booking.Status = "Conplete";
                     }
@@ -253,6 +251,31 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new Exception(ex.Message);
             }
+        }
+        public async Task CancelReportedBookingsAsync(List<Booking> bookings)
+        {
+            try
+            {
+                foreach (var booking in bookings)
+                {
+                    booking.IsDeleted = true;
+                    booking.Status = "Refunded";
+                    await _bookingRepository.UpdateAsync(booking);
+                }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
     }
 }

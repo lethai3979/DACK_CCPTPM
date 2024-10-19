@@ -80,7 +80,6 @@ builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<SalePromotionRepository>();
-builder.Services.AddScoped<SalePromotionTypeRepository>();
 builder.Services.AddScoped<SalePromotionService>();
 builder.Services.AddScoped<RatingRepository>();
 builder.Services.AddScoped<RatingService>();
@@ -129,17 +128,13 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await ApplicationRole.InitialRoles(services);//Initial default role
-    var repository = services.GetRequiredService<SalePromotionTypeRepository>();
-    await repository.SeedSalePromotionTypeAsync();//Initial default promotion type
-}
 
-//Startup Service
-using (var scope = app.Services.CreateScope())
-{
+    //Startup Service
     var startupService = scope.ServiceProvider.GetRequiredService<StartupService>();
     await startupService.UpdateBookingsOnStartup();
     await startupService.UpdatePostOnStartup();
 }
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

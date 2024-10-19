@@ -84,7 +84,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var booking = await _bookingService.GetByIdAsync(bookingId);
-                //await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, true, -1);
                 await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
                 if (isAccept)
                 {
@@ -127,19 +126,13 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new Exception(ex.Message);
             }
-
         }
 
-        /*public async Task<OperationResult> RefundReportedPostBooking(int postId)
+        public async Task RefundReportedBookingsAsync(List<Booking> bookings)
         {
             try
             {
-                var waitingBookings = await _bookingService.GetAllWaitingBookingAsync(postId);
-                if (waitingBookings.Count == 0)
-                {
-                    return new OperationResult(true, "No booking to refund", StatusCodes.Status200OK);
-                }
-                foreach (var booking in waitingBookings)
+                foreach (var booking in bookings)
                 {
                     var refundInvoice = new Invoice()
                     {
@@ -151,20 +144,20 @@ namespace GoWheels_WebAPI.Service
                     };
                     await _invoiceRepository.AddAsync(refundInvoice);
                 }
-                return new OperationResult(true, "Refund successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
-
-        }*/
+        }
 
         public async Task<string> ProcessMomoPaymentAsync(Booking  booking)
         {
@@ -252,7 +245,6 @@ namespace GoWheels_WebAPI.Service
                 {
                     booking.IsDeleted = true;
                     await _bookingService.DeleteAsync(booking.Id);
-                    await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, true, -1);
                     throw new InvalidOperationException("Payment failed");
                 }
                 booking.IsPay = true;
@@ -267,7 +259,6 @@ namespace GoWheels_WebAPI.Service
                 };
                 await _invoiceRepository.AddAsync(invoice);
                 bool isAvailable = booking.RecieveOn > DateTime.Now;
-                await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, isAvailable, 1);
             }
             catch (DbUpdateException dbEx)
             {

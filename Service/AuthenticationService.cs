@@ -74,7 +74,7 @@ namespace GoWheels_WebAPI.Service
             var token = new JwtSecurityToken
             (
                 issuer: _config["JWT:Issuer"],
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddDays(10),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
             );

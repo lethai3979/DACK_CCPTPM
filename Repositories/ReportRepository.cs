@@ -1,9 +1,9 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace GoWheels_WebAPI.Repositories.Interface
+namespace GoWheels_WebAPI.Repositories
 {
     public class ReportRepository : IGenericRepository<Report>
     {
@@ -49,11 +49,12 @@ namespace GoWheels_WebAPI.Repositories.Interface
                                         .Where(r => !r.IsDeleted)
                                         .ToListAsync();
 
-        public async Task<Report?> GetByIdAsync(int id)
+        public async Task<Report> GetByIdAsync(int id)
             => await _context.Reports.AsNoTracking()
                                         .Include(r => r.Post)
                                         .Include(r => r.ReportType)
-                                        .FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == id);
+                                        .FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == id)
+                                        ?? throw new NullReferenceException("Report not found");
 
 
     }

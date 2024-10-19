@@ -33,17 +33,13 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .ThenInclude(b => b.PromotionType)
                                         .Where(b => !b.IsDeleted).ToListAsync();
 
-        public async Task<List<Booking>> GetAllPersonalBookingAsync(string userId)
+        public async Task<List<Booking>> GetAllPersonalBookingsAsync(string userId)
            => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .ThenInclude(b => b.PromotionType)
                                         .Where(b => b.UserId == userId)
                                         .ToListAsync();
 
@@ -52,19 +48,15 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .ThenInclude(b => b.PromotionType)
                                         .Where(b => b.IsRequest && !b.IsResponse)
                                         .ToListAsync();
 
-        public async Task<List<Booking>> GetAllWaitingBookingAsync(int postId)
+        public async Task<List<Booking>> GetAllWaitingBookingByPostIdAsync(int postId)
             => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .ThenInclude(b => b.PromotionType)
-                                        .Where(b => b.PostId == postId && b.Status != "Waiting")
+                                        .Where(b => b.PostId == postId && b.Status == "Waiting")
                                         .ToListAsync();
 
         public async Task<Booking> GetByIdAsync(int id)
@@ -72,8 +64,6 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .ThenInclude(b => b.PromotionType)
                                         .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted)
                                         ?? throw new NullReferenceException("Booking not found");
 

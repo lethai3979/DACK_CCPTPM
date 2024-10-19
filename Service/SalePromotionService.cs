@@ -24,14 +24,14 @@ namespace GoWheels_WebAPI.Service
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-        private int DeterminePromotionType()
+        private bool DeterminePromotionType()
         {
             var user = _httpContextAccessor.HttpContext?.User!;
             if (user.IsInRole("Admin"))
             {
-                return 2;
+                return true;
             }
-            return 3;
+            return false;
         }
         public async Task<List<Promotion>> GetAllAsync()
         {
@@ -74,7 +74,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                promotion.PromotionTypeId = DeterminePromotionType();
+                promotion.IsAdminPromotion = DeterminePromotionType();
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
@@ -104,8 +104,6 @@ namespace GoWheels_WebAPI.Service
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
                 promotion.ModifiedOn = existingPromotion.ModifiedOn;
-                promotion.PromotionTypeId = existingPromotion.PromotionTypeId;
-                promotion.PromotionType = existingPromotion.PromotionType;
                 promotion.IsDeleted = existingPromotion.IsDeleted;
                 var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                 EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);

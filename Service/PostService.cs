@@ -74,7 +74,6 @@ namespace GoWheels_WebAPI.Service
                 post.IsDeleted = false;
                 post.IsDisabled = false;
                 post.IsHidden = false;  
-                post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
                 if(formFiles.Count != 0)
                 {
@@ -177,7 +176,6 @@ namespace GoWheels_WebAPI.Service
                 post.ModifiedById = existingPost.ModifiedById;
                 post.ModifiedOn = existingPost.ModifiedOn;
                 post.AvgRating = existingPost.AvgRating;
-                post.IsAvailable = existingPost.IsAvailable;
                 post.IsDeleted = existingPost.IsDeleted;
                 post.Favorites = existingPost.Favorites;
                 post.UserId = existingPost.UserId;
@@ -273,8 +271,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     if(booking.RecieveOn >= DateTime.Now && booking.IsPay && !booking.IsResponse)
                     {
-                        var post = await _postRepository.GetByIdWithoutConditionAsync(booking.Id);
-                        if (post == null) throw new InvalidOperationException("Post not found");
+                        var post = await _postRepository.GetByIdAsync(booking.Id);
                         post.RideNumber ++;
                         await _postRepository.UpdateAsync(post);
                     }                       
@@ -293,7 +290,6 @@ namespace GoWheels_WebAPI.Service
             }
 
         }
-
 
         public async Task DeleteByIdAsync(int id)
         {
@@ -320,34 +316,6 @@ namespace GoWheels_WebAPI.Service
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }
-        }
-
-
-
-
-        public async Task UpdateRideNumberAndIsAvailableAsync(int postId, bool isAvailable, int rideNumber)
-        {
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null)
-            {
-                post.IsAvailable = isAvailable;
-                if (post.RideNumber == 0 && rideNumber < 0)
-                {
-                    post.RideNumber = 0;
-                }
-                else
-                {
-                    post.RideNumber += rideNumber;
-                }
-                try
-                {
-                    await _postRepository.UpdateAsync(post);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.InnerException?.Message);
-                }
             }
         }
     }
