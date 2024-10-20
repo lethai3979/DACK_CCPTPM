@@ -144,23 +144,18 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                string imageUrl = null;
-                if (formFile != null && formFile.Length > 0)
-                {
-                    imageUrl = await SaveImage(formFile);
-                }
+                string imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(formFile.FileName);
+
                 var existingCompany = await _companyRepository.GetByIdAsync(id);
 
-                if (imageUrl != null)
+                if (formFile != null && formFile.Length > 0 && imageUrl != existingCompany.IconImage)
                 {
-                    company.IconImage = imageUrl;
+                    company.IconImage = await SaveImage(formFile);
                 }
                 else
                 {
                     company.IconImage = existingCompany.IconImage;
                 }
-                //Check if Company exist
-                
                 company.CreatedOn = existingCompany.CreatedOn;
                 company.CreatedById = existingCompany.CreatedById;
                 company.ModifiedById = existingCompany.ModifiedById;

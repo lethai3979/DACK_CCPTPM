@@ -99,7 +99,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync(PostDTO postDTO, IFormFile formFile, List<IFormFile> formFiles)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PostDTO postDTO)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.AddAsync(post, formFile,formFiles, postDTO.AmenitiesIds);
+                    await _postService.AddAsync(post, postDTO.Image!, postDTO.ImagesList!, postDTO.AmenitiesIds);
                     return new OperationResult(true, "Post add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -130,7 +130,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, PostDTO postDTO)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id,[FromForm] PostDTO postDTO)
         {
             try
             {
@@ -141,7 +141,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.UpdateAsync(id, post, postDTO.AmenitiesIds);
+                    await _postService.UpdateAsync(id, post, postDTO.Image!,postDTO.AmenitiesIds);
+                    await _postService.UpdatePostImagesAsync(postDTO.ImagesList!, id);
                     return new OperationResult(true, "Post update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -155,36 +156,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
             }
             catch(UnauthorizedAccessException authEx)
-            {
-                return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
-            }
-            catch (Exception ex)
-            {
-                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpPost("UpdateImages/{postId}")]
-        public async Task<ActionResult<OperationResult>> UpdatePostImagesAsync(int postId, List<string> imagesUrls)
-        {
-            try
-            {
-                await _postService.UpdatePostImagesAsync(imagesUrls, postId);
-                return new OperationResult(true, "Post images update succesfully", StatusCodes.Status200OK);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
-            }
-            catch (UnauthorizedAccessException authEx)
             {
                 return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
