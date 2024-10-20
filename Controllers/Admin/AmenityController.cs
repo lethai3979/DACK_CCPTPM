@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Area("Admin")]
     [Route("api/[area]/[controller]")]
-    [Authorize(Roles = "Admin")]
     [ApiController]
     public class AmenityController : ControllerBase
     {
@@ -73,7 +72,7 @@ namespace GoWheels_WebAPI.Controllers
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromForm] AmenityDTO amenityDTO)
         {

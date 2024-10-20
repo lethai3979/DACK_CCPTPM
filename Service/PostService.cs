@@ -163,14 +163,25 @@ namespace GoWheels_WebAPI.Service
             await _postAmenityRepository.AddRangeAsync(amenitiesIds, postId);
         }
 
-        public async Task UpdateAsync(int id, Post post, List<int> amenitiesIds)
+
+
+       
+        public async Task UpdateAsync(int id, Post post,IFormFile formFile, List<int> amenitiesIds)
         {
             try
             {
                 var existingPost = await _postRepository.GetByIdAsync(id);
-                if(_userId != existingPost.UserId)
+                if (_userId != existingPost.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
+                }
+                if(post.Image == null)
+                {
+                    post.Image = existingPost.Image;
+                }
+                else
+                {
+                    post.Image = await SaveImage(formFile);
                 }
                 post.CreatedOn = existingPost.CreatedOn;
                 post.CreatedById = existingPost.CreatedById;
@@ -184,16 +195,16 @@ namespace GoWheels_WebAPI.Service
                 post.User = existingPost.User;
                 post.Ratings = existingPost.Ratings;
                 post.Reports = existingPost.Reports;
-                if(amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
+                if (amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
                 {
                     amenitiesIds.Clear();
                 }
                 var isPostAmenitiesChange = await IsPostAmenityChange(amenitiesIds, existingPost.Id);
-                if(isPostAmenitiesChange)
+                if (isPostAmenitiesChange)
                 {
                     await UpdatePostAmenitiesAsync(existingPost.Id, amenitiesIds);
                     EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
-                }    
+                }
                 else
                 {
                     var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);
@@ -214,7 +225,6 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
         public async Task UpdatePostImagesAsync(List<string> imageUrl, int postId)
         {
             try

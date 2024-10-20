@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Area("Admin")]
     [Route("api/[area]/[controller]")]
-    [Authorize(Roles = "Admin")]
     [ApiController]
     public class CompanyController : ControllerBase
     {
@@ -75,7 +74,7 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync(CompanyDTO companyDTO)
         {
