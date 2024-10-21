@@ -170,6 +170,14 @@ namespace GoWheels_WebAPI.Service
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
                 }
+                if(post.Image == null)
+                {
+                    post.Image = existingPost.Image;
+                }
+                else
+                {
+                    post.Image = await SaveImage(image);
+                }
                 post.CreatedOn = existingPost.CreatedOn;
                 post.CreatedById = existingPost.CreatedById;
                 post.ModifiedById = existingPost.ModifiedById;
@@ -192,16 +200,16 @@ namespace GoWheels_WebAPI.Service
                 post.Company = existingPost.Company;
                 post.Ratings = existingPost.Ratings;
                 post.Reports = existingPost.Reports;
-                if(amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
+                if (amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
                 {
                     amenitiesIds.Clear();
                 }
                 var isPostAmenitiesChange = await IsPostAmenityChange(amenitiesIds, existingPost.Id);
-                if(isPostAmenitiesChange)
+                if (isPostAmenitiesChange)
                 {
                     await UpdatePostAmenitiesAsync(existingPost.Id, amenitiesIds);
                     EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
-                }    
+                }
                 else
                 {
                     var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);

@@ -123,7 +123,7 @@ namespace GoWheels_WebAPI.Service
                     //Booking = user.Booking,
                     //Rating = user.Rating,
                     //Favorites = user.Favorites,
-                    //Role = userRoles
+                    Role = userRoles.FirstOrDefault(),
                 };
             }
             catch (Exception ex)
