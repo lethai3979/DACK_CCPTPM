@@ -176,7 +176,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 else
                 {
-                    post.Image = await SaveImage(formFile);
+                    post.Image = await SaveImage(image);
                 }
                 post.CreatedOn = existingPost.CreatedOn;
                 post.CreatedById = existingPost.CreatedById;
