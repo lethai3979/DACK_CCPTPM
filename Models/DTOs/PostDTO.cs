@@ -9,7 +9,7 @@ namespace GoWheels_WebAPI.Models.DTOs
         public string? Name { get; set; }
         [Required]
         public IFormFile? Image { get; set; }
-        public List<IFormFile?> ImageUrls { get; set; } = new List<IFormFile?>();
+        public List<IFormFile?> ImagesList { get; set; } = new List<IFormFile?>();
         public string? Description { get; set; }
         [Required]
         public int Seat { get; set; }
