@@ -17,6 +17,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<SalePromotionVM, Promotion>().ReverseMap();
             CreateMap<CarTypeDetailVM, CarTypeDetail>().ReverseMap();
             CreateMap<Promotion, SalePromotionVM>().ReverseMap();
+            CreateMap<PostPromotion, PostPromotionVM>().ReverseMap();
             CreateMap<Post, PostVM>().ReverseMap()
                 .ForMember(dest => dest.CarType, opt => opt.Ignore())
                 .ForMember(dest => dest.Company, opt => opt.Ignore());

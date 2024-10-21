@@ -37,6 +37,7 @@ namespace GoWheels_WebAPI.Controllers
             var result = await _authenService.SignUpAsync(signUpViewModel);
             return result;
         }
+
         [HttpGet("GetUser")]
         public async Task<ActionResult<UserVM>> GetUser(string token)
         {

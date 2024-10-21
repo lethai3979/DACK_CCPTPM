@@ -48,8 +48,7 @@ namespace GoWheels_WebAPI.Repositories
                 _context.Entry(existingAmenity.Entity).State = EntityState.Detached;
             }
 
-            _context.Amentities.Attach(amenity);  // Attach target modified obj to context 
-            _context.Amentities.Update(amenity);
+            _context.Entry(amenity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             //detached tracking obj after modified

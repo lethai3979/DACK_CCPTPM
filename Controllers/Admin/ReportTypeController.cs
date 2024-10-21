@@ -77,7 +77,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync(ReportTypeDTO reportTypeDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Update/{id}")]
-        public async  Task<ActionResult<OperationResult>> UpdateAsync (int id, ReportTypeDTO reportTypeDTO)
+        public async  Task<ActionResult<OperationResult>> UpdateAsync (int id, [FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
             {

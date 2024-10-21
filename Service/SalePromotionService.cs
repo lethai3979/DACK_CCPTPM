@@ -16,9 +16,11 @@ namespace GoWheels_WebAPI.Service
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
-        public SalePromotionService(SalePromotionRepository repository, IHttpContextAccessor contextAccessor, IMapper mapper)
+        public SalePromotionService(SalePromotionRepository salepromotionRepository,
+                                    IHttpContextAccessor contextAccessor,
+                                    IMapper mapper)
         {
-            _salepromotionRepository = repository;
+            _salepromotionRepository = salepromotionRepository;
             _httpContextAccessor = contextAccessor;
             _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -70,7 +72,7 @@ namespace GoWheels_WebAPI.Service
             return promoList;
         }
 
-        public async Task AddAsync(Promotion promotion)
+        public async Task AddAdminPromotionAsync(Promotion promotion)
         {
             try
             {

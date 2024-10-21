@@ -8,8 +8,9 @@ namespace GoWheels_WebAPI.Models.ViewModels
 {
     public class SalePromotionVM : BaseModelVM
     {
-        public required string Content { get; set; }
+        public string? Content { get; set; }
         public decimal DiscountValue { get; set; }
-        public required DateTime ExpiredDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
+        public List<PostPromotionVM> PostPromotionVMs { get; set;} = new List<PostPromotionVM>();
     }
 }

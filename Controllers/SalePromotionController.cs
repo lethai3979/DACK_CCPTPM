@@ -137,7 +137,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var promotion = _mapper.Map<Promotion>(salePromotionDTO);
-                    await _salePromotionService.AddAsync(promotion);
+                    await _salePromotionService.AddAdminPromotionAsync(promotion);
                     return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Sale Promotion data invalid");
