@@ -38,48 +38,35 @@ namespace GoWheels_WebAPI.Service
             _configuration = configuration;
         }
 
-        public async Task<OperationResult> GetAllAsync()
+        public async Task<List<Invoice>> GetAllAsync()
         {
             var invoices = await _invoiceRepository.GetAllAsync();
             if (invoices.Count == 0)
             {
-                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+                throw new NullReferenceException("List is empty");
             }
             var invoiceVNs = _mapper.Map<InvoiceVM>(invoices);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVNs);
-        }
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var invoice = await _invoiceRepository.GetByIdAsync(id);
-            if (invoice == null)
-            {
-                return new OperationResult(false, message: "Invoice not found", statusCode: StatusCodes.Status204NoContent);
-            }
-            var invoiceVN = _mapper.Map<InvoiceVM>(invoice);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVN);
+            return invoices;
         }
 
-        public async Task<OperationResult> GetByBookingIdAsync(int id)
-        {
-            var invoice = await _invoiceRepository.GetByBookingIdAsync(id);
-            if (invoice == null)
-            {
-                return new OperationResult(false, message: "Invoice not found", statusCode: StatusCodes.Status204NoContent);
-            }
-            var invoiceVN = _mapper.Map<InvoiceVM>(invoice);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVN);
-        }
-
-        public async Task<OperationResult> GetPersonalInvoicesAsync()
+        public async Task<List<Invoice>> GetPersonalInvoicesAsync()
         {
             var invoices = await _invoiceRepository.GetAllByUserIdAsync(_userId);
             if (invoices.Count == 0)
             {
-                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+                throw new NullReferenceException("List is empty");
+
             }
-            var invoiceVNs = _mapper.Map<List<InvoiceVM>>(invoices);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVNs);
+            return invoices;
         }
+
+        public async Task<Invoice> GetByIdAsync(int id)
+            => await _invoiceRepository.GetByIdAsync(id);
+
+
+        public async Task<Invoice> GetByBookingIdAsync(int bookingId)
+            => await _invoiceRepository.GetByBookingIdAsync(bookingId);
+
 
         public async Task<OperationResult> GetAllRefundInvoicesAsync()
         {
@@ -92,21 +79,15 @@ namespace GoWheels_WebAPI.Service
             return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVNs);
         }
 
-        public async Task<OperationResult> RefundAsync(int bookingId, bool isAccept)
+        public async Task RefundAsync(int bookingId, bool isAccept)
         {
             try
             {
-                var bookingVM = await _bookingService.GetByIdAsync(bookingId);
-                if (!bookingVM.Success)
-                {
-                    throw new Exception(bookingVM.Message);
-                }
-                var booking = _mapper.Map<Booking>((BookingVM)bookingVM.Data!);
-                //await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, true, -1);
+                var booking = await _bookingService.GetByIdAsync(bookingId);
                 await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
                 if (isAccept)
                 {
-                    var invoice = await _invoiceRepository.GetByBookingIdAsync(bookingId) ?? throw new Exception("Invoice not found");
+                    var invoice = await _invoiceRepository.GetByBookingIdAsync(bookingId);
                     var refundValue = (double)invoice!.Total;
                     var refundHours = (booking.RecieveOn - DateTime.Now).TotalHours;
                     var createHours = (booking.CreatedOn - DateTime.Now).TotalHours;
@@ -132,31 +113,26 @@ namespace GoWheels_WebAPI.Service
                     };
                     await _invoiceRepository.AddAsync(refundInvoice);
                 }
-                return new OperationResult(true, "Cancellation request processed successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
-
         }
 
-        public async Task<OperationResult> RefundReportedPostBooking(int postId)
+        public async Task RefundReportedBookingsAsync(List<Booking> bookings)
         {
             try
             {
-                var waitingBookings = await _bookingService.GetAllWaitingBookingAsync(postId);
-                if (waitingBookings.Count == 0)
-                {
-                    return new OperationResult(true, "No booking to refund", StatusCodes.Status200OK);
-                }
-                foreach (var booking in waitingBookings)
+                foreach (var booking in bookings)
                 {
                     var refundInvoice = new Invoice()
                     {
@@ -168,19 +144,19 @@ namespace GoWheels_WebAPI.Service
                     };
                     await _invoiceRepository.AddAsync(refundInvoice);
                 }
-                return new OperationResult(true, "Refund successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
-
         }
 
         public async Task<string> ProcessMomoPaymentAsync(Booking  booking)
@@ -229,7 +205,7 @@ namespace GoWheels_WebAPI.Service
             return jsonResponse;
         }
 
-        public async Task<OperationResult> ProcessReturnUrlAsync(IQueryCollection queryParams)
+        public async Task ProcessReturnUrlAsync(IQueryCollection queryParams)
         {
             try
             {
@@ -252,39 +228,27 @@ namespace GoWheels_WebAPI.Service
                 string bookingIdStr = queryParams["extraData"].ToString() ?? "";
                 if (!int.TryParse(bookingIdStr, out int bookingIdNum))
                 {
-                    return new OperationResult(false, message: "Invalid booking ID", statusCode: StatusCodes.Status400BadRequest);
+                    throw new InvalidOperationException("Invalid booking ID"); ;
                 }
 
-                var bookingResult = await _bookingService.GetByIdAsync(bookingIdNum);
-
-                if (bookingResult.Data == null)
-                {
-                    return new OperationResult(false, message: "Booking not found", statusCode: StatusCodes.Status404NotFound);
-                }
-                var booking = _mapper.Map<Booking>((BookingVM)bookingResult.Data);
+                var booking = await _bookingService.GetByIdAsync(bookingIdNum);
                 MomoSecurity crypto = new();
                 string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? "";
                 string signature = crypto.signSHA256(param, serectkey);
 
                 if (signature != queryParams["signature"].ToString())
                 {
-                    return new OperationResult(false, message: "Invalid request signature", statusCode: StatusCodes.Status400BadRequest);
+                    throw new InvalidOperationException("Invalid request signature");
                 }
 
                 if (queryParams["errorCode"] != "0" || queryParams["errorCode"] == "1006" || queryParams["message"].ToString().Contains("Transaction denied by user"))
                 {
                     booking.IsDeleted = true;
                     await _bookingService.DeleteAsync(booking.Id);
-                    await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, true, -1);
-                    return new OperationResult(false, message: "Payment failed", statusCode: StatusCodes.Status400BadRequest);
+                    throw new InvalidOperationException("Payment failed");
                 }
                 booking.IsPay = true;
-                var bookingDTO = _mapper.Map<BookingDTO>(booking);
-                var updateBookingResult = await _bookingService.UpdateAsync(booking.Id, bookingDTO);
-                if (!updateBookingResult.Success)
-                {
-                    return updateBookingResult;
-                }
+                await _bookingService.UpdateAsync(booking.Id, booking);
                 var invoice = new Invoice()
                 {
                     Total = booking.PrePayment,
@@ -295,13 +259,18 @@ namespace GoWheels_WebAPI.Service
                 };
                 await _invoiceRepository.AddAsync(invoice);
                 bool isAvailable = booking.RecieveOn > DateTime.Now;
-                await _postService.UpdateRideNumberAndIsAvailableAsync(booking.PostId, isAvailable, 1);
-
-                return new OperationResult(true, message: "Payment successful", statusCode: StatusCodes.Status200OK);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.InnerException?.Message);
+                throw new Exception(ex.Message);
             }
         }
 

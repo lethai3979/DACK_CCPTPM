@@ -31,11 +31,52 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<OperationResult> AddAsync(BookingDTO bookingDTO)
+        public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
+        {
+            var bookings = await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
+            if (bookings.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return bookings;
+        }
+
+        public async Task<List<Booking>> GetAllAsync()
+        {
+            var bookings = await _bookingRepository.GetAllAsync();
+            if (bookings.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return bookings;
+        }
+        public async Task<List<Booking>> GetAllCancelRequestAsync()
+        {
+            var requestList = await _bookingRepository.GetAllCancelRequestAsync();
+            if (requestList.Count == 0)
+            {
+                throw new NullReferenceException("No request");
+            }
+            return requestList;
+        }
+
+        public async Task<List<Booking>> GetPersonalBookingsAsync()
+        {
+            var bookings = await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
+            if (bookings.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return bookings;
+        }
+
+        public async Task<Booking> GetByIdAsync(int id) 
+            => await _bookingRepository.GetByIdAsync(id);
+
+        public async Task AddAsync(Booking booking)
         {
             try
             {
-                var booking = _mapper.Map<Booking>(bookingDTO);
                 booking.CreatedById = _userId;
                 booking.UserId = _userId;
                 booking.CreatedOn = DateTime.Now;
@@ -45,29 +86,26 @@ namespace GoWheels_WebAPI.Service
                 booking.IsRequest = false;
                 booking.IsResponse = false;
                 await _bookingRepository.AddAsync(booking);
-                return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK, booking.Id);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, BookingDTO bookingDTO)
+        public async Task UpdateAsync(int id, Booking booking)
         {
             try
             {
                 var existingBooking = await _bookingRepository.GetByIdAsync(id);
-                if (existingBooking == null) {
-                    return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
-                }
-                var booking = _mapper.Map(bookingDTO, existingBooking);
                 booking.CreatedById = existingBooking.CreatedById;
                 booking.CreatedOn = existingBooking.CreatedOn;
                 booking.ModifiedById = existingBooking.ModifiedById;
@@ -81,176 +119,163 @@ namespace GoWheels_WebAPI.Service
                 booking.User = existingBooking.User;
                 booking.PostId = existingBooking.PostId;
                 booking.Post = existingBooking.Post;
-                booking.PromotionId = existingBooking.PromotionId;
-                booking.Promotion = existingBooking.Promotion;
                 booking.IsDeleted = existingBooking.IsDeleted;
                 var isValueChange = EditHelper<Booking>.HasChanges(booking, existingBooking);
                 EditHelper<Booking>.SetModifiedIfNecessary(booking, isValueChange, existingBooking, _userId);
                 await _bookingRepository.UpdateAsync(booking);
-                return new OperationResult(true, "Booking update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> UpdateBookingStatus()
+        public async Task UpdateBookingStatus()
         {
             try
             {
                 var bookings = await _bookingRepository.GetAllAsync();
                 if (bookings.Count == 0)
                 {
-                    return new OperationResult(true, "No booking to update", StatusCodes.Status200OK);
+                    return;
                 }
                 foreach (var booking in bookings)
                 {
-                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn > DateTime.Now)
+                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn <= DateTime.Now)
                     {
                         booking.Status = "Renting";
                     }
-                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn > DateTime.Now)
+                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn < DateTime.Now)
                     {
                         booking.Status = "Conplete";
                     }
                     await _bookingRepository.UpdateAsync(booking);
                 }
-                return new OperationResult(true, "Update successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             try
             {
                 var booking = await _bookingRepository.GetByIdAsync(id);
-                if (booking == null)
-                {
-                    return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
-                }
                 booking.IsDeleted = true;
                 await _bookingRepository.UpdateAsync(booking);
-                return new OperationResult(true, "Booking remove succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> RequestCancelBookingAsync(int id)
+        public async Task RequestCancelBookingAsync(int id)
         {
             try
             {
                 var existingBooking = await _bookingRepository.GetByIdAsync(id);
-                if (existingBooking == null)
-                {
-                    return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
-                }
                 existingBooking.IsRequest = true;
                 existingBooking.Status = "Processing";
                 existingBooking.ModifiedById = _userId;
                 existingBooking.ModifiedOn = DateTime.Now;
                 await _bookingRepository.UpdateAsync(existingBooking);
-                return new OperationResult(true, "Cancel booking request sent successfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
         public async Task ExamineCancelBookingRequestAsync(Booking booking, bool isAccept)
         {
-            if(isAccept)
+            try
             {
-                booking.Status = "Refunded";
-                booking.IsResponse = true;
-            }    
-            else
-            {
-                booking.Status = "Request denied";
-                booking.IsResponse = false;
-            }    
-            booking.ModifiedById = _userId;
-            booking.ModifiedOn = DateTime.Now;
-            await _bookingRepository.UpdateAsync(booking);
-        }
-
-        public async Task<OperationResult> GetAllCancelRequestAsync()
-        {
-            var requestList = await _bookingRepository.GetAllCancelRequestAsync();
-            if(requestList.Count == 0)
-            {
-                return new OperationResult(false, "No request available", StatusCodes.Status404NotFound);
-            }    
-            var requestVMs = _mapper.Map<List<BookingVM>>(requestList);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: requestVMs);
-        }
-
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var booking = await _bookingRepository.GetByIdAsync(id);
-            if (booking == null)
-            {
-                return new OperationResult(false, "Booking not found", StatusCodes.Status404NotFound);
+                if (isAccept)
+                {
+                    booking.Status = "Refunded";
+                    booking.IsResponse = true;
+                }
+                else
+                {
+                    booking.Status = "Request denied";
+                    booking.IsResponse = false;
+                }
+                booking.ModifiedById = _userId;
+                booking.ModifiedOn = DateTime.Now;
+                await _bookingRepository.UpdateAsync(booking);
             }
-            var bookingVM = _mapper.Map<BookingVM>(booking);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVM);
-        }
-
-        public async Task<List<Booking>> GetAllWaitingBookingAsync(int postId)
-            => await _bookingRepository.GetAllWaitingBookingAsync(postId);   
-        
-
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var bookings = await _bookingRepository.GetAllAsync();
-            if (bookings.Count == 0)
+            catch (DbUpdateException dbEx)
             {
-                return new OperationResult(false, "No booking available", StatusCodes.Status404NotFound);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
             }
-            var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
-        }
-        public async Task<OperationResult> GetPersonalBookingAsync()
-        {
-            var bookings = await _bookingRepository.GetAllPersonalAsync(_userId);
-            if (bookings.Count == 0)
+            catch (InvalidOperationException operationEx)
             {
-                return new OperationResult(false, "No booking available", StatusCodes.Status404NotFound);
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
-            var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task CancelReportedBookingsAsync(List<Booking> bookings)
+        {
+            try
+            {
+                foreach (var booking in bookings)
+                {
+                    booking.IsDeleted = true;
+                    booking.Status = "Refunded";
+                    await _bookingRepository.UpdateAsync(booking);
+                }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
     }
 }

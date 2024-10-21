@@ -32,21 +32,83 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetById(int id)
-            => await _bookingService.GetByIdAsync(id);
+        {
+            try
+            {
+                var booking = await _bookingService.GetByIdAsync(id);
+                var bookingVM = _mapper.Map<BookingVM>(booking);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVM);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
 
         [HttpGet("GetPersonalBookings")]
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
-            => await _bookingService.GetPersonalBookingAsync();
+        {
+            try
+            {
+                var bookings = await _bookingService.GetPersonalBookingsAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+
+
+        }
 
         [HttpPost("SendCancelRequest/{id}")]
         public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)
         {
-            var isPaidResult = await _invoiceService.GetByBookingIdAsync(id);
-            if (isPaidResult.Data != null)
+            try
             {
-                return await _bookingService.RequestCancelBookingAsync(id);
+                var existingInvoice = await _invoiceService.GetByBookingIdAsync(id);
+                if (existingInvoice != null)
+                {
+                    await _bookingService.RequestCancelBookingAsync(id);
+                }
+                return new OperationResult(true, "Cancellation request sent succesfully", StatusCodes.Status200OK);
             }
-            return isPaidResult;
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
 
         }
 
@@ -54,15 +116,32 @@ namespace GoWheels_WebAPI.Controllers.Customer
         [HttpPost("AddAsync")]
         public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
         {
-            if(bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+            try
             {
-                return BadRequest("return date or recieve date invalid");
-            }    
-            if(ModelState.IsValid)
-            {
-                await _bookingService.AddAsync(bookingDTO);
+/*                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+                {
+                    return BadRequest("return date or recieve date invalid");
+                }*/
+                if (ModelState.IsValid)
+                {
+                    var booking = _mapper.Map<Booking>(bookingDTO);
+                    await _bookingService.AddAsync(booking);
+                    return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Booking data invalid");
             }
-            return BadRequest("Booking data invalid");
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
         }
 
 

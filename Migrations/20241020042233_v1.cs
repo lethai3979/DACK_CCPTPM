@@ -112,17 +112,24 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PromotionTypes",
+                name: "Promotions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ExpiredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsAdminPromotion = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PromotionTypes", x => x.Id);
+                    table.PrimaryKey("PK_Promotions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -294,7 +301,6 @@ namespace GoWheels_WebAPI.Migrations
                     FuelConsumed = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RideNumber = table.Column<int>(type: "int", nullable: false),
                     AvgRating = table.Column<float>(type: "real", nullable: false),
-                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
                     IsDisabled = table.Column<bool>(type: "bit", nullable: false),
                     IsHidden = table.Column<bool>(type: "bit", nullable: false),
                     CarTypeId = table.Column<int>(type: "int", nullable: false),
@@ -329,15 +335,23 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Promotions",
+                name: "Bookings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ExpiredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PromotionTypeId = table.Column<int>(type: "int", nullable: false),
+                    PrePayment = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PromotionContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RecieveOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReturnOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPay = table.Column<bool>(type: "bit", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsRequest = table.Column<bool>(type: "bit", nullable: false),
+                    IsResponse = table.Column<bool>(type: "bit", nullable: false),
+                    PostId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -346,11 +360,16 @@ namespace GoWheels_WebAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Promotions", x => x.Id);
+                    table.PrimaryKey("PK_Bookings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Promotions_PromotionTypes_PromotionTypeId",
-                        column: x => x.PromotionTypeId,
-                        principalTable: "PromotionTypes",
+                        name: "FK_Bookings_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Bookings_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -430,6 +449,33 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostPromotions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PostId = table.Column<int>(type: "int", nullable: false),
+                    PromotionId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostPromotions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostPromotions_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PostPromotions_Promotions_PromotionId",
+                        column: x => x.PromotionId,
+                        principalTable: "Promotions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ratings",
                 columns: table => new
                 {
@@ -490,52 +536,6 @@ namespace GoWheels_WebAPI.Migrations
                         name: "FK_Reports_ReportTypes_ReportTypeId",
                         column: x => x.ReportTypeId,
                         principalTable: "ReportTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bookings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PrePayment = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FinalValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RecieveOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReturnOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPay = table.Column<bool>(type: "bit", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsRequest = table.Column<bool>(type: "bit", nullable: false),
-                    IsResponse = table.Column<bool>(type: "bit", nullable: false),
-                    PostId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    PromotionId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bookings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Bookings_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Bookings_Posts_PostId",
-                        column: x => x.PostId,
-                        principalTable: "Posts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bookings_Promotions_PromotionId",
-                        column: x => x.PromotionId,
-                        principalTable: "Promotions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -611,11 +611,6 @@ namespace GoWheels_WebAPI.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bookings_PromotionId",
-                table: "Bookings",
-                column: "PromotionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserId",
                 table: "Bookings",
                 column: "UserId");
@@ -661,6 +656,16 @@ namespace GoWheels_WebAPI.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PostPromotions_PostId",
+                table: "PostPromotions",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostPromotions_PromotionId",
+                table: "PostPromotions",
+                column: "PromotionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_CarTypeId",
                 table: "Posts",
                 column: "CarTypeId");
@@ -674,11 +679,6 @@ namespace GoWheels_WebAPI.Migrations
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Promotions_PromotionTypeId",
-                table: "Promotions",
-                column: "PromotionTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ratings_PostId",
@@ -735,6 +735,9 @@ namespace GoWheels_WebAPI.Migrations
                 name: "PostImages");
 
             migrationBuilder.DropTable(
+                name: "PostPromotions");
+
+            migrationBuilder.DropTable(
                 name: "Ratings");
 
             migrationBuilder.DropTable(
@@ -750,13 +753,13 @@ namespace GoWheels_WebAPI.Migrations
                 name: "Amentities");
 
             migrationBuilder.DropTable(
+                name: "Promotions");
+
+            migrationBuilder.DropTable(
                 name: "ReportTypes");
 
             migrationBuilder.DropTable(
                 name: "Posts");
-
-            migrationBuilder.DropTable(
-                name: "Promotions");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
@@ -766,9 +769,6 @@ namespace GoWheels_WebAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Companies");
-
-            migrationBuilder.DropTable(
-                name: "PromotionTypes");
         }
     }
 }

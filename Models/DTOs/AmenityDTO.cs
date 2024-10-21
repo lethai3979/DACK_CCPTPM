@@ -9,6 +9,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public string? Name { get; set; }
         [Required]
-        public IFormFile? IconImage { get; set; }
+        public IFormFile IconImage { get; set; } = null!;
     }
 }

@@ -94,6 +94,7 @@ namespace GoWheels_WebAPI.Controllers
                 }
                 return BadRequest("Report type data invalid");
             }
+
             catch (DbUpdateException dbEx)
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
@@ -126,6 +127,10 @@ namespace GoWheels_WebAPI.Controllers
                 }
                 return BadRequest("Report type data invalid");
             }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
             catch (DbUpdateException dbEx)
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
@@ -147,6 +152,10 @@ namespace GoWheels_WebAPI.Controllers
             {
                 await _reportTypeService.DeletedByIdAsync(id);
                 return new OperationResult(true, "Report type deleted succesfully", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
             }
             catch (DbUpdateException dbEx)
             {

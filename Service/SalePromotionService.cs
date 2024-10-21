@@ -24,149 +24,138 @@ namespace GoWheels_WebAPI.Service
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-        private int DeterminePromotionType()
+        private bool DeterminePromotionType()
         {
             var user = _httpContextAccessor.HttpContext?.User!;
             if (user.IsInRole("Admin"))
             {
-                return 1;
+                return true;
             }
-            return 2;
+            return false;
         }
-        public async Task<OperationResult> GetAllAsync()
+        public async Task<List<Promotion>> GetAllAsync()
         {
             var promotionlist = await _salepromotionRepository.GetAllAsync();
-            if (!promotionlist.IsNullOrEmpty())
+            if (promotionlist.IsNullOrEmpty())
             {
-                var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promotionlist);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListVM);
+                throw new NullReferenceException("List is empty");
             }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return promotionlist;
         }
 
-        public async Task<OperationResult> GetPromotionsByRole()
+        public async Task<List<Promotion>> GetAllByUserId()
+        {
+            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+            if (promoList.IsNullOrEmpty())
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return promoList;
+        }
+
+
+        public async Task<List<Promotion>> GetAllAdminPromotions()
         {
             var userRole = _httpContextAccessor.HttpContext?.User?
-                        .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
-            List<Promotion> promoList = new List<Promotion>();
-            if(userRole == "Admin")
+            .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
+            if (userRole != "Admin")
             {
-                promoList = await _salepromotionRepository.GetAdminPromotionsAsync();
-            }    
-            else
-            {
-                promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+                throw new UnauthorizedAccessException("Access denied");
             }
-            if (!promoList.IsNullOrEmpty())
+            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+            if (promoList.IsNullOrEmpty())
             {
-                var promotionListVM = _mapper.Map<List<SalePromotionVM>>(promoList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionListVM);
+                throw new NullReferenceException("List is empty");
             }
-            return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
+            return promoList;
         }
 
-        public async Task<OperationResult> AddAsync(SalePromotionDTO salePromotionDto)
+        public async Task AddAsync(Promotion promotion)
         {
             try
             {
-                var promotion = _mapper.Map<Promotion>(salePromotionDto);
-                promotion.PromotionTypeId = DeterminePromotionType();
+                promotion.IsAdminPromotion = DeterminePromotionType();
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
                 await _salepromotionRepository.AddAsync(promotion);
-                return new OperationResult(true, "Promotion added succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(int id, SalePromotionDTO promotionDTO)
+        public async Task UpdateAsync(int id, Promotion promotion)
         {
             try
             {
 
                 var existingPromotion = await _salepromotionRepository.GetByIdAsync(id);
-                if (existingPromotion == null)
-                {
-                    return new OperationResult(true, "Promotion not found", StatusCodes.Status404NotFound);
-                }
-                var promotion = _mapper.Map<Promotion>(promotionDTO);
                 promotion.CreatedOn = existingPromotion.CreatedOn;
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
                 promotion.ModifiedOn = existingPromotion.ModifiedOn;
-                promotion.PromotionTypeId = existingPromotion.PromotionTypeId;
-                promotion.PromotionType = existingPromotion.PromotionType;
                 promotion.IsDeleted = existingPromotion.IsDeleted;
                 var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                 EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
                 await _salepromotionRepository.UpdateAsync(promotion);
-                return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> DeletedByIdAsync(int id)
+        public async Task DeletedByIdAsync(int id)
         {
             try
             {
                 var promotion = await _salepromotionRepository.GetByIdAsync(id);
-                if (promotion == null)
-                {
-                    return new OperationResult(false, "Sale Promotion not found", StatusCodes.Status404NotFound);
-                }
                 promotion.ModifiedById = _userId;
                 promotion.ModifiedOn = DateTime.Now;
                 promotion.IsDeleted = true;
                 await _salepromotionRepository.UpdateAsync(promotion);
-                return new OperationResult(true, "Sale Promotion deleted succesfully", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            try
-            {
-                var promotion = await _salepromotionRepository.GetByIdAsync(id);
-                if (promotion != null)
-                {
-                    var promotionVM = _mapper.Map<SalePromotionVM>(promotion);
-                    return new OperationResult(true, "Promotion found", StatusCodes.Status200OK, promotionVM);
-                }
-                return new OperationResult(false, "Promotion not found", StatusCodes.Status404NotFound);
-            }
-            catch (Exception ex)
-            {
-                return new OperationResult(false, $"An error occurred: {ex.Message}", StatusCodes.Status500InternalServerError);
+                throw new Exception(ex.Message);
             }
         }
 
+        public async Task<Promotion> GetByIdAsync(int id)
+            => await _salepromotionRepository.GetByIdAsync(id);
     }
 }

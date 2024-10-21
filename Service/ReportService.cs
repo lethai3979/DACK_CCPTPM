@@ -13,67 +13,81 @@ namespace GoWheels_WebAPI.Service
     public class ReportService
     {
         private readonly ReportRepository _reportRepository;
+        private readonly BookingService _bookingService;
+        private readonly InvoiceService _invoiceService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly string _userId;
 
-        public ReportService(ReportRepository reportRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public ReportService(ReportRepository reportRepository, 
+                                BookingService bookingService,
+                                InvoiceService invoiceService,
+                                IHttpContextAccessor httpContextAccessor, 
+                                IMapper mapper)
         {
             _reportRepository = reportRepository;
+            _bookingService = bookingService;
+            _invoiceService = invoiceService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
         }
 
-        public async Task<OperationResult> AddAsync(ReportDTO reportDTO)
+        public async Task AddAsync(Report report)
         {
             try
             {
-                var report = _mapper.Map<Report>(reportDTO);
                 report.IsDeleted = false;
                 report.CreatedById = _userId;
                 report.CreatedOn = DateTime.Now;
                 await _reportRepository.AddAsync(report);
-                return new OperationResult(true, "Report succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> DeletedAsync(int id)
+        public async Task DeletedAsync(int id, bool isAccept)
         {
             try
             {
-                var report = await _reportRepository.GetByIdAsync(id);
-                if (report == null)
+                if (isAccept)
                 {
-                    return new OperationResult(false, "Report not found", StatusCodes.Status404NotFound);
+                    var report = await _reportRepository.GetByIdAsync(id);
+                    report.IsDeleted = true;
+                    report.ModifiedById = _userId;
+                    report.ModifiedOn = DateTime.Now;
+                    await _reportRepository.UpdateAsync(report);
+                    var bookings = await _bookingService.GetAllWaitingBookingsByPostIdAsync(report.PostId);
+                    await _invoiceService.RefundReportedBookingsAsync(bookings);
+                    await _bookingService.CancelReportedBookingsAsync(bookings);
                 }
-                report.IsDeleted = true;
-                report.ModifiedById = _httpContextAccessor.HttpContext?.User?
-                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-                report.ModifiedOn = DateTime.Now;
-                await _reportRepository.UpdateAsync(report);
-                return new OperationResult(true, "Report delete succesfully", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
 

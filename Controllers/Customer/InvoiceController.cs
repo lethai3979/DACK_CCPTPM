@@ -6,6 +6,7 @@ using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
 namespace GoWheels_WebAPI.Controllers.Customer
@@ -28,18 +29,33 @@ namespace GoWheels_WebAPI.Controllers.Customer
         [HttpGet("GetPersonalInvoices")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetPersonalInvoicesAsync()
-            => await _invoiceService.GetPersonalInvoicesAsync();
+        {
+            try
+            {
+                var invoices = await _invoiceService.GetPersonalInvoicesAsync();
+                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
 
         [HttpPost("MomoPayment")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
         {
-            var result = await _bookingService.GetByIdAsync(bookingId);
-            if (result.Data == null)
-            {
-                return result;
-            }
-            Booking booking = _mapper.Map<Booking>((BookingVM)result.Data);
+            var booking = await _bookingService.GetByIdAsync(bookingId);
             try
             {
                 var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(booking);
@@ -66,18 +82,24 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var result = await _invoiceService.ProcessReturnUrlAsync(Request.Query);
-
-                if (result == null)
-                {
-                    return BadRequest(new { message = "Error while handling return URL" });
-                }
-
-                return Ok(result.Message);
+                await _invoiceService.ProcessReturnUrlAsync(Request.Query);
+                return new OperationResult(true, "Create invoice successfully", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
     }

@@ -76,7 +76,7 @@ namespace GoWheels_WebAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync(CompanyDTO companyDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] CompanyDTO companyDTO)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.AddAsync(company, companyDTO.CarTypeIds,companyDTO.IconImage);
+                    await _companyService.AddAsync(company, companyDTO.CarTypeIds,companyDTO.IconImage!);
                     return new OperationResult(true, "Company add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");
@@ -114,6 +114,10 @@ namespace GoWheels_WebAPI.Controllers
                 await _companyService.DeleteByIdAsync(id);
                 return new OperationResult(true, "Company deleted succesfully", StatusCodes.Status200OK);
             }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
             catch (DbUpdateException dbEx)
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
@@ -129,8 +133,8 @@ namespace GoWheels_WebAPI.Controllers
         }
 
 
-        [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CompanyDTO companyDTO)
+        [HttpPut("Update/{id}")]
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] CompanyDTO companyDTO)
         {
             try
             {
@@ -141,10 +145,14 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.UpdateAsync(id, company, companyDTO.CarTypeIds, companyDTO.IconImage);
+                    await _companyService.UpdateAsync(id, company, companyDTO.CarTypeIds, companyDTO.IconImage!);
                     return new OperationResult(true, "Company update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
             }
             catch (DbUpdateException dbEx)
             {

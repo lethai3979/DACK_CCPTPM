@@ -15,12 +15,8 @@ namespace GoWheels_WebAPI.Models.Entities
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]
         [Required]
         public required DateTime ExpiredDate { get; set; }
+        public ICollection<PostPromotion> PostPromotions { get; set; } = new List<PostPromotion>();
 
-        [Required]
-        [ForeignKey(nameof(PromotionType))]
-        public required int PromotionTypeId { get; set; }
-
-        [ValidateNever]
-        public PromotionType PromotionType { get; set; } = null!;
+        public bool IsAdminPromotion { get; set; }
     }
 }

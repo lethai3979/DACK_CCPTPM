@@ -6,6 +6,7 @@ using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -59,14 +60,11 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                string imageUrl = null;
                 List<string> imgUrls = new List<string>();
                 if (formFile != null && formFile.Length > 0)
                 {
-                    imageUrl = await SaveImage(formFile);
+                    post.Image = await SaveImage(formFile);
                 }
-                post.Image = imageUrl;
-
                 post.CreatedById = _userId;
                 post.CreatedOn = DateTime.Now;
                 post.UserId = _userId;
@@ -74,7 +72,6 @@ namespace GoWheels_WebAPI.Service
                 post.IsDeleted = false;
                 post.IsDisabled = false;
                 post.IsHidden = false;  
-                post.IsAvailable = true;
                 await _postRepository.AddAsync(post);
                 if(formFiles.Count != 0)
                 {
@@ -113,7 +110,7 @@ namespace GoWheels_WebAPI.Service
 
             // Đường dẫn tới thư mục lưu trữ ảnh
             var savePath = "./wwwroot/images/posts/";
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
+            var fileName = Path.GetFileName(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
             var filePath = Path.Combine(savePath, fileName);
 
             try
@@ -163,15 +160,13 @@ namespace GoWheels_WebAPI.Service
             await _postAmenityRepository.AddRangeAsync(amenitiesIds, postId);
         }
 
-
-
-       
-        public async Task UpdateAsync(int id, Post post,IFormFile formFile, List<int> amenitiesIds)
+        public async Task UpdateAsync(int id, Post post,IFormFile image ,List<int> amenitiesIds)
         {
             try
             {
                 var existingPost = await _postRepository.GetByIdAsync(id);
-                if (_userId != existingPost.UserId)
+                var imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(image.FileName);
+                if(_userId != existingPost.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
                 }
@@ -188,11 +183,21 @@ namespace GoWheels_WebAPI.Service
                 post.ModifiedById = existingPost.ModifiedById;
                 post.ModifiedOn = existingPost.ModifiedOn;
                 post.AvgRating = existingPost.AvgRating;
-                post.IsAvailable = existingPost.IsAvailable;
                 post.IsDeleted = existingPost.IsDeleted;
                 post.Favorites = existingPost.Favorites;
+                if(image != null && imageUrl != existingPost.Image)
+                {
+                    post.Image = await SaveImage(image);                  
+                }    
+                else
+                {
+                    post.Image = existingPost.Image;
+                }    
+                post.Images = existingPost.Images;
                 post.UserId = existingPost.UserId;
                 post.User = existingPost.User;
+                post.CarType = existingPost.CarType;
+                post.Company = existingPost.Company;
                 post.Ratings = existingPost.Ratings;
                 post.Reports = existingPost.Reports;
                 if (amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
@@ -225,7 +230,21 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public async Task UpdatePostImagesAsync(List<string> imageUrl, int postId)
+
+        private bool IsImagesListChange(List<IFormFile> imageList, Post post)
+        {
+            foreach (var file in imageList)
+            {
+                var url = "https://localhost:7265/images/posts/" + Path.GetFileName(file.FileName);
+                var isChange = !post.Images.Any(i => i.Url.Equals(url));
+                if (isChange)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public async Task UpdatePostImagesAsync(List<IFormFile> imageFiles, int postId)
         {
             try
             {
@@ -234,11 +253,25 @@ namespace GoWheels_WebAPI.Service
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
                 }
-                post.ModifiedById = _userId;
-                post.ModifiedOn = DateTime.Now;
-                await _postRepository.UpdateAsync(post);
-                await _postRepository.DeletePostImagesAsync(post.Id);
-                await _postRepository.AddPostImagesAsync(imageUrl, postId);
+                var imageUrls = new List<string>();
+                if (imageFiles.Count != 0)
+                {
+                    var isImagesChange = IsImagesListChange(imageFiles, post);
+                    if (!isImagesChange)
+                    {
+                        return;
+                    }
+                    post.ModifiedById = _userId;
+                    post.ModifiedOn = DateTime.Now;
+                    await _postRepository.UpdateAsync(post);
+                    await _postRepository.DeletePostImagesAsync(post.Id);
+                    foreach (var file in imageFiles)
+                    {
+                        var img = await SaveImage(file);
+                        imageUrls.Add(img);
+                    }
+                    await _postRepository.AddPostImagesAsync(imageUrls, postId);
+                }
             }
             catch (DbUpdateException dbEx)
             {
@@ -283,8 +316,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     if(booking.RecieveOn >= DateTime.Now && booking.IsPay && !booking.IsResponse)
                     {
-                        var post = await _postRepository.GetByIdWithoutConditionAsync(booking.Id);
-                        if (post == null) throw new InvalidOperationException("Post not found");
+                        var post = await _postRepository.GetByIdAsync(booking.Id);
                         post.RideNumber ++;
                         await _postRepository.UpdateAsync(post);
                     }                       
@@ -303,7 +335,6 @@ namespace GoWheels_WebAPI.Service
             }
 
         }
-
 
         public async Task DeleteByIdAsync(int id)
         {
@@ -330,34 +361,6 @@ namespace GoWheels_WebAPI.Service
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }
-        }
-
-
-
-
-        public async Task UpdateRideNumberAndIsAvailableAsync(int postId, bool isAvailable, int rideNumber)
-        {
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null)
-            {
-                post.IsAvailable = isAvailable;
-                if (post.RideNumber == 0 && rideNumber < 0)
-                {
-                    post.RideNumber = 0;
-                }
-                else
-                {
-                    post.RideNumber += rideNumber;
-                }
-                try
-                {
-                    await _postRepository.UpdateAsync(post);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.InnerException?.Message);
-                }
             }
         }
     }

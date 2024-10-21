@@ -15,8 +15,8 @@ namespace GoWheels_WebAPI.Data
         public DbSet<CarTypeDetail> CarTypeDetails { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
-        public DbSet<PromotionType> PromotionTypes { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<PostPromotion> PostPromotions { get; set; }
         public DbSet<PostAmenity> PostAmenities { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Invoice> Invoices { get; set; }

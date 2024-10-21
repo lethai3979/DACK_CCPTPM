@@ -48,15 +48,13 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                string imageUrl = null;
-                if (formFile != null && formFile.Length > 0)
-                {
-                    imageUrl = await SaveImage(formFile);
-                }
                 amenity.CreatedById = _userId;
                 amenity.CreatedOn = DateTime.Now;
                 amenity.IsDeleted = false;
-                amenity.IconImage = imageUrl;
+                if (formFile != null && formFile.Length > 0)
+                {
+                    amenity.IconImage = await SaveImage(formFile);
+                }
                 await _amenityRepository.AddAsync(amenity);
             }
             catch (DbUpdateException dbEx)
@@ -82,7 +80,7 @@ namespace GoWheels_WebAPI.Service
 
             // Đường dẫn tới thư mục lưu trữ ảnh
             var savePath = "./wwwroot/images/amenities/";
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
+            var fileName = Path.GetFileName(file.FileName); // Đặt tên ngẫu nhiên để tránh trùng lặp
             var filePath = Path.Combine(savePath, fileName);
 
             try
@@ -141,23 +139,19 @@ namespace GoWheels_WebAPI.Service
         }
         public async Task<OperationResult> UpdateAsync(int id, Amenity amenity, IFormFile formFile)
         {
-            string imageUrl = null;
+
             try
             {
+                string imageUrl = "./wwwroot/images/amenities/" + Path.GetFileName(formFile.FileName);
                 var existingAmenity = await _amenityRepository.GetByIdAsync(id);
-                if (formFile != null && formFile.Length > 0)
-                {
-                    imageUrl = await SaveImage(formFile);
-                }
-                
                 if (existingAmenity == null)
                 {
                     return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
                 }
 
-                if (imageUrl != null)
+                if (formFile != null && formFile.Length > 0 && imageUrl != existingAmenity.IconImage)
                 {
-                    amenity.IconImage = imageUrl;
+                    amenity.IconImage = await SaveImage(formFile);
                 }
                 else
                 {

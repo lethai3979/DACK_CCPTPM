@@ -90,6 +90,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 await _favoriteService.DeletedAsync(id);
                 return new OperationResult(true, "Favorite deleted succesfully", StatusCodes.Status200OK);
             }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
             catch (DbUpdateException dbEx)
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);

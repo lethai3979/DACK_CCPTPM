@@ -14,7 +14,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Area("User")]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
+    //[Authorize(Roles = "User")]
     public class RatingAndCommentController : ControllerBase
     {
         private readonly RatingService _ratingAndCommentService;

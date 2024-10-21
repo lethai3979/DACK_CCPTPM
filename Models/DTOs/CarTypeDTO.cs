@@ -10,6 +10,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         public required string Name { get; set; }
         public List<int> CompanyIds { get; set; } = new List<int>();
 
-
     }
 }

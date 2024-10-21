@@ -50,8 +50,6 @@ namespace GoWheels_WebAPI.Repositories
             {
                 _context.Entry(existingPost.Entity).State = EntityState.Detached;
             }
-
-            _context.Posts.Attach(post);  // Attach target modified obj to context 
             _context.Entry(post).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -67,7 +65,8 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<Post>> GetAllAsync()
-            => await _context.Posts.Include(p => p.CarType)
+            => await _context.Posts.AsNoTracking()
+                                    .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
@@ -79,7 +78,8 @@ namespace GoWheels_WebAPI.Repositories
 
 
         public async Task<Post> GetByIdAsync(int id)
-            => await _context.Posts.Include(p => p.CarType)
+            => await _context.Posts.AsNoTracking()
+                                    .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
@@ -89,14 +89,6 @@ namespace GoWheels_WebAPI.Repositories
                                     .FirstOrDefaultAsync(p => p.Id == id)
                                     ?? throw new NullReferenceException("Post not found");
 
-        public async Task<Post?> GetByIdWithoutConditionAsync(int id)
-            => await _context.Posts.Include(p => p.CarType)
-                                    .Include(p => p.Company)
-                                    .Include(p => p.Images)
-                                    .Include(p => p.Ratings.Where(r => !r.IsDeleted))
-                                    .Include(p => p.PostAmenities)
-                                    .ThenInclude(p => p.Amenity)
-                                    .FirstOrDefaultAsync(p => p.Id == id);
 
 
         public async Task<List<Post>> GetPostsByUserIdAsync(string userId)

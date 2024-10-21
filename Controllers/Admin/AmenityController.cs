@@ -33,9 +33,9 @@ namespace GoWheels_WebAPI.Controllers
                 var amenityVMs = _mapper.Map<List<AmenityVM>>(result);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityVMs);
             }
-            catch(NullReferenceException aEx)
+            catch(NullReferenceException nullEx)
             {
-                return new OperationResult(false, aEx.Message, StatusCodes.Status204NoContent);
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
             }
             catch(AutoMapperMappingException mapperEx)
             {
@@ -81,7 +81,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.AddAsync(amenity,amenityDTO.IconImage);
+                    await _amenityService.AddAsync(amenity, amenityDTO.IconImage!);
                     return new OperationResult(true, "Amenity add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");
