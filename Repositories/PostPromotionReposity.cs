@@ -23,18 +23,15 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task DeleteAsync(PostPromotion postPromotion)
         {
-            _context.Entry(postPromotion).State = EntityState.Modified;
-            postPromotion.IsDeleted = true;
+            _context.Remove(postPromotion);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<PostPromotion>> GetAllAsync()
-            => await _context.PostPromotions.ToListAsync();
-
-        public async Task<PostPromotion> GetByIdAsync(int id)
-            => await _context.PostPromotions
-                        .FirstOrDefaultAsync(p => p.Id == id)
-                        ?? throw new NullReferenceException("Post promotion not found");
+        public async Task DeleteRangeAsync(int promotionId)
+        {
+            var postPromotionList = await _context.PostPromotions.Where(p => p.PromotionId == promotionId).ToListAsync();
+            _context.PostPromotions.RemoveRange(postPromotionList);
+        }
 
         public async Task UpdateAsync(PostPromotion postPromotion)
         {
@@ -53,5 +50,22 @@ namespace GoWheels_WebAPI.Repositories
             //detached tracking obj after modified
             _context.Entry(postPromotion).State = EntityState.Detached;
         }
+
+        public async Task<List<PostPromotion>> GetAllAsync()
+            => await _context.PostPromotions.ToListAsync();
+        public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
+                    => await _context.PostPromotions.Where(p => p.PromotionId == promotionId).ToListAsync();
+
+        public async Task<PostPromotion> GetByIdAsync(int id)
+            => await _context.PostPromotions
+                        .FirstOrDefaultAsync(p => p.Id == id)
+                        ?? throw new NullReferenceException("Post promotionId not found");
+
+        public async Task<PostPromotion> GetByPromotionIdAsync(int id)
+            => await _context.PostPromotions
+                        .FirstOrDefaultAsync(p => p.PromotionId == id)
+                        ?? throw new NullReferenceException("Post promotionId not found");
+
+        
     }
 }

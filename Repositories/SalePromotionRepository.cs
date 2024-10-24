@@ -30,10 +30,14 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<List<Promotion>> GetAllAsync()
             => await _context.Promotions.AsNoTracking()
+                                        .Include(p => p.PostPromotions)
+                                        .ThenInclude(p => p.Post)
                                         .ToListAsync();
 
         public async Task<Promotion> GetByIdAsync(int id) 
             => await _context.Promotions.AsNoTracking()
+                                        .Include(p => p.PostPromotions)
+                                        .ThenInclude(p => p.Post)
                                         .FirstOrDefaultAsync(p => p.Id == id)
                                         ?? throw new NullReferenceException("Promotion not found");
 
@@ -46,11 +50,14 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<List<Promotion>> GetPromotionsByUserIdAsync(string userId)
                     => await _context.Promotions.AsNoTracking()
+                                                .Include(p => p.PostPromotions)
+                                                .ThenInclude(p => p.Post)
                                                 .Where(p => !p.IsDeleted && p.CreatedById == userId && !p.IsAdminPromotion)
                                                 .ToListAsync();
-
-        public async Task<List<Promotion>> GetAdminPromotionsAsync()
+        public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
                     => await _context.Promotions.AsNoTracking()
+                                                .Include(p => p.PostPromotions)
+                                                .ThenInclude(p => p.Post)
                                                 .Where(p => !p.IsDeleted && p.IsAdminPromotion)
                                                 .ToListAsync();
 

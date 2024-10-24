@@ -13,6 +13,7 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Area("Admin")]
     [Route("api/[area]/[controller]")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class AmenityController : ControllerBase
     {
