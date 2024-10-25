@@ -36,8 +36,11 @@ namespace GoWheels_WebAPI.Repositories
             }
         }
 
-        public async Task<ApplicationUser?> FindByUserNameAsync(string userName) 
-            => await _userManager.FindByNameAsync(userName);
+        public async Task<ApplicationUser> FindByUserIdAsync(string userId)
+            => await _userManager.FindByIdAsync(userId) ?? throw new NullReferenceException("User not found");
+
+        public async Task<ApplicationUser> FindByUserNameAsync(string userName) 
+            => await _userManager.FindByNameAsync(userName) ?? throw new NullReferenceException("User not found");
 
         public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user) 
             => await _userManager.GetRolesAsync(user);

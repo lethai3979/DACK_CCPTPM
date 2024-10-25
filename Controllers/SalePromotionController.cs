@@ -125,7 +125,7 @@ namespace GoWheels_WebAPI.Controllers
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        [HttpPost("Add")]
+        [HttpPost("AddAdminPromotion")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDTO)
         {
             try
@@ -156,6 +156,37 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
+        [HttpPost("AddUserPromotion/{postId}")]
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] SalePromotionDTO salePromotionDTO, int postId)
+        {
+            try
+            {
+                if (salePromotionDTO == null)
+                {
+                    return BadRequest("Promotion is null");
+                }
+                if (ModelState.IsValid)
+                {
+                    var promotion = _mapper.Map<Promotion>(salePromotionDTO);
+                    await _salePromotionService.AddUserPromotionAsync(promotion,postId);
+                    return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Sale Promotion data invalid");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
@@ -163,7 +194,6 @@ namespace GoWheels_WebAPI.Controllers
             {
                 await _salePromotionService.DeletedByIdAsync(id);
                 return new OperationResult(true, "Promotion deleted succesfully", StatusCodes.Status200OK);
-
             }
             catch (DbUpdateException dbEx)
             {
