@@ -113,7 +113,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
 
-        [HttpPost("AddAdminPromotionAsync")]
+        [HttpPost("Add")]
         public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
         {
             try
