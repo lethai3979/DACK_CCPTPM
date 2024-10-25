@@ -39,6 +39,6 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task AddRangeAsync(Promotion promotion, List<int>)
+        //public async Task AddRangeAsync(Promotion promotion, List<int>)
     }
 }

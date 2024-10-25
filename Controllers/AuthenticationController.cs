@@ -23,7 +23,8 @@ namespace GoWheels_WebAPI.Controllers
             try
             {
                 var result = await _authenService.LoginAsync(loginViewModel);
-                return new OperationResult(true, result, StatusCodes.Status200OK);
+                var user = await _authenService.GetUserFromToken(result);
+                return new OperationResult(true, result, StatusCodes.Status200OK, user);
             }
             catch (InvalidOperationException operationEx) 
             {
@@ -38,10 +39,9 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpGet("GetUser")]
+        [HttpPost("GetUser")]
         public async Task<ActionResult<UserVM>> GetUser(string token)
         {
-            Console.WriteLine($"Token nhận được: {token}");
             var result = await _authenService.GetUserFromToken(token);
             if (result == null)
             {

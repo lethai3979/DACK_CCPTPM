@@ -10,6 +10,7 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public string? PostName { get; set; }
         public int AmenityId { get; set; }
         public string? AmenityName { get; set; }
+        public string? AmenityIconImage { get; set; }
         public bool IsDeleted { get; set; }
     }
 }
