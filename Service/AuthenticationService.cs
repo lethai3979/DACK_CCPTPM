@@ -44,12 +44,12 @@ namespace GoWheels_WebAPI.Service
             var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);
             if (user == null)
             {
-               throw new InvalidOperationException("User not found");
+               throw new InvalidOperationException("Wrong email or password");
             }
             var isPasswordValid = await _autheticationRepository.ValidatePasswordAsync(user, loginViewModel.Password);
             if (!isPasswordValid)
             {
-                throw new InvalidOperationException("Wrong password");
+                throw new InvalidOperationException("Wrong email or password");
             }
             var token = await GenerateJwtToken(user);
             return token;
@@ -103,7 +103,7 @@ namespace GoWheels_WebAPI.Service
                     return null;
                 }
 
-                var user = await _autheticationRepository.FindByUserNameAsync(userName);
+                var user = await _autheticationRepository.FindByUserIdAsync(userId);
                 if (user == null)
                 {
                     return null;
