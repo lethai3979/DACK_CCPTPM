@@ -12,21 +12,21 @@ namespace GoWheels_WebAPI.Service
 {
     public class UserPromotionService
     {
-        private readonly SalePromotionRepository _salepromotionRepository;
+        private readonly PromotionRepository _promotionRepository;
         private readonly PostPromotionService _postPromotionService;
         private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
 
-        public UserPromotionService(SalePromotionRepository salepromotionRepository,
+        public UserPromotionService(PromotionRepository promotionRepository,
                                     PostPromotionService postPromotionService,
                                     PostService postService,
                                     IHttpContextAccessor httpContextAccessor,
                                     string userId,
                                     IMapper mapper)
         {
-            _salepromotionRepository = salepromotionRepository;
+            _promotionRepository = promotionRepository;
             _postPromotionService = postPromotionService;
             _postService = postService;
             _httpContextAccessor = httpContextAccessor;
@@ -37,7 +37,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<Promotion>> GetAllByUserId()
         {
-            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
+            var promoList = await _promotionRepository.GetPromotionsByUserIdAsync(_userId);
             if (promoList.IsNullOrEmpty())
             {
                 throw new NullReferenceException("List is empty");
@@ -45,6 +45,8 @@ namespace GoWheels_WebAPI.Service
             return promoList;
         }
 
+        public async Task<Promotion> GetByIdAsync(int id)
+            => await _promotionRepository.GetByIdAsync(id);
         public async Task<bool> CheckValidatePost(List<int> postIds)
         {
             foreach (var postId in postIds)
@@ -72,7 +74,7 @@ namespace GoWheels_WebAPI.Service
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
-                await _salepromotionRepository.AddAsync(promotion);
+                await _promotionRepository.AddAsync(promotion);
                 await _postPromotionService.AddRangeAsync(promotion.Id, postIds);
             }
             catch (NullReferenceException nullEx)
@@ -121,7 +123,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var existingPromotion = await _salepromotionRepository.GetByIdAsync(id);
+                var existingPromotion = await _promotionRepository.GetByIdAsync(id);
                 promotion.CreatedOn = existingPromotion.CreatedOn;
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
@@ -143,7 +145,7 @@ namespace GoWheels_WebAPI.Service
                     var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                     EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
                 }    
-                await _salepromotionRepository.UpdateAsync(promotion);
+                await _promotionRepository.UpdateAsync(promotion);
             }
             catch (NullReferenceException nullEx)
             {
@@ -168,11 +170,11 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var promotion = await _salepromotionRepository.GetByIdAsync(promotionId);
+                var promotion = await _promotionRepository.GetByIdAsync(promotionId);
                 promotion.ModifiedById = _userId;
                 promotion.ModifiedOn = DateTime.Now;
                 promotion.IsDeleted = true;
-                await _salepromotionRepository.UpdateAsync(promotion);
+                await _promotionRepository.UpdateAsync(promotion);
             }
             catch (NullReferenceException nullEx)
             {

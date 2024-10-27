@@ -12,13 +12,13 @@ namespace GoWheels_WebAPI.Service
 {
     public class AdminPromotionService
     {
-        private readonly SalePromotionRepository _salepromotionRepository;
+        private readonly PromotionRepository _salepromotionRepository;
         private readonly PostPromotionService _postPromotionService;
         private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
-        public AdminPromotionService(SalePromotionRepository salepromotionRepository,
+        public AdminPromotionService(PromotionRepository salepromotionRepository,
                                     PostPromotionService postPromotionService,
                                     PostService postService,
                                     IHttpContextAccessor contextAccessor,
