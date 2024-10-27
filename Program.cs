@@ -80,7 +80,7 @@ builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<SalePromotionRepository>();
-builder.Services.AddScoped<SalePromotionService>();
+builder.Services.AddScoped<AdminPromotionService>();
 builder.Services.AddScoped<PostPromotionReposity>();
 builder.Services.AddScoped<PostPromotionService>();
 builder.Services.AddScoped<RatingRepository>();

@@ -27,10 +27,10 @@ namespace GoWheels_WebAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteRangeAsync(int promotionId)
+        public async Task DeleteRangeAsync(List<PostPromotion> postPromotions)
         {
-            var postPromotionList = await _context.PostPromotions.Where(p => p.PromotionId == promotionId).ToListAsync();
-            _context.PostPromotions.RemoveRange(postPromotionList);
+            _context.PostPromotions.RemoveRange(postPromotions);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(PostPromotion postPromotion)
@@ -53,8 +53,14 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<List<PostPromotion>> GetAllAsync()
             => await _context.PostPromotions.ToListAsync();
+
+
+
         public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
-                    => await _context.PostPromotions.Where(p => p.PromotionId == promotionId).ToListAsync();
+                => await _context.PostPromotions.Include(p => p.Post)
+                                                .Where(p => p.PromotionId == promotionId)
+                                                .ToListAsync();
+
 
         public async Task<PostPromotion> GetByIdAsync(int id)
             => await _context.PostPromotions
