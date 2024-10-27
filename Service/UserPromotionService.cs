@@ -6,6 +6,7 @@ using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GoWheels_WebAPI.Service
@@ -23,14 +24,14 @@ namespace GoWheels_WebAPI.Service
                                     PostPromotionService postPromotionService,
                                     PostService postService,
                                     IHttpContextAccessor httpContextAccessor,
-                                    string userId,
                                     IMapper mapper)
         {
             _promotionRepository = promotionRepository;
             _postPromotionService = postPromotionService;
             _postService = postService;
             _httpContextAccessor = httpContextAccessor;
-            _userId = userId;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
         }
 

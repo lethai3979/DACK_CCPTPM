@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AdminPromotionController : ControllerBase
     {
         private readonly AdminPromotionService _promotionService;
@@ -95,7 +97,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] PromotionDTO promotionDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PromotionDTO promotionDTO)
         {
             try
             {
@@ -130,7 +132,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, PromotionDTO promotionDTO)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
             {
