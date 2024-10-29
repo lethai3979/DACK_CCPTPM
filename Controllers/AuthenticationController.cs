@@ -23,8 +23,8 @@ namespace GoWheels_WebAPI.Controllers
             try
             {
                 var result = await _authenService.LoginAsync(loginViewModel);
-                var user = await _authenService.GetUserFromToken(result);
-                return new OperationResult(true, result, StatusCodes.Status200OK, user);
+                //var user = await _authenService.GetUserFromToken(result);
+                return new OperationResult(true, result, StatusCodes.Status200OK);
             }
             catch (InvalidOperationException operationEx) 
             {
