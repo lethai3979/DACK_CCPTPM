@@ -18,6 +18,9 @@ namespace GoWheels_WebAPI.Service
             _postService = postService;
         }
 
+        public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
+            => await _postPromotionRepository.GetAllByPromotionIdAsync(promotionId);
+
         public async Task AddAsync(Promotion promotion, int postId)
         {
             try
@@ -44,16 +47,16 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        public async Task AddRangeAsync(Promotion promotion, List<Post> posts)
+        public async Task AddRangeAsync(int promotionId, List<int> postIds)
         {
             try
             {
-                foreach (var post in posts)
+                foreach (var id in postIds)
                 {
                     var postPromotion = new PostPromotion()
                     {
-                        PostId = post.Id,
-                        PromotionId = promotion.Id
+                        PostId = id,
+                        PromotionId = promotionId
                     };
                     await _postPromotionRepository.AddAsync(postPromotion);
                 }
@@ -71,6 +74,35 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task AddRangeAsync(int promotionId, List<Post> posts)
+        {
+            try
+            {
+                foreach (var post in posts)
+                {
+                    var postPromotion = new PostPromotion()
+                    {
+                        PostId = post.Id,
+                        PromotionId = promotionId
+                    };
+                    await _postPromotionRepository.AddAsync(postPromotion);
+                }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         public async Task DeletedAsync(Promotion promotion)
         {
@@ -97,17 +129,11 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedRangeAsync(Promotion promotion)
+        public async Task DeletedRangeAsync(List<PostPromotion> postPromotions)
         {
             try
             {
-                var postPromotions = await _postPromotionRepository.GetAllByPromotionIdAsync(promotion.Id);
-                foreach (var postPromotion in postPromotions)
-                {
-                    postPromotion.IsDeleted = true;
-                    await _postPromotionRepository.UpdateAsync(postPromotion);
-                }    
-
+                await _postPromotionRepository.DeleteRangeAsync(postPromotions);
             }
             catch (NullReferenceException nullEx)
             {

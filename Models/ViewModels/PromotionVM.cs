@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class SalePromotionVM : BaseModelVM
+    public class PromotionVM : BaseModelVM
     {
         public string? Content { get; set; }
         public decimal DiscountValue { get; set; }

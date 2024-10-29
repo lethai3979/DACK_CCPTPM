@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
-    public class SalePromotionDTO
+    public class PromotionDTO
     {
         public int Id { get; set; }
 
@@ -15,5 +15,7 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal DiscountValue { get; set; }
         [Required]
         public required DateTime ExpiredDate { get; set; }
+
+        public List<int> PostIds { get; set; } = new List<int>();
     }
 }

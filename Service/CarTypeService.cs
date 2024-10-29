@@ -48,9 +48,9 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                if (companyList.Contains(0) || companyList.Count == 0)
+                if (companyList.Contains(0))
                 {
-                    companyList.Clear();
+                    throw new InvalidOperationException("Invalid company Id");
                 }
                 carType.CreatedById = _userId;
                 carType.CreatedOn = DateTime.Now;
@@ -128,11 +128,9 @@ namespace GoWheels_WebAPI.Service
                 carType.CreatedOn = existingCarType.CreatedOn;
                 carType.ModifiedById = existingCarType.ModifiedById;
                 carType.ModifiedOn = existingCarType.ModifiedOn;
-
-
-                if (companyIds.Contains(0) || companyIds.Count == 0)
+                if (companyIds.Contains(0))
                 {
-                    companyIds.Clear();
+                    throw new InvalidOperationException("Invalid company Id");
                 }
                 //Compare new CarTypeDetails with existing CarTypeDetails
                 var isDetailsChange = await IsCarTypeDetailChange(companyIds, existingCarType.Id);

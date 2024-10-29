@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class SalePromotionRepository : IGenericRepository<Promotion>
+    public class PromotionRepository : IGenericRepository<Promotion>
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public SalePromotionRepository(ApplicationDbContext context,IMapper mapper)
+        public PromotionRepository(ApplicationDbContext context,IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

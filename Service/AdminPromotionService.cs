@@ -10,15 +10,15 @@ using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class SalePromotionService
+    public class AdminPromotionService
     {
-        private readonly SalePromotionRepository _salepromotionRepository;
+        private readonly PromotionRepository _salepromotionRepository;
         private readonly PostPromotionService _postPromotionService;
         private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
-        public SalePromotionService(SalePromotionRepository salepromotionRepository,
+        public AdminPromotionService(PromotionRepository salepromotionRepository,
                                     PostPromotionService postPromotionService,
                                     PostService postService,
                                     IHttpContextAccessor contextAccessor,
@@ -51,17 +51,7 @@ namespace GoWheels_WebAPI.Service
             return promotionlist;
         }
 
-        public async Task<List<Promotion>> GetAllByUserId()
-        {
-            var promoList = await _salepromotionRepository.GetPromotionsByUserIdAsync(_userId);
-            if (promoList.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return promoList;
-        }
-
-        public async Task<List<Promotion>> GetAllAdminPromotions()
+        public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
         {
             var userRole = _httpContextAccessor.HttpContext?.User?
             .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
@@ -77,7 +67,10 @@ namespace GoWheels_WebAPI.Service
             return promoList;
         }
 
-        public async Task AddAdminPromotionAsync(Promotion promotion)
+        public async Task<Promotion> GetByIdAsync(int id)
+            => await _salepromotionRepository.GetByIdAsync(id);
+
+        public async Task AddAsync(Promotion promotion)
         {
             try
             {
@@ -92,45 +85,11 @@ namespace GoWheels_WebAPI.Service
                 promotion.IsDeleted = false;
                 await _salepromotionRepository.AddAsync(promotion);
                 var posts = await _postService.GetAllAsync();
-                await _postPromotionService.AddRangeAsync(promotion, posts);
+                await _postPromotionService.AddRangeAsync(promotion.Id, posts);
             }
             catch(NullReferenceException nullEx)
             {
                 throw new NullReferenceException(nullEx.Message);   
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task AddUserPromotionAsync(Promotion promotion, int postId)
-        {
-            try
-            {
-                var post = await _postService.GetByIdAsync(postId);
-                if (_userId != post.CreatedById)
-                {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }    
-                promotion.IsAdminPromotion = false;
-                promotion.CreatedById = _userId;
-                promotion.CreatedOn = DateTime.Now;
-                promotion.IsDeleted = false;
-                await _salepromotionRepository.AddAsync(promotion);
-                await _postPromotionService.AddAsync(promotion, post.Id) ;
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
@@ -156,7 +115,9 @@ namespace GoWheels_WebAPI.Service
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
                 promotion.ModifiedOn = existingPromotion.ModifiedOn;
+                promotion.PostPromotions = existingPromotion.PostPromotions;
                 promotion.IsDeleted = existingPromotion.IsDeleted;
+                promotion.IsAdminPromotion = existingPromotion.IsAdminPromotion;
                 var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                 EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
                 await _salepromotionRepository.UpdateAsync(promotion);
@@ -183,20 +144,11 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var isAdmin = IsAdminRole();
                 var promotion = await _salepromotionRepository.GetByIdAsync(id);
                 promotion.ModifiedById = _userId;
                 promotion.ModifiedOn = DateTime.Now;
                 promotion.IsDeleted = true;
-                await _salepromotionRepository.UpdateAsync(promotion);
-                if(isAdmin)
-                {
-                    await _postPromotionService.DeletedRangeAsync(promotion);
-                }    
-                else
-                {
-                    await _postPromotionService.DeletedAsync(promotion);
-                }
+                await _salepromotionRepository.UpdateAsync(promotion); 
             }
             catch (NullReferenceException nullEx)
             {
@@ -216,7 +168,6 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<Promotion> GetByIdAsync(int id)
-            => await _salepromotionRepository.GetByIdAsync(id);
+
     }
 }
