@@ -27,7 +27,7 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public string? CompanyName { get; set; }
         public UserVM User { get; set; } = null!;
         public List<PostAmenityVM> PostAmenities { get; set; } = new List<PostAmenityVM>();
-        public List<PostPromotionVM> PostPromotionVMs { get; set; } = new List<PostPromotionVM>();
+        public List<PostPromotionVM> PostPromotions { get; set; } = new List<PostPromotionVM>();
         public List<RatingVM> Ratings { get; set; } = new List<RatingVM>();
     }
 }
