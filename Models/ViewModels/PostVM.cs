@@ -23,7 +23,6 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public int CarTypeId { get; set; }
         public string? CarTypeName { get; set; }
         public int CompanyId { get; set; }
-
         public string? CompanyName { get; set; }
         public UserVM User { get; set; } = null!;
         public List<PostAmenityVM> PostAmenities { get; set; } = new List<PostAmenityVM>();
