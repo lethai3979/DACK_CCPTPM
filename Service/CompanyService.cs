@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
-                return "https://localhost:7265/images/companies/" + fileName;
+                return "/images/companies/" + fileName;
             }
             catch (Exception ex)
             {

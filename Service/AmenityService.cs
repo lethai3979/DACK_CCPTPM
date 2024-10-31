@@ -98,7 +98,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
-                return "https://localhost:7265/images/amenities/" + fileName;
+                return "https://localhost:5027/images/amenities/" + fileName;
             }
             catch (Exception ex)
             {

@@ -128,7 +128,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
-                return "https://localhost:7265/images/posts/" + fileName;
+                return "/images/posts/" + fileName;
             }
             catch (Exception ex)
             {
@@ -235,7 +235,7 @@ namespace GoWheels_WebAPI.Service
         {
             foreach (var file in imageList)
             {
-                var url = "https://localhost:7265/images/posts/" + Path.GetFileName(file.FileName);
+                var url = "https://localhost:5027/images/posts/" + Path.GetFileName(file.FileName);
                 var isChange = !post.Images.Any(i => i.Url.Equals(url));
                 if (isChange)
                 {
