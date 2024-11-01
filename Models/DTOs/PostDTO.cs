@@ -7,7 +7,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         public int Id { get; set; }
         [Required]
         public string? Name { get; set; }
-        //[Required]
         public IFormFile? Image { get; set; }
         public List<IFormFile?> ImagesList { get; set; } = new List<IFormFile?>();
         public string? Description { get; set; }

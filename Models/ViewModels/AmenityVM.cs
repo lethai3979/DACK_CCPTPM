@@ -1,11 +1,11 @@
 ﻿
 
-namespace GoWheels_WebAPI.Models.ViewModels
-{
-    public class AmenityVM : BaseModelVM
+    namespace GoWheels_WebAPI.Models.ViewModels
     {
-        public string? Name { get; set; }
+        public class AmenityVM : BaseModelVM
+        {
+            public string? Name { get; set; }
 
-        public string? IconImage { get; set; }
+            public string? IconImage { get; set; }
+        }
     }
-}

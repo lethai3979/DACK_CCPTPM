@@ -52,6 +52,7 @@ namespace GoWheels_WebAPI.Service
                 throw new InvalidOperationException("Wrong email or password");
             }
             var token = await GenerateJwtToken(user);
+
             return token;
         }
         private async Task<string> GenerateJwtToken(ApplicationUser user)

@@ -74,11 +74,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var isAdmin = IsAdminRole();
-                if (!isAdmin)
-                {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }    
+                var isAdmin = IsAdminRole(); 
                 promotion.IsAdminPromotion = true;
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;

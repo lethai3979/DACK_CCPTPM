@@ -98,7 +98,11 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
+<<<<<<< HEAD
                 return "https://localhost:5027/images/amenities/" + fileName;
+=======
+                return "images/amenities/" + fileName;
+>>>>>>> origin/NhatTruong_NM
             }
             catch (Exception ex)
             {
@@ -142,7 +146,11 @@ namespace GoWheels_WebAPI.Service
 
             try
             {
-                string imageUrl = "./wwwroot/images/amenities/" + Path.GetFileName(formFile.FileName);
+                string imageUrl = ""; 
+                if(amenity.IconImage != null)
+                {
+                    imageUrl = "./wwwroot/images/amenities/" + Path.GetFileName(formFile.FileName);
+                }
                 var existingAmenity = await _amenityRepository.GetByIdAsync(id);
                 if (existingAmenity == null)
                 {

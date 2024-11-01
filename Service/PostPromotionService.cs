@@ -47,6 +47,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
+
         public async Task AddRangeAsync(int promotionId, List<int> postIds)
         {
             try

@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Area("Admin")]
     [Route("api/[area]/[controller]")]
-    [Authorize(Roles = "Admin")]
     [ApiController]
     public class AmenityController : ControllerBase
     {
@@ -100,7 +99,7 @@ namespace GoWheels_WebAPI.Controllers
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
@@ -122,13 +121,13 @@ namespace GoWheels_WebAPI.Controllers
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] AmenityDTO amenityDTO)
         {
             try
             {
-                if (amenityDTO == null || id != amenityDTO.Id)
+                if (amenityDTO == null)
                 {
                     return BadRequest("Invalid request");
                 }
