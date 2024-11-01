@@ -133,7 +133,7 @@ namespace GoWheels_WebAPI.Controllers
 
 
 
-        [HttpPost("Update/{id}")]
+        [HttpPut("Update/{id}")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CarTypeDTO carTypeDTO)
         {
             try

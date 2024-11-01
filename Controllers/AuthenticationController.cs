@@ -39,9 +39,11 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpPost("GetUser")]
-        public async Task<ActionResult<UserVM>> GetUser(string token)
+        [HttpGet("GetUser")]
+        public async Task<ActionResult<UserVM>> GetUser()
         {
+            var authorizationHeader = Request.Headers["Authorization"].ToString();
+            var token = authorizationHeader.StartsWith("Bearer ") ? authorizationHeader.Substring("Bearer ".Length) : authorizationHeader;
             var result = await _authenService.GetUserFromToken(token);
             if (result == null)
             {

@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
-                return "https://localhost:7265/images/companies/" + fileName;
+                return "images/companies/" + fileName;
             }
             catch (Exception ex)
             {
@@ -144,8 +144,11 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                string imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(formFile.FileName);
-
+                string imageUrl = "";
+                if (company.IconImage != null)
+                {
+                    imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(formFile.FileName);
+                }
                 var existingCompany = await _companyRepository.GetByIdAsync(id);
 
                 if (formFile != null && formFile.Length > 0 && imageUrl != existingCompany.IconImage)
