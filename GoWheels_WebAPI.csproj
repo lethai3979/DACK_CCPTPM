@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Service\Interface\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\images\amenities\" />
   </ItemGroup>

@@ -16,7 +16,7 @@ namespace GoWheels_WebAPI.Models.Entities
         [Required]
         public required DateTime ExpiredDate { get; set; }
         public ICollection<PostPromotion> PostPromotions { get; set; } = new List<PostPromotion>();
-
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public bool IsAdminPromotion { get; set; }
     }
 }

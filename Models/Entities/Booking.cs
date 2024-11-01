@@ -6,7 +6,6 @@ namespace GoWheels_WebAPI.Models.Entities
     {
         public required decimal PrePayment { get; set; }
         public required decimal Total { get; set; }
-        public string? PromotionContent { get; set; }
         public required decimal FinalValue { get; set; }
         public required DateTime RecieveOn { get; set; }
         public required DateTime ReturnOn { get; set; }
@@ -21,5 +20,8 @@ namespace GoWheels_WebAPI.Models.Entities
         public string? UserId { get; set; }
         [ValidateNever]
         public ApplicationUser User { get; set; } = null!;
+        public int PromotionId { get; set; }
+        [ValidateNever]
+        public Promotion Promotion { get; set; } = null!;
     }
 }

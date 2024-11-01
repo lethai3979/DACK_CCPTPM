@@ -15,6 +15,6 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public bool IsPay { get; set; }
         public string? UserId { get; set; }
         public PostVM Post { get; set; } = null!;
-        public string? PromotionContent { get; set; }
+        public PromotionVM PromotionVM { get; set; } = null!;
     }
 }

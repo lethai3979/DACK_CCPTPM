@@ -184,8 +184,8 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<decimal>("PrePayment")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("PromotionContent")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PromotionId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("RecieveOn")
                         .HasColumnType("datetime2");
@@ -206,6 +206,8 @@ namespace GoWheels_WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("PromotionId");
 
                     b.HasIndex("UserId");
 
@@ -841,11 +843,19 @@ namespace GoWheels_WebAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.Promotion", "Promotion")
+                        .WithMany("Bookings")
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "User")
                         .WithMany("Booking")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Post");
+
+                    b.Navigation("Promotion");
 
                     b.Navigation("User");
                 });
@@ -1111,6 +1121,8 @@ namespace GoWheels_WebAPI.Migrations
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Promotion", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("PostPromotions");
                 });
 

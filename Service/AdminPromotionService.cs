@@ -80,8 +80,6 @@ namespace GoWheels_WebAPI.Service
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
                 await _salepromotionRepository.AddAsync(promotion);
-                var posts = await _postService.GetAllAsync();
-                await _postPromotionService.AddRangeAsync(promotion.Id, posts);
             }
             catch(NullReferenceException nullEx)
             {

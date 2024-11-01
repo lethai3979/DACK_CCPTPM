@@ -108,11 +108,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
-<<<<<<< HEAD
-                return "/images/companies/" + fileName;
-=======
                 return "images/companies/" + fileName;
->>>>>>> origin/NhatTruong_NM
             }
             catch (Exception ex)
             {

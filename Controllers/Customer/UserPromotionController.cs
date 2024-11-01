@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace GoWheels_WebAPI.Controllers.User
+namespace GoWheels_WebAPI.Controllers.Customer
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -109,7 +109,7 @@ namespace GoWheels_WebAPI.Controllers.User
         }
 
         [HttpPost("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id,[FromForm] PromotionDTO promotionDTO)
+        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
             {
