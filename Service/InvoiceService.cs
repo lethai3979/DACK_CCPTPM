@@ -248,6 +248,7 @@ namespace GoWheels_WebAPI.Service
                     throw new InvalidOperationException("Payment failed");
                 }
                 booking.IsPay = true;
+                booking.Status = "Waiting";
                 await _bookingService.UpdateAsync(booking.Id, booking);
                 var invoice = new Invoice()
                 {

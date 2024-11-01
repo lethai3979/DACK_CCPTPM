@@ -41,6 +41,16 @@ namespace GoWheels_WebAPI.Service
             return bookings;
         }
 
+        public async Task<List<Booking>> GetPendingBookingsByUserIdAsync()
+        {
+            var bookings = await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
+            if (bookings.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return bookings;
+        }
+
         public async Task<List<Booking>> GetAllAsync()
         {
             var bookings = await _bookingRepository.GetAllAsync();
@@ -80,7 +90,7 @@ namespace GoWheels_WebAPI.Service
                 booking.CreatedById = _userId;
                 booking.UserId = _userId;
                 booking.CreatedOn = DateTime.Now;
-                booking.Status = "Waiting";
+                booking.Status = "Pending";
                 booking.IsDeleted = false;
                 booking.IsPay = false;
                 booking.IsRequest = false;
@@ -122,6 +132,31 @@ namespace GoWheels_WebAPI.Service
                 booking.IsDeleted = existingBooking.IsDeleted;
                 var isValueChange = EditHelper<Booking>.HasChanges(booking, existingBooking);
                 EditHelper<Booking>.SetModifiedIfNecessary(booking, isValueChange, existingBooking, _userId);
+                await _bookingRepository.UpdateAsync(booking);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task UpdateOwnerConfirmAsync(int id, bool isAccept)
+        {
+            try
+            {
+                var booking = await _bookingRepository.GetByIdAsync(id);
+                booking.ModifiedById = _userId;
+                booking.ModifiedOn = DateTime.Now;
+                booking.Status = "Accept Booking";
+                booking.OwnerConfirm = isAccept;
                 await _bookingRepository.UpdateAsync(booking);
             }
             catch (DbUpdateException dbEx)
