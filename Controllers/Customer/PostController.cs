@@ -129,7 +129,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("Update/{id}")]
+        [HttpPut("Update/{id}")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id,[FromForm] PostDTO postDTO)
         {
             try

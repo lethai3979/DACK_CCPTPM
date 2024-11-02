@@ -164,8 +164,12 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
+                var imageUrl = "";
                 var existingPost = await _postRepository.GetByIdAsync(id);
-                var imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(image.FileName);
+                if(image != null)
+                {
+                    imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(image.FileName);
+                }
                 if(_userId != existingPost.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
@@ -235,7 +239,7 @@ namespace GoWheels_WebAPI.Service
         {
             foreach (var file in imageList)
             {
-                var url = "https://localhost:7265/images/posts/" + Path.GetFileName(file.FileName);
+                var url = "images/posts/" + Path.GetFileName(file.FileName);
                 var isChange = !post.Images.Any(i => i.Url.Equals(url));
                 if (isChange)
                 {
