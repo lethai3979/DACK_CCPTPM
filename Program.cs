@@ -79,6 +79,7 @@ builder.Services.AddScoped<CarTypeRepository>();
 builder.Services.AddScoped<CarTypeService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PromotionRepository>();
 builder.Services.AddScoped<AdminPromotionService>();
 builder.Services.AddScoped<UserPromotionService>();

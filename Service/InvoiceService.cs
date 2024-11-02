@@ -128,22 +128,19 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task RefundReportedBookingsAsync(List<Booking> bookings)
+        public async Task RefundReportedBookingAsync(Booking booking)
         {
             try
             {
-                foreach (var booking in bookings)
+                var refundInvoice = new Invoice()
                 {
-                    var refundInvoice = new Invoice()
-                    {
-                        Total = -booking.PrePayment,
-                        ReturnOn = DateTime.Now,
-                        CreatedOn = DateTime.Now,
-                        CreatedById = _userId,
-                        BookingId = booking.Id,
-                    };
-                    await _invoiceRepository.AddAsync(refundInvoice);
-                }
+                    Total = -booking.PrePayment,
+                    ReturnOn = DateTime.Now,
+                    CreatedOn = DateTime.Now,
+                    CreatedById = _userId,
+                    BookingId = booking.Id,
+                };
+                await _invoiceRepository.AddAsync(refundInvoice);
             }
             catch (DbUpdateException dbEx)
             {

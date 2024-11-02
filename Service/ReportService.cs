@@ -34,7 +34,7 @@ namespace GoWheels_WebAPI.Service
             _mapper = mapper;
         }
 
-        public async Task AddAsync(Report report)
+        public async Task CreateReportAsync(Report report)
         {
             try
             {
@@ -57,20 +57,26 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedAsync(int id, bool isAccept)
+        public async Task ConfirmReportAsync(int id, bool isAccept)
         {
             try
             {
+                var report = await _reportRepository.GetByIdAsync(id);
+                report.IsDeleted = true;
+                report.ModifiedById = _userId;
+                report.ModifiedOn = DateTime.Now;
+                await _reportRepository.UpdateAsync(report);
                 if (isAccept)
                 {
-                    var report = await _reportRepository.GetByIdAsync(id);
-                    report.IsDeleted = true;
-                    report.ModifiedById = _userId;
-                    report.ModifiedOn = DateTime.Now;
-                    await _reportRepository.UpdateAsync(report);
-                    var bookings = await _bookingService.GetAllWaitingBookingsByPostIdAsync(report.PostId);
-                    await _invoiceService.RefundReportedBookingsAsync(bookings);
-                    await _bookingService.CancelReportedBookingsAsync(bookings);
+                    var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(report.PostId);
+                    foreach (var booking in bookings)
+                    {
+                        await _bookingService.CancelReportedBookingsAsync(booking);
+                        if (booking.IsPay)
+                        {
+                            await _invoiceService.RefundReportedBookingAsync(booking);
+                        }     
+                    }
                 }
             }
             catch (NullReferenceException nullEx)

@@ -1,4 +1,5 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +13,16 @@ namespace GoWheels_WebAPI.Service
     public class AuthenticationService
     {
         private readonly IUserRepository _autheticationRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _userId;
         private readonly IConfiguration _config;
 
-        public AuthenticationService(IUserRepository autheticationRepository, IConfiguration config)
+        public AuthenticationService(IUserRepository autheticationRepository, IHttpContextAccessor httpContextAccessor, IConfiguration config)
         {
             _autheticationRepository = autheticationRepository;
+            _httpContextAccessor = httpContextAccessor;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _config = config;
         }
 
@@ -55,6 +61,7 @@ namespace GoWheels_WebAPI.Service
 
             return token;
         }
+
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             var authClaims = new List<Claim>
@@ -115,7 +122,7 @@ namespace GoWheels_WebAPI.Service
                 return new UserVM
                 {
                     UserId = user.Id,
-                    Name = user.UserName,
+                    Name = user.Name,
                     License = user.License,
                     Image = user.Image,
                     Birthday = user.Birthday,

@@ -134,7 +134,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.UpdateAsync(id, amenity, amenityDTO.IconImage);
+                    await _amenityService.UpdateAsync(id, amenity, amenityDTO.IconImage!);
                     return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");

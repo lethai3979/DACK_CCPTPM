@@ -81,7 +81,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         }
 
-        
+        [HttpGet("GetAllPendingBookingsByUserId")]
         public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
         {
             try

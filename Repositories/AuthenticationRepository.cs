@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace GoWheels_WebAPI.Repositories
 {
@@ -44,6 +45,19 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user) 
             => await _userManager.GetRolesAsync(user);
+        public async Task UpdateAsync(ApplicationUser user)
+        {
+            var existingUser = _context.ChangeTracker.Entries<ApplicationUser>().FirstOrDefault(e => e.Entity.Id == user.Id);
+            if (existingUser != null)
+            {
+                _context.Entry(existingUser.Entity).State = EntityState.Detached;
+            }
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            //detached tracking obj after modified
+            _context.Entry(user).State = EntityState.Detached;
+        }
 
         public async Task<bool> ValidatePasswordAsync(ApplicationUser user, string password)
             => await _userManager.CheckPasswordAsync(user, password);

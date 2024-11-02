@@ -31,6 +31,16 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
+        public  async Task<List<Booking>> GetAllUnRecieveBookingsByPostIdAsync(int postId)
+        {
+            var bookings = await _bookingRepository.GetAllUnRecieveBookingByPostIdAsync(postId);
+            if (bookings.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return bookings;
+        }
+
         public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
         {
             var bookings = await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
@@ -287,16 +297,13 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public async Task CancelReportedBookingsAsync(List<Booking> bookings)
+        public async Task CancelReportedBookingsAsync(Booking booking)
         {
             try
             {
-                foreach (var booking in bookings)
-                {
-                    booking.IsDeleted = true;
-                    booking.Status = "Refunded";
-                    await _bookingRepository.UpdateAsync(booking);
-                }
+                booking.Status = booking.IsPay ? "Refunded" : "Canceled";
+                booking.IsResponse = true;
+                await _bookingRepository.UpdateAsync(booking);
             }
             catch (DbUpdateException dbEx)
             {
