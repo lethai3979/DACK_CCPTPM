@@ -128,6 +128,7 @@ namespace GoWheels_WebAPI.Service
                 }
 
                 // Trả về URL để lưu vào database
+
                 return "images/posts/" + fileName;
             }
             catch (Exception ex)
@@ -240,6 +241,7 @@ namespace GoWheels_WebAPI.Service
             foreach (var file in imageList)
             {
                 var url = "images/posts/" + Path.GetFileName(file.FileName);
+
                 var isChange = !post.Images.Any(i => i.Url.Equals(url));
                 if (isChange)
                 {

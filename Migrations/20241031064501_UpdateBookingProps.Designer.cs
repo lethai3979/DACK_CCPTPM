@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241031064501_UpdateBookingProps")]
+    partial class UpdateBookingProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,8 +187,8 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<decimal>("PrePayment")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("PromotionId")
-                        .HasColumnType("int");
+                    b.Property<string>("PromotionContent")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RecieveOn")
                         .HasColumnType("datetime2");
@@ -206,8 +209,6 @@ namespace GoWheels_WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("PromotionId");
 
                     b.HasIndex("UserId");
 
@@ -843,19 +844,11 @@ namespace GoWheels_WebAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GoWheels_WebAPI.Models.Entities.Promotion", "Promotion")
-                        .WithMany("Bookings")
-                        .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "User")
                         .WithMany("Booking")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Post");
-
-                    b.Navigation("Promotion");
 
                     b.Navigation("User");
                 });
@@ -1121,8 +1114,6 @@ namespace GoWheels_WebAPI.Migrations
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Promotion", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("PostPromotions");
                 });
 

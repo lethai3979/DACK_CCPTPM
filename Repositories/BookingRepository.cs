@@ -39,7 +39,6 @@ namespace GoWheels_WebAPI.Repositories
            => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
-                                        .Include(b => b.Post)
                                         .Where(b => b.UserId == userId)
                                         .ToListAsync();
 
@@ -47,7 +46,6 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
-                                        .Include(b => b.Post)
                                         .Where(b => b.IsRequest && !b.IsResponse)
                                         .ToListAsync();
 
@@ -55,15 +53,20 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
-                                        .Include(b => b.Post)
                                         .Where(b => b.PostId == postId && b.Status == "Waiting")
+                                        .ToListAsync();
+
+        public async Task<List<Booking>> GetAllPendingBookingByUserIdAsync(string userId)
+            => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
+                                        .Include(b => b.User)
+                                        .Where(b => b.Post.UserId == userId && b.Status == "Pending")
                                         .ToListAsync();
 
         public async Task<Booking> GetByIdAsync(int id)
             => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
-                                        .Include(b => b.Post)
                                         .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted)
                                         ?? throw new NullReferenceException("Booking not found");
 

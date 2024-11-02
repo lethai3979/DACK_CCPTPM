@@ -61,6 +61,10 @@ namespace GoWheels_WebAPI.Repositories
                                                 .Where(p => p.PromotionId == promotionId)
                                                 .ToListAsync();
 
+        public async Task<List<PostPromotion>> GetAllByPostIdAsync(int promotionId)
+                => await _context.PostPromotions.Include(p => p.Post)
+                                                .Where(p => p.PostId == promotionId)
+                                                .ToListAsync();
 
         public async Task<PostPromotion> GetByIdAsync(int id)
             => await _context.PostPromotions

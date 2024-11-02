@@ -12,7 +12,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+
     public class AdminPromotionController : ControllerBase
     {
         private readonly AdminPromotionService _promotionService;
@@ -25,6 +25,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpGet("GetAll")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> GetAllAsync()
         {
             try
@@ -97,6 +98,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpPost("Add")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PromotionDTO promotionDTO)
         {
             try
@@ -132,6 +134,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpPost("Update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
@@ -165,6 +168,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpPost("Delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try

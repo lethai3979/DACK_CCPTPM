@@ -11,6 +11,7 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public string? Content { get; set; }
         public decimal DiscountValue { get; set; }
         public DateTime ExpiredDate { get; set; }
+        public bool IsAdminPromotion { get; set; }
         public List<PostPromotionVM> PostPromotions { get; set;} = new List<PostPromotionVM>();
     }
 }

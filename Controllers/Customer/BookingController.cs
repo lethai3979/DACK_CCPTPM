@@ -81,6 +81,30 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         }
 
+        
+        public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
+        {
+            try
+            {
+                var bookings = await _bookingService.GetPendingBookingsByUserIdAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpPost("SendCancelRequest/{id}")]
         public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)
         {
@@ -144,8 +168,32 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-
-
+        [HttpPut("UpdateOwnerConfirm")]
+        public async Task<ActionResult<OperationResult>> UpdateOwnerConfirmAsync(BookingDTO bookingDTO)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var booking = _mapper.Map<Booking>(bookingDTO);
+                    await _bookingService.AddAsync(booking);
+                    return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                }
+                return BadRequest("Booking data invalid");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
 
     }
 }

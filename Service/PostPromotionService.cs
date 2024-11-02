@@ -9,17 +9,18 @@ namespace GoWheels_WebAPI.Service
     public class PostPromotionService
     {
         private readonly PostPromotionReposity _postPromotionRepository;
-        private readonly PostService _postService;
 
         public PostPromotionService(PostPromotionReposity postPromotionRepository,
                                     PostService postService)
         {
             _postPromotionRepository = postPromotionRepository;
-            _postService = postService;
         }
 
         public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
             => await _postPromotionRepository.GetAllByPromotionIdAsync(promotionId);
+
+        public async Task<List<PostPromotion>> GetAllByPostIdAsync(int postId)
+            => await _postPromotionRepository.GetAllByPostIdAsync(postId);
 
         public async Task AddAsync(Promotion promotion, int postId)
         {
