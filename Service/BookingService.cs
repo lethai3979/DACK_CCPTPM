@@ -31,7 +31,7 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public  async Task<List<Booking>> GetAllUnRecieveBookingsByPostIdAsync(int postId)
+        public async Task<List<Booking>> GetAllUnRecieveBookingsByPostIdAsync(int postId)
         {
             var bookings = await _bookingRepository.GetAllUnRecieveBookingByPostIdAsync(postId);
             if (bookings.Count == 0)
@@ -41,54 +41,36 @@ namespace GoWheels_WebAPI.Service
             return bookings;
         }
 
-        public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
+        public async Task<List<DateTime>> GetBookedDateByPostIdsAsync(int postId)
         {
-            var bookings = await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
+            var bookings = await _bookingRepository.GetAllByPostIdAsync(postId);
             if (bookings.Count == 0)
             {
-                throw new NullReferenceException("List is empty");
+                return new List<DateTime>();
             }
-            return bookings;
+            //Lấy từng ngày trong từng booking ra và gắn vào 
+            var bookedDates = bookings.SelectMany(b => Enumerable.Range(0, (b.ReturnOn - b.RecieveOn).Days + 1)
+                                                                    .Select(offset => b.RecieveOn.AddDays(offset)))
+                                        .ToList();
+            return bookedDates;
         }
 
-        public async Task<List<Booking>> GetPendingBookingsByUserIdAsync()
-        {
-            var bookings = await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
-            if (bookings.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return bookings;
-        }
+        public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
+            => await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
+
+
+        public async Task<List<Booking>> GetAllPendingBookingsByUserIdAsync()
+            => await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
 
         public async Task<List<Booking>> GetAllAsync()
-        {
-            var bookings = await _bookingRepository.GetAllAsync();
-            if (bookings.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return bookings;
-        }
+            => await _bookingRepository.GetAllAsync();
+
         public async Task<List<Booking>> GetAllCancelRequestAsync()
-        {
-            var requestList = await _bookingRepository.GetAllCancelRequestAsync();
-            if (requestList.Count == 0)
-            {
-                throw new NullReferenceException("No request");
-            }
-            return requestList;
-        }
+            => await _bookingRepository.GetAllCancelRequestAsync();
+
 
         public async Task<List<Booking>> GetPersonalBookingsAsync()
-        {
-            var bookings = await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
-            if (bookings.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return bookings;
-        }
+            => await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
 
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
@@ -105,6 +87,7 @@ namespace GoWheels_WebAPI.Service
                 booking.IsPay = false;
                 booking.IsRequest = false;
                 booking.IsResponse = false;
+                booking.IsRideCounted = false;
                 await _bookingRepository.AddAsync(booking);
             }
             catch (DbUpdateException dbEx)
@@ -163,9 +146,13 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var booking = await _bookingRepository.GetByIdAsync(id);
+                if (booking.Post.UserId != _userId)
+                {
+                    throw new UnauthorizedAccessException("Unauthorize");
+                }
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
-                booking.Status = "Accept Booking";
+                booking.Status = isAccept ? "Accept Booking" : "Denied";
                 booking.OwnerConfirm = isAccept;
                 await _bookingRepository.UpdateAsync(booking);
             }
@@ -194,13 +181,17 @@ namespace GoWheels_WebAPI.Service
                 }
                 foreach (var booking in bookings)
                 {
-                    if (booking.IsPay && !booking.IsResponse && booking.RecieveOn <= DateTime.Now)
+                    if (booking.IsPay && booking.Status.Equals("Waiting") && booking.RecieveOn <= DateTime.Now)
                     {
                         booking.Status = "Renting";
                     }
-                    else if (booking.IsPay && !booking.IsResponse && booking.ReturnOn < DateTime.Now)
+                    else if (booking.IsPay && booking.Status.Equals("Renting") && booking.ReturnOn < DateTime.Now)
                     {
                         booking.Status = "Conplete";
+                    }
+                    else if(!booking.IsPay && booking.RecieveOn <= DateTime.Now)
+                    {
+                        booking.Status = "Canceled";
                     }
                     await _bookingRepository.UpdateAsync(booking);
                 }
@@ -270,16 +261,9 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                if (isAccept)
-                {
-                    booking.Status = "Refunded";
-                    booking.IsResponse = true;
-                }
-                else
-                {
-                    booking.Status = "Request denied";
-                    booking.IsResponse = false;
-                }
+                booking.Status = isAccept ? "Refunded" : "Request denied";
+                booking.IsResponse = true;
+                booking.IsPay = !isAccept;
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 await _bookingRepository.UpdateAsync(booking);

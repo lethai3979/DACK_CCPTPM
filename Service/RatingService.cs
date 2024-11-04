@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Service
 
         /*        private async Task<float> GetAverageRatingFromPost(int postId)
                 {
-                    var commentList = await _ratingRepository.GetAllByPostId(postId);
+                    var commentList = await _ratingRepository.GetAllRentingBookingsByPostId(postId);
                     if (commentList == null || !commentList.Any())
                     {
                         return 0;

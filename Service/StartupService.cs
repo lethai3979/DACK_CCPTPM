@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
+using GoWheels_WebAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Service
@@ -47,8 +48,15 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var bookings = await _bookingService.GetAllAsync();
-                await _postService.UpdateRideNumberAsync(bookings);
-
+                foreach (var booking in bookings)
+                {
+                    if (booking.RecieveOn <= DateTime.Now && booking.IsPay && !booking.IsRideCounted)
+                    {
+                        await _postService.UpdateRideNumberAsync(booking.PostId, 1);
+                        booking.IsRideCounted = true;
+                        await _bookingService.UpdateAsync(booking.Id, booking);
+                    }
+                }
             }
             catch (NullReferenceException)
             {

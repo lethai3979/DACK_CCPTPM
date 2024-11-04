@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241103085041_UpdateReportType")]
+    partial class UpdateReportType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,9 +170,6 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsResponse")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRideCounted")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedById")

@@ -15,6 +15,7 @@ namespace GoWheels_WebAPI.Service
         private readonly ReportRepository _reportRepository;
         private readonly BookingService _bookingService;
         private readonly InvoiceService _invoiceService;
+        private readonly UserService _userService;  
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly string _userId;
@@ -22,16 +23,28 @@ namespace GoWheels_WebAPI.Service
         public ReportService(ReportRepository reportRepository, 
                                 BookingService bookingService,
                                 InvoiceService invoiceService,
+                                UserService userService,
                                 IHttpContextAccessor httpContextAccessor, 
                                 IMapper mapper)
         {
             _reportRepository = reportRepository;
             _bookingService = bookingService;
             _invoiceService = invoiceService;
+            _userService = userService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
+        }
+
+        public async Task<List<Report>> GetAllReportsAsync()
+        {
+            var reports = await _reportRepository.GetAllAsync();
+            if (reports.Count == 0)
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return reports;
         }
 
         public async Task CreateReportAsync(Report report)
@@ -77,7 +90,9 @@ namespace GoWheels_WebAPI.Service
                             await _invoiceService.RefundReportedBookingAsync(booking);
                         }     
                     }
+                    await _userService.UpdateUserReportPointAsync(report.Post.UserId!, report.ReportType.ReportPoint);
                 }
+
             }
             catch (NullReferenceException nullEx)
             {

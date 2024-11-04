@@ -52,5 +52,31 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task UpdateUserReportPointAsync(string userId, int reportPoint)
+        {
+            try
+            {
+                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                user.ReportPoint += reportPoint;
+                await _autheticationRepository.UpdateAsync(user);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.InnerException!.Message);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
-﻿using GoWheels_WebAPI.Models.DTOs;
+﻿using AutoMapper;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +15,37 @@ namespace GoWheels_WebAPI.Controllers.Employee
     public class ManagerReportController : ControllerBase
     {
         private readonly ReportService _reportService;
+        private readonly IMapper _mapper;
 
-        public ManagerReportController(ReportService reportService)
+        public ManagerReportController(ReportService reportService, 
+                                        IMapper mapper)
         {
             _reportService = reportService;
+            _mapper = mapper;
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        {
+            try
+            {
+                var reports = await _reportService.GetAllAsync();
+                var reportVMs = _mapper.Map<List<ReportVM>>(reports);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpPut("ExamineReport/{id}")]

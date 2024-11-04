@@ -309,20 +309,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateRideNumberAsync(List<Booking> bookings)
+        public async Task UpdateRideNumberAsync(int postId, int rideNumber)
         {
             try
             {
-                foreach (var booking in bookings)
-                {
-                    if(booking.RecieveOn >= DateTime.Now && booking.IsPay && !booking.IsResponse)
-                    {
-                        var post = await _postRepository.GetByIdAsync(booking.Id);
-                        post.RideNumber ++;
-                        await _postRepository.UpdateAsync(post);
-                    }                       
-                }
-
+                var post = await _postRepository.GetByIdAsync(postId);
+                post.RideNumber += rideNumber;
+                await _postRepository.UpdateAsync(post);
             }
             catch (DbUpdateException dbEx)
             {

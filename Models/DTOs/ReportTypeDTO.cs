@@ -7,5 +7,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         public int Id { get; set; }
         [Required]
         public string? Name { get; set; }
+        public int ReportPoint { get; set; }
     }
 }
