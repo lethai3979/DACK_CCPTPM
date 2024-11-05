@@ -26,6 +26,10 @@ namespace GoWheels_WebAPI.Controllers
                 //var user = await _authenService.GetUserFromToken(result);
                 return new OperationResult(true, result, StatusCodes.Status200OK);
             }
+            catch(NullReferenceException nullEx) 
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status404NotFound);
+            }   
             catch (InvalidOperationException operationEx) 
             {
                 return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);

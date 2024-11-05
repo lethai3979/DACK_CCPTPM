@@ -25,14 +25,8 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Favorite>> GetAllAsync()
-        {
-            var favorites = await _favoriteRepository.GetAllByUserIdAsync(_userId);
-            if (favorites.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return favorites;
-        }
+            => await _favoriteRepository.GetAllByUserIdAsync(_userId);
+
 
         public async Task AddAsync(Favorite favorite)
         {

@@ -48,6 +48,30 @@ namespace GoWheels_WebAPI.Controllers.Employee
             }
         }
 
+        [HttpGet("GetById/{id}")]
+        public async Task<ActionResult<OperationResult>> GetAllAsync(int id)
+        {
+            try
+            {
+                var report = await _reportService.GetByIdAsync(id);
+                var reportVM = _mapper.Map<ReportVM>(report);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVM);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpPut("ExamineReport/{id}")]
         public async Task<ActionResult<OperationResult>> ExamineReportPost(int id, bool isAccept)
         {

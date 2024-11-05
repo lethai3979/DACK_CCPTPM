@@ -27,35 +27,12 @@ namespace GoWheels_WebAPI.Service
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-
-        /*        private async Task<float> GetAverageRatingFromPost(int postId)
-                {
-                    var commentList = await _ratingRepository.GetAllRentingBookingsByPostId(postId);
-                    if (commentList == null || !commentList.Any())
-                    {
-                        return 0;
-                    }
-                    return commentList.Average(p => p.Point);
-                }*/
         public async Task<List<Rating>> GetAllByPostId(int postId)
-        {
-            var ratings = await _ratingRepository.GetAllByPostId(postId);
-            if (ratings == null || !ratings.Any())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return ratings;
-        }
+            => await _ratingRepository.GetAllByPostId(postId);
+
 
         public async Task<List<Rating>> GetAllAsync()
-        {
-            var commentAndRatingList = await _ratingRepository.GetAllAsync();
-            if (commentAndRatingList.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return commentAndRatingList;
-        }
+            => await _ratingRepository.GetAllAsync();
 
         public async Task<Rating> GetByIdAsync(int id)
             => await _ratingRepository.GetByIdAsync(id);

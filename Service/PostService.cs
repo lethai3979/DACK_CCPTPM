@@ -34,27 +34,15 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Post>> GetAllAsync()
-        {
-            var posts = await _postRepository.GetAllAsync();
-            if (posts.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return posts;
-        }
+           => await _postRepository.GetAllAsync();
+
 
         public async Task<Post> GetByIdAsync(int id)
             => await _postRepository.GetByIdAsync(id);
 
         public async Task<List<Post>> GetAllByUserId()
-        {
-            var posts = await _postRepository.GetPostsByUserIdAsync(_userId);
-            if (posts.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return posts;
-        }
+            => await _postRepository.GetPostsByUserIdAsync(_userId);
+
 
         public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {
@@ -236,7 +224,7 @@ namespace GoWheels_WebAPI.Service
         {
             foreach (var file in imageList)
             {
-                var url = "https://localhost:5027/images/posts/" + Path.GetFileName(file.FileName);
+                var url = "images/posts/" + Path.GetFileName(file.FileName);
                 var isChange = !post.Images.Any(i => i.Url.Equals(url));
                 if (isChange)
                 {
@@ -342,6 +330,30 @@ namespace GoWheels_WebAPI.Service
                 post.IsDeleted = true;
                 post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now; 
+                await _postRepository.UpdateAsync(post);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task DisablePostByIdAsync(int id)
+        {
+            try
+            {
+                var post = await _postRepository.GetByIdAsync(id);
+                post.IsDisabled = true;
+                post.ModifiedById = _userId;
+                post.ModifiedOn = DateTime.Now;
                 await _postRepository.UpdateAsync(post);
             }
             catch (DbUpdateException dbEx)

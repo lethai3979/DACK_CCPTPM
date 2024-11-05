@@ -133,11 +133,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var existingInvoice = await _invoiceService.GetByBookingIdAsync(id);
-                if (existingInvoice != null)
-                {
-                    await _bookingService.RequestCancelBookingAsync(id);
-                }
+                await _bookingService.RequestCancelBookingAsync(id);
                 return new OperationResult(true, "Cancellation request sent succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -198,7 +194,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.UpdateOwnerConfirmAsync(id, isAccept);
-                return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
             }
             catch(UnauthorizedAccessException authEx) 
             {

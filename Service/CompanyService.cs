@@ -36,14 +36,8 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Company>> GetAllAsync()
-        {
-            var companies = await _companyRepository.GetAllAsync();
-            if(companies.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return companies;
-        }
+            => await _companyRepository.GetAllAsync();
+
 
         public async Task<Company> GetByIdAsync(int id)
             => await _companyRepository.GetByIdAsync(id);

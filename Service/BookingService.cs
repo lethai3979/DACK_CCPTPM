@@ -32,14 +32,8 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Booking>> GetAllUnRecieveBookingsByPostIdAsync(int postId)
-        {
-            var bookings = await _bookingRepository.GetAllUnRecieveBookingByPostIdAsync(postId);
-            if (bookings.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return bookings;
-        }
+            => await _bookingRepository.GetAllUnRecieveBookingByPostIdAsync(postId);
+
 
         public async Task<List<DateTime>> GetBookedDateByPostIdsAsync(int postId)
         {
@@ -50,7 +44,8 @@ namespace GoWheels_WebAPI.Service
             }
             //Lấy từng ngày trong từng booking ra và gắn vào 
             var bookedDates = bookings.SelectMany(b => Enumerable.Range(0, (b.ReturnOn - b.RecieveOn).Days + 1)
-                                                                    .Select(offset => b.RecieveOn.AddDays(offset)))
+                                                                 .Select(offset => b.RecieveOn.AddDays(offset)))
+                                        .Distinct()
                                         .ToList();
             return bookedDates;
         }
@@ -79,6 +74,11 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
+                var post = await _postService.GetByIdAsync(booking.PostId);
+                if (post.IsDisabled) 
+                {
+                    throw new InvalidOperationException("Post unavailable");
+                }
                 booking.CreatedById = _userId;
                 booking.UserId = _userId;
                 booking.CreatedOn = DateTime.Now;
@@ -237,10 +237,20 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var existingBooking = await _bookingRepository.GetByIdAsync(id);
-                existingBooking.IsRequest = true;
-                existingBooking.Status = "Processing";
                 existingBooking.ModifiedById = _userId;
                 existingBooking.ModifiedOn = DateTime.Now;
+                if(existingBooking.IsPay)
+                {
+                    existingBooking.IsRequest = true;
+                    existingBooking.Status = "Processing";
+                }    
+                else
+                {
+                    existingBooking.IsRequest = true;
+                    existingBooking.IsResponse = true;
+                    existingBooking.Status = "Canceled";
+                }    
+
                 await _bookingRepository.UpdateAsync(existingBooking);
             }
             catch (DbUpdateException dbEx)

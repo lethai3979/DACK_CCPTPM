@@ -39,26 +39,10 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Invoice>> GetAllAsync()
-        {
-            var invoices = await _invoiceRepository.GetAllAsync();
-            if (invoices.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            var invoiceVNs = _mapper.Map<InvoiceVM>(invoices);
-            return invoices;
-        }
+            => await _invoiceRepository.GetAllAsync();
 
         public async Task<List<Invoice>> GetPersonalInvoicesAsync()
-        {
-            var invoices = await _invoiceRepository.GetAllByUserIdAsync(_userId);
-            if (invoices.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-
-            }
-            return invoices;
-        }
+            => await _invoiceRepository.GetAllByUserIdAsync(_userId);
 
         public async Task<Invoice> GetByIdAsync(int id)
             => await _invoiceRepository.GetByIdAsync(id);
@@ -68,22 +52,19 @@ namespace GoWheels_WebAPI.Service
             => await _invoiceRepository.GetByBookingIdAsync(bookingId);
 
 
-        public async Task<OperationResult> GetAllRefundInvoicesAsync()
-        {
-            var invoices = await _invoiceRepository.GetAllRefundInvoicesAsync();
-            if (invoices.Count == 0)
-            {
-                return new OperationResult(false, message: "List empty", statusCode: StatusCodes.Status204NoContent);
-            }
-            var invoiceVNs = _mapper.Map<List<InvoiceVM>>(invoices);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVNs);
-        }
+        public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
+            => await _invoiceRepository.GetAllRefundInvoicesAsync();
 
         public async Task RefundAsync(int bookingId, bool isAccept)
         {
             try
             {
                 var booking = await _bookingService.GetByIdAsync(bookingId);
+                if (!booking.IsPay)
+                {
+                    await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
+                    return;
+                }
                 await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
                 if (isAccept)
                 {

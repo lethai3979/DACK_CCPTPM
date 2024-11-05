@@ -16,6 +16,7 @@ namespace GoWheels_WebAPI.Service
         private readonly BookingService _bookingService;
         private readonly InvoiceService _invoiceService;
         private readonly UserService _userService;  
+        private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly string _userId;
@@ -24,6 +25,7 @@ namespace GoWheels_WebAPI.Service
                                 BookingService bookingService,
                                 InvoiceService invoiceService,
                                 UserService userService,
+                                PostService postService,
                                 IHttpContextAccessor httpContextAccessor, 
                                 IMapper mapper)
         {
@@ -31,21 +33,18 @@ namespace GoWheels_WebAPI.Service
             _bookingService = bookingService;
             _invoiceService = invoiceService;
             _userService = userService;
+            _postService = postService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
         }
 
-        public async Task<List<Report>> GetAllReportsAsync()
-        {
-            var reports = await _reportRepository.GetAllAsync();
-            if (reports.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return reports;
-        }
+        public async Task<List<Report>> GetAllAsync()
+            => await _reportRepository.GetAllAsync();
+
+        public async Task<Report> GetByIdAsync(int id)
+            => await _reportRepository.GetByIdAsync(id);
 
         public async Task CreateReportAsync(Report report)
         {
@@ -81,7 +80,13 @@ namespace GoWheels_WebAPI.Service
                 await _reportRepository.UpdateAsync(report);
                 if (isAccept)
                 {
-                    var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(report.PostId);
+                    var post = await _postService.GetByIdAsync(report.PostId);
+                    if(post.IsDisabled)
+                    {
+                        return;
+                    }    
+                    await _postService.DisablePostByIdAsync(post.Id);
+                    var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(post.Id);
                     foreach (var booking in bookings)
                     {
                         await _bookingService.CancelReportedBookingsAsync(booking);
@@ -106,33 +111,12 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
-            catch (Exception ex)
+                catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var reports = await _reportRepository.GetAllAsync();
-            if(reports.Count == 0)
-            {
-                return new OperationResult(false, "List empty", StatusCodes.Status404NotFound);
-            } 
-            var reportVMs = _mapper.Map<List<ReportVM>>(reports);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVMs);
-        }
-
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var report = await _reportRepository.GetByIdAsync(id);
-            if (report == null)
-            {
-                return new OperationResult(false, "Report not found", StatusCodes.Status404NotFound);
-            }
-            var reportVM = _mapper.Map<ReportVM>(report);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVM);
-        }
 
     }
 }

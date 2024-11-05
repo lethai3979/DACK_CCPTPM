@@ -36,10 +36,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
             catch (AutoMapperMappingException mapperEx)
             {
                 return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
@@ -55,9 +51,14 @@ namespace GoWheels_WebAPI.Controllers.Customer
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
         {
-            var booking = await _bookingService.GetByIdAsync(bookingId);
+
             try
             {
+                var booking = await _bookingService.GetByIdAsync(bookingId);
+                if(!booking.OwnerConfirm)
+                {
+                    return BadRequest("Owner confirm needed");
+                }    
                 var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(booking);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
