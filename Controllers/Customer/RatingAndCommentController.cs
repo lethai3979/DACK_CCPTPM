@@ -14,7 +14,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Area("User")]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "User")]
     public class RatingAndCommentController : ControllerBase
     {
         private readonly RatingService _ratingAndCommentService;
@@ -97,6 +96,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Add")]
+        [Authorize]
         public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO)
         {
             try
@@ -128,6 +128,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpDelete("Delete/{id}")]
+        [Authorize]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try
@@ -151,6 +152,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Update/{id}")]
+        [Authorize]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] RatingDTO ratingDTO)
         {
             try

@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Employee, Admin")]
     public class ManagerReportController : ControllerBase
     {
         private readonly ReportService _reportService;
@@ -49,7 +51,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync(int id)
+        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             try
             {

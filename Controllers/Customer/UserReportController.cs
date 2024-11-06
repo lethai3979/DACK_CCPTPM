@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("ReportByPostId")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> ReportByPostId(ReportDTO reportDTO)
         {
             try

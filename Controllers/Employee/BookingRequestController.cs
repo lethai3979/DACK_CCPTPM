@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GoWheels_WebAPI.Controllers.Employee
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Employee")]
+    [Authorize(Roles = "Employee, Admin")]
     [ApiController]
     public class BookingRequestController : ControllerBase
     {

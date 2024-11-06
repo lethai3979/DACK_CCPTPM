@@ -16,7 +16,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Area("User")]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
+
     public class BookingController : ControllerBase
     {
         private readonly BookingService _bookingService;
@@ -31,6 +31,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetById/{id}")]
+        [Authorize]
         public async Task<ActionResult<OperationResult>> GetById(int id)
         {
             try
@@ -56,6 +57,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         [HttpGet("GetPersonalBookings")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
         {
             try
@@ -82,6 +84,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllPendingBookingsByUserId")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
         {
             try
@@ -129,6 +132,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         [HttpPost("SendCancelRequest/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)
         {
             try
@@ -158,6 +162,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         
 
         [HttpPost("Add")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
         {
             try
@@ -189,6 +194,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPut("ConfirmBooking")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> ConfirmBookingAsync(int id, bool isAccept)
         {
             try

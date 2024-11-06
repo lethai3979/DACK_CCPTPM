@@ -107,6 +107,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("DeleteByIdAsync/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try
@@ -134,6 +135,7 @@ namespace GoWheels_WebAPI.Controllers
 
 
         [HttpPut("Update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] CompanyDTO companyDTO)
         {
             try
