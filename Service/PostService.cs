@@ -305,9 +305,9 @@ namespace GoWheels_WebAPI.Service
                 post.RideNumber += rideNumber;
                 await _postRepository.UpdateAsync(post);
             }
-            catch (NullReferenceException)
+            catch(NullReferenceException nullEx)
             {
-                return;
+                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
