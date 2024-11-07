@@ -57,8 +57,11 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Booking>> GetAllPendingBookingsByUserIdAsync()
             => await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
 
-        public async Task<List<Booking>> GetAllAsync()
+        public async Task<List<Booking>> GetAllComAsync()
             => await _bookingRepository.GetAllAsync();
+
+        public async Task<List<Booking>> GetAllCompleteBookingAsync()
+            => await _bookingRepository.GetAllCompleteBookingsAsync();
 
         public async Task<List<Booking>> GetAllCancelRequestAsync()
             => await _bookingRepository.GetAllCancelRequestAsync();

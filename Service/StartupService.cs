@@ -47,15 +47,15 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var bookings = await _bookingService.GetAllAsync();
+                var bookings = await _bookingService.GetAllCompleteBookingAsync();
                 foreach (var booking in bookings)
                 {
-                    if (booking.RecieveOn <= DateTime.Now && booking.IsPay && !booking.IsRideCounted)
+                    if(!booking.IsRideCounted)
                     {
                         await _postService.UpdateRideNumberAsync(booking.PostId, 1);
                         booking.IsRideCounted = true;
                         await _bookingService.UpdateAsync(booking.Id, booking);
-                    }
+                    }    
                 }
             }
             catch (NullReferenceException)
