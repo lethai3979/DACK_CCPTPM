@@ -11,14 +11,20 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly BookingService _bookingService;
         private readonly PostService _postService;
-        private readonly ILogger<StartupService> _logger;
+        private readonly PostPromotionService _postPromotionService;
+        private readonly UserPromotionService _userPromotionService;
         private readonly IMapper _mapper;
 
-        public StartupService(BookingService bookingService, PostService postService, ILogger<StartupService> logger, IMapper mapper)
+        public StartupService(BookingService bookingService,
+                                PostService postService,
+                                PostPromotionService postPromotionService,
+                                UserPromotionService userPromotionService,
+                                IMapper mapper)
         {
             _bookingService = bookingService;
             _postService = postService;
-            _logger = logger;
+            _postPromotionService = postPromotionService;
+            _userPromotionService = userPromotionService;
             _mapper = mapper;
         }
 
@@ -50,42 +56,62 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdatePostOnStartup()
+        private async Task UpdatePostRideNumberAsync()
         {
             var bookings = await _bookingService.GetAllCompleteBookingAsync();
             foreach (var booking in bookings)
             {
-                try
+
+                if (!booking.IsRideCounted)
                 {
-                    if (!booking.IsRideCounted)
-                    {
-                        await _postService.UpdateRideNumberAsync(booking.PostId, 1);
-                        booking.IsRideCounted = true;
-                        await _bookingService.UpdateAsync(booking.Id, booking);
-                    }
-                }
-                catch (InvalidOperationException operationEx)
-                {
-                    Debug.WriteLine("An error occurred: " + operationEx.Message);
-                    Debug.WriteLine("Stack Trace: " + operationEx.StackTrace);
-                }
-                catch (NullReferenceException nullEx)
-                {
-                    Debug.WriteLine("An error occurred: " + nullEx.Message);
-                    Debug.WriteLine("Stack Trace: " + nullEx.StackTrace);
-                }
-                catch (DbUpdateException dbEx)
-                {
-                    Debug.WriteLine("An error occurred: " + dbEx.Message);
-                    Debug.WriteLine("Stack Trace: " + dbEx.StackTrace);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("An error occurred: " + ex.Message);
-                    Debug.WriteLine("Stack Trace: " + ex.StackTrace);
+                    await _postService.UpdateRideNumberAsync(booking.PostId, 1);
+                    booking.IsRideCounted = true;
+                    await _bookingService.UpdateAsync(booking.Id, booking);
                 }
             }
-            
+        }
+
+        private async Task UpdatePostPromotionAsync()
+        {
+            var promotions = await _userPromotionService.GetAllByUserRoleAsync();
+            foreach (var promotion in promotions)
+            {
+                if(promotion.IsDeleted || promotion.ExpiredDate < DateTime.Now)
+                {
+                    var postPromotions = await _postPromotionService.GetAllByPromotionIdAsync(promotion.Id);   
+                    await _postPromotionService.DeletedRangeAsync(postPromotions);
+                }    
+            }
+        }
+
+        public async Task UpdatePostOnStartup()
+        {
+            try
+            {
+                await UpdatePostRideNumberAsync();
+                await UpdatePostPromotionAsync();
+
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                Debug.WriteLine("An error occurred: " + operationEx.Message);
+                Debug.WriteLine("Stack Trace: " + operationEx.StackTrace);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                Debug.WriteLine("An error occurred: " + nullEx.Message);
+                Debug.WriteLine("Stack Trace: " + nullEx.StackTrace);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Debug.WriteLine("An error occurred: " + dbEx.Message);
+                Debug.WriteLine("Stack Trace: " + dbEx.StackTrace);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("An error occurred: " + ex.Message);
+                Debug.WriteLine("Stack Trace: " + ex.StackTrace);
+            }
         }
     }
 }

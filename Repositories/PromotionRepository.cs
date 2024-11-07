@@ -10,24 +10,11 @@ namespace GoWheels_WebAPI.Repositories
     public class PromotionRepository : IGenericRepository<Promotion>
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-        public PromotionRepository(ApplicationDbContext context,IMapper mapper)
+        public PromotionRepository(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
-        }
-        public async Task AddAsync(Promotion promotion)
-        {
-            await _context.Promotions.AddAsync(promotion);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Promotion promotion)
-        {
-            _context.Entry(promotion).State = EntityState.Modified;
-            promotion.IsDeleted = true;
-            await _context.SaveChangesAsync();
-        }
 
         public async Task<List<Promotion>> GetAllAsync()
             => await _context.Promotions.AsNoTracking()
@@ -44,12 +31,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .FirstOrDefaultAsync(p => p.Id == id)
                                         ?? throw new NullReferenceException("Promotion not found");
 
-        public async Task UpdateAsync(Promotion promotion, Promotion newPromotion)
-        {
-            _context.Entry(promotion).State = EntityState.Modified;
-            _mapper.Map(newPromotion, promotion);
-            await _context.SaveChangesAsync();
-        }
+        public async Task<Promotion> GetUserPromotionByIdAsync(int id, string userId)
+            => await _context.Promotions.AsNoTracking()
+                                        .Include(p => p.PostPromotions)
+                                        .ThenInclude(p => p.Post)
+                                        .FirstOrDefaultAsync(p => p.Id == id && p.CreatedById == userId)
+                                        ?? throw new NullReferenceException("Promotion not found");
 
         public async Task<List<Promotion>> GetPromotionsByUserIdAsync(string userId)
                     => await _context.Promotions.AsNoTracking()
@@ -63,6 +50,25 @@ namespace GoWheels_WebAPI.Repositories
                                                 .ThenInclude(p => p.Post)
                                                 .Where(p => !p.IsDeleted && p.IsAdminPromotion)
                                                 .ToListAsync();
+        public async Task<List<Promotion>> GetAllUserPromotionsAsync()
+            => await _context.Promotions.AsNoTracking()
+                                        .Include(p => p.PostPromotions)
+                                        .ThenInclude(p => p.Post)
+                                        .Where(p => !p.IsAdminPromotion)
+                                        .ToListAsync();
+
+        public async Task AddAsync(Promotion promotion)
+        {
+            await _context.Promotions.AddAsync(promotion);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Promotion promotion)
+        {
+            _context.Entry(promotion).State = EntityState.Modified;
+            promotion.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
 
         public async Task UpdateAsync(Promotion promotion)
         {

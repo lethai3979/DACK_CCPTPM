@@ -107,7 +107,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 {
                     return BadRequest("Promotion value is null");
                 }
-                if (ModelState.IsValid)
+                if (ModelState.IsValid && promotionDTO.ExpiredDate > DateTime.Now)
                 {
                     var promotion = _mapper.Map<Promotion>(promotionDTO);
                     await _promotionService.AddAsync(promotion);
@@ -143,7 +143,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 {
                     return BadRequest("Invalid request");
                 }
-                if (ModelState.IsValid)
+                if (ModelState.IsValid && promotionDTO.ExpiredDate > DateTime.Now)
                 {
                     var promotion = _mapper.Map<Promotion>(promotionDTO);
                     await _promotionService.UpdateAsync(id, promotion);

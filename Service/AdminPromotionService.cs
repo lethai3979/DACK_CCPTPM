@@ -46,16 +46,7 @@ namespace GoWheels_WebAPI.Service
 
 
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
-        {
-            var userRole = _httpContextAccessor.HttpContext?.User?
-            .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
-            if (userRole != "Admin")
-            {
-                throw new UnauthorizedAccessException("Access denied");
-            }
-            var promoList = await _salepromotionRepository.GetAllAdminPromotionsAsync();
-            return promoList;
-        }
+            => await _salepromotionRepository.GetAllAdminPromotionsAsync();
 
         public async Task<Promotion> GetByIdAsync(int id)
             => await _salepromotionRepository.GetByIdAsync(id);

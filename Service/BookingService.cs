@@ -42,7 +42,7 @@ namespace GoWheels_WebAPI.Service
             {
                 return new List<DateTime>();
             }
-            //Lấy từng ngày trong từng booking ra và gắn vào 
+            //Lấy từng ngày trong từng bookingDTO ra và gắn vào 
             var bookedDates = bookings.SelectMany(b => Enumerable.Range(0, (b.ReturnOn - b.RecieveOn).Days + 1)
                                                                  .Select(offset => b.RecieveOn.AddDays(offset)))
                                         .Distinct()
@@ -72,6 +72,40 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
+
+        public bool CheckBookingValue(BookingDTO bookingDTO, decimal postPrice, decimal promotionValue)
+        {
+            var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
+            var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
+            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.Total / 2;
+            var isFinalValueValid = true;
+            if (promotionValue > 1)
+            {
+                isFinalValueValid = bookingDTO.FinalValue == bookingDTO.Total - promotionValue;
+            }
+            else
+            {
+                isFinalValueValid = bookingDTO.FinalValue == bookingDTO.Total - (bookingDTO.Total * promotionValue);
+            }
+            if (isPrePaymentValid && isFinalValueValid)
+            {
+                if (bookingHours % 24 != 0)
+                {
+                    if (bookingDTO.Total == (postPrice * (decimal)bookingHours))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (bookingDTO.Total == (postPrice * (decimal)bookingDays))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         public async Task AddAsync(Booking booking)
         {

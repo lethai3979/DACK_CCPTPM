@@ -35,12 +35,14 @@ namespace GoWheels_WebAPI.Service
             _mapper = mapper;
         }
 
+        public async Task<List<Promotion>> GetAllByUserRoleAsync()
+            => await _promotionRepository.GetAllUserPromotionsAsync();
 
         public async Task<List<Promotion>> GetAllByUserId()
             => await _promotionRepository.GetPromotionsByUserIdAsync(_userId);
 
         public async Task<Promotion> GetByIdAsync(int id)
-            => await _promotionRepository.GetByIdAsync(id);
+            => await _promotionRepository.GetUserPromotionByIdAsync(id, _userId);
 
         public async Task<bool> CheckValidatePost(List<int> postIds)
         {

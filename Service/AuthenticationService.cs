@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -99,6 +100,13 @@ namespace GoWheels_WebAPI.Service
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<bool> CheckLockoutStatus()
+        {
+            var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+            return user.LockoutEnabled;
+        }
+
         public async Task<UserVM?> GetUserFromToken(string token)
         {
             // Định nghĩa các hằng số cho Claim Types
