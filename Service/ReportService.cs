@@ -15,6 +15,8 @@ namespace GoWheels_WebAPI.Service
         private readonly ReportRepository _reportRepository;
         private readonly BookingService _bookingService;
         private readonly InvoiceService _invoiceService;
+        private readonly UserService _userService;  
+        private readonly PostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly string _userId;
@@ -22,19 +24,29 @@ namespace GoWheels_WebAPI.Service
         public ReportService(ReportRepository reportRepository, 
                                 BookingService bookingService,
                                 InvoiceService invoiceService,
+                                UserService userService,
+                                PostService postService,
                                 IHttpContextAccessor httpContextAccessor, 
                                 IMapper mapper)
         {
             _reportRepository = reportRepository;
             _bookingService = bookingService;
             _invoiceService = invoiceService;
+            _userService = userService;
+            _postService = postService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
         }
 
-        public async Task AddAsync(Report report)
+        public async Task<List<Report>> GetAllAsync()
+            => await _reportRepository.GetAllAsync();
+
+        public async Task<Report> GetByIdAsync(int id)
+            => await _reportRepository.GetByIdAsync(id);
+
+        public async Task CreateReportAsync(Report report)
         {
             try
             {
@@ -57,21 +69,35 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedAsync(int id, bool isAccept)
+        public async Task ConfirmReportAsync(int id, bool isAccept)
         {
             try
             {
+                var report = await _reportRepository.GetByIdAsync(id);
+                report.IsDeleted = true;
+                report.ModifiedById = _userId;
+                report.ModifiedOn = DateTime.Now;
+                await _reportRepository.UpdateAsync(report);
                 if (isAccept)
                 {
-                    var report = await _reportRepository.GetByIdAsync(id);
-                    report.IsDeleted = true;
-                    report.ModifiedById = _userId;
-                    report.ModifiedOn = DateTime.Now;
-                    await _reportRepository.UpdateAsync(report);
-                    var bookings = await _bookingService.GetAllWaitingBookingsByPostIdAsync(report.PostId);
-                    await _invoiceService.RefundReportedBookingsAsync(bookings);
-                    await _bookingService.CancelReportedBookingsAsync(bookings);
+                    var post = await _postService.GetByIdAsync(report.PostId);
+                    if(post.IsDisabled)
+                    {
+                        return;
+                    }    
+                    await _postService.DisablePostByIdAsync(post.Id);
+                    var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(post.Id);
+                    foreach (var booking in bookings)
+                    {
+                        await _bookingService.CancelReportedBookingsAsync(booking);
+                        if (booking.IsPay)
+                        {
+                            await _invoiceService.RefundReportedBookingAsync(booking);
+                        }     
+                    }
+                    await _userService.UpdateUserReportPointAsync(report.Post.UserId!, report.ReportType.ReportPoint);
                 }
+
             }
             catch (NullReferenceException nullEx)
             {
@@ -85,33 +111,12 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
-            catch (Exception ex)
+                catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<OperationResult> GetAllAsync()
-        {
-            var reports = await _reportRepository.GetAllAsync();
-            if(reports.Count == 0)
-            {
-                return new OperationResult(false, "List empty", StatusCodes.Status404NotFound);
-            } 
-            var reportVMs = _mapper.Map<List<ReportVM>>(reports);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVMs);
-        }
-
-        public async Task<OperationResult> GetByIdAsync(int id)
-        {
-            var report = await _reportRepository.GetByIdAsync(id);
-            if (report == null)
-            {
-                return new OperationResult(false, "Report not found", StatusCodes.Status404NotFound);
-            }
-            var reportVM = _mapper.Map<ReportVM>(report);
-            return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVM);
-        }
 
     }
 }

@@ -21,7 +21,7 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<Invoice>> GetAllByUserIdAsync(string userId)
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
-                                        .Where(i => i.CreatedById == userId)
+                                        .Where(i => i.Booking.UserId == userId)
                                         .ToListAsync();
 
         public async Task<List<Invoice>> GetAllRefundInvoicesAsync()

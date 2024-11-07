@@ -14,7 +14,6 @@ namespace GoWheels_WebAPI.Controllers
 {
     [Area("Admin")]
     [Route("api/[area]/[controller]")]
-    [Authorize(Roles = "Admin")]
     [ApiController]
     public class ReportTypeController : ControllerBase
     {
@@ -77,6 +76,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Add")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
@@ -110,6 +110,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async  Task<ActionResult<OperationResult>> UpdateAsync (int id, [FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
@@ -146,6 +147,7 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpPost("Delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> DeletedAsync(int id)
         {
             try

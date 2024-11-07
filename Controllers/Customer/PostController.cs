@@ -51,6 +51,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetPersonalPosts")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetAllByUserId()
         {
             try
@@ -99,6 +100,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Add")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PostDTO postDTO)
         {
             try
@@ -130,6 +132,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPut("Update/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id,[FromForm] PostDTO postDTO)
         {
             try
@@ -170,6 +173,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Delete/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try

@@ -17,7 +17,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Area("User")]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    
     public class BookingController : ControllerBase
     {
         private readonly BookingService _bookingService;
@@ -32,6 +31,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
         [Authorize(Roles = "User")]
         [HttpGet("GetById/{id}")]
+        [Authorize]
         public async Task<ActionResult<OperationResult>> GetById(int id)
         {
             try
@@ -92,6 +92,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
         [Authorize(Roles = "User")]
         [HttpGet("GetPersonalBookings")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
         {
             try
@@ -116,13 +117,14 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         }
+
         [Authorize(Roles = "User")]
         [HttpGet("GetAllPendingBookingsByUserId")]
         public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
         {
             try
             {
-                var bookings = await _bookingService.GetPendingBookingsByUserIdAsync();
+                var bookings = await _bookingService.GetAllPendingBookingsByUserIdAsync();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -140,17 +142,37 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        [Authorize(Roles = "User")]
+
+        [HttpGet("GetAllBookedDates/{id}")]
+        public async Task<ActionResult<OperationResult>> GetAllBookedDatesByPostId(int id)
+        {
+            try
+            {
+                var bookedDates = await _bookingService.GetBookedDateByPostIdsAsync(id);
+                return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: bookedDates);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
+
+
         [HttpPost("SendCancelRequest/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)
         {
             try
             {
-                var existingInvoice = await _invoiceService.GetByBookingIdAsync(id);
-                if (existingInvoice != null)
-                {
-                    await _bookingService.RequestCancelBookingAsync(id);
-                }
+                await _bookingService.RequestCancelBookingAsync(id);
                 return new OperationResult(true, "Cancellation request sent succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -172,8 +194,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         }
 
-        [Authorize(Roles = "User")]
         [HttpPost("Add")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
         {
             try
@@ -203,19 +225,20 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
+
+
+        [HttpPut("ConfirmBooking")]
         [Authorize(Roles = "User")]
-        [HttpPut("UpdateOwnerConfirm")]
-        public async Task<ActionResult<OperationResult>> UpdateOwnerConfirmAsync(BookingDTO bookingDTO)
+        public async Task<ActionResult<OperationResult>> ConfirmBookingAsync(int id, bool isAccept)
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    var booking = _mapper.Map<Booking>(bookingDTO);
-                    await _bookingService.AddAsync(booking);
-                    return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
-                }
-                return BadRequest("Booking data invalid");
+                await _bookingService.UpdateOwnerConfirmAsync(id, isAccept);
+                return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
+            }
+            catch(UnauthorizedAccessException authEx) 
+            {
+                return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
             catch (DbUpdateException dbEx)
             {

@@ -37,17 +37,11 @@ namespace GoWheels_WebAPI.Service
 
 
         public async Task<List<Promotion>> GetAllByUserId()
-        {
-            var promoList = await _promotionRepository.GetPromotionsByUserIdAsync(_userId);
-            if (promoList.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return promoList;
-        }
-       
+            => await _promotionRepository.GetPromotionsByUserIdAsync(_userId);
+
         public async Task<Promotion> GetByIdAsync(int id)
             => await _promotionRepository.GetByIdAsync(id);
+
         public async Task<bool> CheckValidatePost(List<int> postIds)
         {
             foreach (var postId in postIds)

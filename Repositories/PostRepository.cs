@@ -103,6 +103,8 @@ namespace GoWheels_WebAPI.Repositories
                             .Include(p => p.User)
                             .Include(p => p.PostAmenities)
                             .ThenInclude(p => p.Amenity)
+                            .Include(p => p.PostPromotions)
+                            .ThenInclude(p => p.Promotion)
                             .Where(p => !p.IsDeleted && p.UserId == userId)
                             .ToListAsync();
     }

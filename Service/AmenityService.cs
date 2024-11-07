@@ -28,21 +28,11 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Amenity>> GetAllAsync()
-        {
-            var amenityList = await _amenityRepository.GetAllAsync();
-            if (amenityList.Count == 0)
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return amenityList;
-        }
+            => await _amenityRepository.GetAllAsync();
+
 
         public async Task<Amenity> GetByIdAsync(int id)
-        {
-
-            var amenity = await _amenityRepository.GetByIdAsync(id);
-            return amenity;
-        }
+            => await _amenityRepository.GetByIdAsync(id);
 
         public async Task AddAsync(Amenity amenity, IFormFile formFile)
         {
@@ -111,33 +101,30 @@ namespace GoWheels_WebAPI.Service
 
 
 
-        public async Task<OperationResult> DeletedByIdAsync(int id)
+        public async Task DeletedByIdAsync(int id)
         {
             try
             {
                 var amenity = await _amenityRepository.GetByIdAsync(id);
-                if (amenity == null)
-                {
-                    return new OperationResult(false, "Amenity not found", StatusCodes.Status404NotFound);
-                }
                 amenity.ModifiedById = _userId;
                 amenity.ModifiedOn = DateTime.Now;
                 amenity.IsDeleted = true;
                 await _amenityRepository.UpdateAsync(amenity);
-                return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
-        public async Task<OperationResult> UpdateAsync(int id, Amenity amenity, IFormFile formFile)
+        public async Task UpdateAsync(int id, Amenity amenity, IFormFile formFile)
         {
 
             try
@@ -148,10 +135,6 @@ namespace GoWheels_WebAPI.Service
                     imageUrl = "./wwwroot/images/amenities/" + Path.GetFileName(formFile.FileName);
                 }
                 var existingAmenity = await _amenityRepository.GetByIdAsync(id);
-                if (existingAmenity == null)
-                {
-                    return new OperationResult(true, "Amenity not found", StatusCodes.Status404NotFound);
-                }
 
                 if (formFile != null && formFile.Length > 0 && imageUrl != existingAmenity.IconImage)
                 {
@@ -168,17 +151,18 @@ namespace GoWheels_WebAPI.Service
                 var isValueChange = EditHelper<Amenity>.HasChanges(amenity, existingAmenity);
                 EditHelper<Amenity>.SetModifiedIfNecessary(amenity, isValueChange, existingAmenity, _userId);
                 await _amenityRepository.UpdateAsync(amenity);
-                return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, dbExMessage, StatusCodes.Status500InternalServerError);
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                throw new Exception(ex.Message);
             }
         }
     }

@@ -22,14 +22,6 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(Report report)
         {
-            var existingReport = await _context.ReportTypes.AsNoTracking()
-                                     .FirstOrDefaultAsync(p => p.Id == report.Id);
-
-            if (existingReport == null)
-            {
-                throw new KeyNotFoundException($"Report with ID {report.Id} not found.");
-            }
-
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(report).State = EntityState.Modified;
             await _context.SaveChangesAsync();

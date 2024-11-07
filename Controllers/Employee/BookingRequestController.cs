@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GoWheels_WebAPI.Controllers.Employee
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Employee")]
+    [Authorize(Roles = "Employee, Admin")]
     [ApiController]
     public class BookingRequestController : ControllerBase
     {
@@ -79,6 +80,26 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
         [HttpGet("GetAllRefundInvoice")]
         public async Task<ActionResult<OperationResult>> GetAllRefundInvoiceAsync()
-            => await _invoiceService.GetAllRefundInvoicesAsync();
+        {
+            try
+            {
+                var invoices = await _invoiceService.GetAllRefundInvoicesAsync();
+                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

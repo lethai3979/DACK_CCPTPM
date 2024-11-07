@@ -43,6 +43,7 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Report, ReportDTO>().ReverseMap();
             CreateMap<Favorite, FavoriteDTO>().ReverseMap();
             CreateMap<Booking, BookingDTO>().ReverseMap();
+            CreateMap<UserDTO, ApplicationUser>().ReverseMap();
 
         }
     }

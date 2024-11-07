@@ -14,6 +14,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public required bool OwnerConfirm { get; set; }
         public bool IsRequest { get; set; }
         public bool IsResponse { get; set; }
+        public bool IsRideCounted { get; set; }
         public int PostId { get; set; }
         [ValidateNever]
         public Post Post { get; set; } = null!;

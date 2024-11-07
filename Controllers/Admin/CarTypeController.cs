@@ -107,6 +107,7 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
@@ -129,10 +130,7 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-        
-
-
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CarTypeDTO carTypeDTO)
         {

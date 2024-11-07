@@ -11,6 +11,7 @@ namespace GoWheels_WebAPI.Repositories.Interface
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
         Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password);
         Task AddUserToRoleAsync(ApplicationUser user, string roleName);
+        Task UpdateAsync(ApplicationUser user);
         Task EnsureRoleExistsAsync(string roleName);
     }
 }

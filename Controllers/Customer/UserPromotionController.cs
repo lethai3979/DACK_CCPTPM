@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
     public class UserPromotionController : ControllerBase
     {
         private readonly UserPromotionService _promotionService;
@@ -76,6 +75,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Add")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PromotionDTO promotionDTO)
         {
             try
@@ -111,6 +111,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Update/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
@@ -143,6 +144,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("Delete/{id}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try

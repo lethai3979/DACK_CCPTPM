@@ -42,21 +42,12 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
         public async Task<List<Promotion>> GetAllAsync()
-        {
-            var promotionlist = await _salepromotionRepository.GetAllAsync();
-            if (promotionlist.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return promotionlist;
-        }
+
+            => await _salepromotionRepository.GetAllAsync();
+
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
         {
             var promoList = await _salepromotionRepository.GetAllAdminPromotionsAsync();
-            if (promoList.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
             return promoList;
         }
 
