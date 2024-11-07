@@ -50,24 +50,8 @@ namespace GoWheels_WebAPI.Service
             }
             return promotionlist;
         }
-        public async Task<List<Promotion>> GetAllByUserAsync()
-        {
-            var promotionlist = await _salepromotionRepository.GetPromotionsByUserAsync();
-            if (promotionlist.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("List is empty");
-            }
-            return promotionlist;
-        }
-
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
         {
-            var userRole = _httpContextAccessor.HttpContext?.User?
-            .FindFirstValue(ClaimTypes.Role) ?? "Unknown";
-            if (userRole != "Admin")
-            {
-                throw new UnauthorizedAccessException("Access denied");
-            }
             var promoList = await _salepromotionRepository.GetAllAdminPromotionsAsync();
             if (promoList.IsNullOrEmpty())
             {

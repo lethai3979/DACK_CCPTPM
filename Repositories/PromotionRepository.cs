@@ -58,12 +58,6 @@ namespace GoWheels_WebAPI.Repositories
                                                 .Where(p => !p.IsDeleted && p.CreatedById == userId && !p.IsAdminPromotion)
                                                 .ToListAsync();
 
-        public async Task<List<Promotion>> GetPromotionsByUserAsync()
-                    => await _context.Promotions.AsNoTracking()
-                                                .Include(p => p.PostPromotions)
-                                                .ThenInclude(p => p.Post)
-                                                .Where(p => !p.IsDeleted && p.IsAdminPromotion)
-                                                .ToListAsync();
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
                     => await _context.Promotions.AsNoTracking()
                                                 .Include(p => p.PostPromotions)
