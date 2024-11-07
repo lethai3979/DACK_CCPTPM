@@ -45,7 +45,7 @@ namespace GoWheels_WebAPI.Service
             }
             return promoList;
         }
-
+       
         public async Task<Promotion> GetByIdAsync(int id)
             => await _promotionRepository.GetByIdAsync(id);
         public async Task<bool> CheckValidatePost(List<int> postIds)

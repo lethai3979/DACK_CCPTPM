@@ -87,6 +87,8 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)
+                                    .Include(p => p.PostPromotions)
+                                    .ThenInclude(p => p.Promotion)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
                                     .FirstOrDefaultAsync(p => p.Id == id)
                                     ?? throw new NullReferenceException("Post not found");

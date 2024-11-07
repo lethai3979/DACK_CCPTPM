@@ -41,6 +41,12 @@ namespace GoWheels_WebAPI.Service
             return bookings;
         }
 
+        public async Task<double> GetSumHours(DateTime startdate, DateTime enddate)
+        {
+            TimeSpan duration = enddate - startdate;
+            return duration.TotalHours;
+        }
+
         public async Task<List<Booking>> GetPendingBookingsByUserIdAsync()
         {
             var bookings = await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);

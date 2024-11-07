@@ -49,6 +49,32 @@ namespace GoWheels_WebAPI.Controllers.Admin
             }
         }
 
+        [HttpGet("GetAllByUserAdminPromotion")]
+        public async Task<ActionResult<OperationResult>> GetAllByUserAdminPromotionsAsync()
+        {
+            try
+            {
+                var promotions = await _promotionService.GetAllByUserAsync();
+                var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
+            }
+            catch (NullReferenceException aEx)
+            {
+                return new OperationResult(false, aEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+
+
         [HttpGet("GetAllAdminPromotion")]
         public async Task<ActionResult<OperationResult>> GetAllAdminPromotionsAsync()
         {
@@ -133,7 +159,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
             }
         }
 
-        [HttpPost("Update/{id}")]
+        [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {

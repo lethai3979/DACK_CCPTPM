@@ -50,6 +50,15 @@ namespace GoWheels_WebAPI.Service
             }
             return promotionlist;
         }
+        public async Task<List<Promotion>> GetAllByUserAsync()
+        {
+            var promotionlist = await _salepromotionRepository.GetPromotionsByUserAsync();
+            if (promotionlist.IsNullOrEmpty())
+            {
+                throw new NullReferenceException("List is empty");
+            }
+            return promotionlist;
+        }
 
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
         {
