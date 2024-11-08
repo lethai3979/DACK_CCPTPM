@@ -48,6 +48,9 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
             => await _salepromotionRepository.GetAllAdminPromotionsAsync();
 
+        public async Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync()
+            => await _salepromotionRepository.GetAllAdminPromotionsByUserIdAsync(_userId);
+
         public async Task<Promotion> GetByIdAsync(int id)
             => await _salepromotionRepository.GetByIdAsync(id);
 

@@ -9,7 +9,7 @@ namespace GoWheels_WebAPI.Models.Entities
         [Required]
         public required string Content { get; set; }
         [Required]
-        [Range(0.01, 1, ErrorMessage = "Discount value must be between 0.01 and 1.")]
+      //  [Range(0.01, 1, ErrorMessage = "Discount value must be between 0.01 and 1.")]
         public decimal DiscountValue { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm tt}", ApplyFormatInEditMode = true)]

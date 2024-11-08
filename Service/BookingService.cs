@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
