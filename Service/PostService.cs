@@ -154,7 +154,7 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var existingPost = await _postRepository.GetByIdAsync(id);
-                var imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(image.FileName);
+                var imageUrl = "./wwwroot/images/posts/" + Path.GetFileName(image.FileName);
                 if(_userId != existingPost.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");

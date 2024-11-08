@@ -55,7 +55,10 @@ namespace GoWheels_WebAPI.Repositories
                                         .FirstOrDefaultAsync(p => p.Id == id)
                                                 ?? throw new NullReferenceException("Rating not found");
         public async Task<List<Rating>> GetAllByPostId(int postId)
-            => await _context.Ratings.AsNoTracking().Where(p => !p.IsDeleted && p.PostId == postId).ToListAsync();
+            => await _context.Ratings.AsNoTracking()
+                                        .Include(r => r.User)   
+                                        .Where(p => !p.IsDeleted && p.PostId == postId)
+                                        .ToListAsync();
         public async Task<float> GetAveragePostRatingAsync(int postId)
             => await _context.Ratings.AsNoTracking()
                                         .Where(p => !p.IsDeleted && p.PostId == postId)

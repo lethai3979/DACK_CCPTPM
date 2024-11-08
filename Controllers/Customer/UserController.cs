@@ -23,19 +23,42 @@ namespace GoWheels_WebAPI.Controllers.Customer
             _mapper = mapper;
         }
 
-        [HttpPost("UpdateUserInfo")]
+        [HttpPut("UpdateUserInfo")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> UpdateUserInfoAsync(UserDTO userDTO)
+        public async Task<ActionResult<OperationResult>> UpdateUserInfoAsync([FromForm]UserDTO userDTO)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     var user = _mapper.Map<ApplicationUser>(userDTO);
-                    await _userService.UpdateUserInfoAsync(user);
+                    await _userService.UpdateUserInfoAsync(user, userDTO.License, userDTO.Image);
                     return new OperationResult(true, "User information update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("User data invalid");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPut("SendSubmitDriver")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<OperationResult>> SendSubmitDriverAsync()
+        {
+            try
+            {
+                await _userService.SendSubmitDriverAsync();
+                return new OperationResult(true, "Submit driver sent succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
             {
