@@ -57,7 +57,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _userService.SendSubmitDriverAsync();
+                await _userService.SendDriverSubmitAsync();
                 return new OperationResult(true, "Submit driver sent succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

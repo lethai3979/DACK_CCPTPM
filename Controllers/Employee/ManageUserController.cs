@@ -21,12 +21,12 @@ namespace GoWheels_WebAPI.Controllers.Employee
             _mapper = mapper;
         }
 
-        [HttpGet("GetAllSubmitDriver")]
-        public async Task<ActionResult<OperationResult>> GetAllSubmitDriverAsync()
+        [HttpGet("GetAllDriverSubmit")]
+        public async Task<ActionResult<OperationResult>> GetAllDriverSubmitAsync()
         {
             try
             {
-                var users = await _userService.GetAllSubmitDriverAsync();
+                var users = await _userService.GetAllDriverSubmitAsync();
                 var userVMs = _mapper.Map<List<UserVM>>(users);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK,data: userVMs);
             }

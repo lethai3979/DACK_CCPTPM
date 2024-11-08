@@ -24,7 +24,7 @@ namespace GoWheels_WebAPI.Service
             _config = config;
         }
 
-        public async Task<List<ApplicationUser>> GetAllSubmitDriverAsync()
+        public async Task<List<ApplicationUser>> GetAllDriverSubmitAsync()
             => await _autheticationRepository.GetAllSubmitDriversAsync();
 
         public async Task<string> SaveImage(IFormFile file)
@@ -129,7 +129,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task SendSubmitDriverAsync()
+        public async Task SendDriverSubmitAsync()
         {
             try
             {
@@ -157,6 +157,37 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task ConfirmDriverSubmit(string userId, bool isAccept)
+        {
+            try
+            {
+                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                user.IsSubmitDriver = false;
+                await _autheticationRepository.UpdateAsync(user);
+                if (isAccept)
+                {
+                }
+
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.InnerException!.Message);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
     }
 }
