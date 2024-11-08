@@ -16,7 +16,8 @@ namespace GoWheels_WebAPI.Models.DTOs
         [Required]
         public bool HasDriver { get; set; }
         [Required]
-        public decimal Price { get; set; }
+        public decimal PricePerHour { get; set; }
+        public decimal PricePerDay { get; set; }
         [Required]
         public bool Gear { get; set; }
         [Required]

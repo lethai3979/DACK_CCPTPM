@@ -73,8 +73,9 @@ namespace GoWheels_WebAPI.Service
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
 
-        public bool CheckBookingValue(BookingDTO bookingDTO, decimal postPrice, decimal promotionValue)
+        public async Task<bool> CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue)
         {
+            var post = await _postService.GetByIdAsync(bookingDTO.PostId);
             var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
             var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
             var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.Total / 2;
@@ -91,14 +92,14 @@ namespace GoWheels_WebAPI.Service
             {
                 if (bookingHours % 24 != 0)
                 {
-                    if (bookingDTO.Total == (postPrice * (decimal)bookingHours))
+                    if (bookingDTO.Total == (post.PricePerHour * (decimal)bookingHours))
                     {
                         return true;
                     }
                 }
                 else
                 {
-                    if (bookingDTO.Total == (postPrice * (decimal)bookingDays))
+                    if (bookingDTO.Total == (post.PricePerDay * (decimal)bookingDays))
                     {
                         return true;
                     }

@@ -107,11 +107,15 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 {
                     return BadRequest("Promotion value is null");
                 }
-                if (ModelState.IsValid && promotionDTO.ExpiredDate > DateTime.Now)
+                if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.AddAsync(promotion);
-                    return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    if (promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.AddAsync(promotion);
+                        return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    }
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }
@@ -143,12 +147,15 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 {
                     return BadRequest("Invalid request");
                 }
-                if (ModelState.IsValid && promotionDTO.ExpiredDate > DateTime.Now)
+                if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.UpdateAsync(id, promotion);
-                    return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
-
+                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.UpdateAsync(id, promotion);
+                        return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
+                    }   
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }

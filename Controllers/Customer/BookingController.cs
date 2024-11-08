@@ -20,15 +20,16 @@ namespace GoWheels_WebAPI.Controllers.Customer
     public class BookingController : ControllerBase
     {
         private readonly BookingService _bookingService;
-        private readonly PostService _postService;
         private readonly AdminPromotionService _adminPromotionService;
         private readonly InvoiceService _invoiceService;
         private IMapper _mapper;
 
-        public BookingController(BookingService bookingService, PostService postService, AdminPromotionService adminPromotionService, InvoiceService invoiceService, IMapper mapper)
+        public BookingController(BookingService bookingService, 
+                                    AdminPromotionService adminPromotionService, 
+                                    InvoiceService invoiceService, 
+                                    IMapper mapper)
         {
             _bookingService = bookingService;
-            _postService = postService;
             _adminPromotionService = adminPromotionService;
             _invoiceService = invoiceService;
             _mapper = mapper;
@@ -179,14 +180,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 {
                     var booking = _mapper.Map<Booking>(bookingDTO);
                     var promotion = await _adminPromotionService.GetByIdAsync(bookingDTO.PromotionId);
-                    var post = await _postService.GetByIdAsync(bookingDTO.PostId);
-                    var isBookingValid = _bookingService.CheckBookingValue(bookingDTO, post.Price, promotion.DiscountValue);
+                    var isBookingValid = await _bookingService.CheckBookingValue(bookingDTO, promotion.DiscountValue);
                     if (isBookingValid)
                     {
                         await _bookingService.AddAsync(booking);
                         return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
                     }
-                    return new OperationResult(false, "Booking value invalid", StatusCodes.Status400BadRequest);
+                    return new OperationResult(false, "Booking values invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Booking data invalid");
             }
