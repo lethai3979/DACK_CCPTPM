@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241103085041_UpdateReportType")]
-    partial class UpdateReportType
+    [Migration("20241108072946_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -170,6 +170,9 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsResponse")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRideCounted")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedById")
@@ -442,7 +445,10 @@ namespace GoWheels_WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerHour")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RentLocation")

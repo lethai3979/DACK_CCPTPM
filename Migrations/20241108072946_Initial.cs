@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GoWheels_WebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class v1 : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -139,6 +139,7 @@ namespace GoWheels_WebAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportPoint = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -295,7 +296,8 @@ namespace GoWheels_WebAPI.Migrations
                     Seat = table.Column<int>(type: "int", nullable: false),
                     RentLocation = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HasDriver = table.Column<bool>(type: "bit", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PricePerHour = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PricePerDay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Gear = table.Column<bool>(type: "bit", nullable: false),
                     Fuel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FuelConsumed = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -350,6 +352,7 @@ namespace GoWheels_WebAPI.Migrations
                     OwnerConfirm = table.Column<bool>(type: "bit", nullable: false),
                     IsRequest = table.Column<bool>(type: "bit", nullable: false),
                     IsResponse = table.Column<bool>(type: "bit", nullable: false),
+                    IsRideCounted = table.Column<bool>(type: "bit", nullable: false),
                     PostId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     PromotionId = table.Column<int>(type: "int", nullable: false),

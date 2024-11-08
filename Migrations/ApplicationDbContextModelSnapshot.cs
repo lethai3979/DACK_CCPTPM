@@ -442,7 +442,10 @@ namespace GoWheels_WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerHour")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RentLocation")
