@@ -54,42 +54,9 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-        public class SumHoursRequest
-        {
-            public string startdate { get; set; }
-            public string enddate { get; set; }
-        }
+       
 
-        [HttpPost("Sumhours")]
-        public async Task<ActionResult<OperationResult>> SumHours([FromBody] SumHoursRequest request)
-            //public async Task<ActionResult<OperationResult>> SumHours(DateTime startdate, DateTime enddate)
-        {
-            if (request == null || string.IsNullOrEmpty(request.startdate) || string.IsNullOrEmpty(request.enddate))
-            {
-                return BadRequest("Start date and end date must be provided");
-            }
-
-            try
-            {
-                DateTime startdate = DateTime.ParseExact(request.startdate, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                DateTime enddate = DateTime.ParseExact(request.enddate, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                var hours = await _bookingService.GetSumHours(startdate, enddate);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: hours);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
+        
         [Authorize(Roles = "User")]
         [HttpGet("GetPersonalBookings")]
         [Authorize(Roles = "User")]
