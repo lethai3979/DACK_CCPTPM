@@ -408,7 +408,7 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DriversBooking",
+                name: "DriverBookings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -680,7 +680,7 @@ namespace GoWheels_WebAPI.Migrations
                     table.ForeignKey(
                         name: "FK_Invoices_DriversBooking_DriverBookingId",
                         column: x => x.DriverBookingId,
-                        principalTable: "DriversBooking",
+                        principalTable: "DriverBookings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -757,7 +757,7 @@ namespace GoWheels_WebAPI.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_DriversBooking_DriverId",
-                table: "DriversBooking",
+                table: "DriverBookings",
                 column: "DriverId");
 
             migrationBuilder.CreateIndex(
@@ -903,7 +903,7 @@ namespace GoWheels_WebAPI.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "DriversBooking");
+                name: "DriverBookings");
 
             migrationBuilder.DropTable(
                 name: "Amentities");

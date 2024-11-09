@@ -26,7 +26,7 @@ namespace GoWheels_WebAPI.Migrations
                 name: "FK_Invoices_DriversBooking_DriverBookingId",
                 table: "Invoices",
                 column: "DriverBookingId",
-                principalTable: "DriversBooking",
+                principalTable: "DriverBookings",
                 principalColumn: "Id");
         }
 
@@ -51,7 +51,7 @@ namespace GoWheels_WebAPI.Migrations
                 name: "FK_Invoices_DriversBooking_DriverBookingId",
                 table: "Invoices",
                 column: "DriverBookingId",
-                principalTable: "DriversBooking",
+                principalTable: "DriverBookings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }

@@ -44,6 +44,9 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Invoice>> GetPersonalInvoicesAsync()
             => await _invoiceRepository.GetAllByUserIdAsync(_userId);
 
+        public async Task<List<Invoice>> GetAllByDriverAsync()
+            => await _invoiceRepository.GetAllByDriverAsync(_userId);
+
         public async Task<Invoice> GetByIdAsync(int id)
             => await _invoiceRepository.GetByIdAsync(id);
 
@@ -51,6 +54,8 @@ namespace GoWheels_WebAPI.Service
         public async Task<Invoice> GetByBookingIdAsync(int bookingId)
             => await _invoiceRepository.GetByBookingIdAsync(bookingId);
 
+        public async Task<Invoice> GetByDriverBookingIdAsync(int driverBookingId)
+            => await _invoiceRepository.GetByDriverBookingIdAsync(driverBookingId);
 
         public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
             => await _invoiceRepository.GetAllRefundInvoicesAsync();
@@ -98,6 +103,28 @@ namespace GoWheels_WebAPI.Service
                 booking.IsRequireDriver = false;
                 booking.HasDriver = true;
                 await _bookingService.UpdateAsync(booking.Id, booking);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task UpdateAsync(Invoice invoice)
+        {
+            try
+            {
+                invoice.ModifiedById = _userId;
+                invoice.ModifiedOn = DateTime.Now;  
+                await _invoiceRepository.UpdateAsync(invoice);
             }
             catch (DbUpdateException dbEx)
             {

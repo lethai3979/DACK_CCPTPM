@@ -39,8 +39,8 @@ namespace GoWheels_WebAPI.Service
                     CreatedById = _userId,
                     CreatedOn = DateTime.Now,
                     DriverId = driver.Id,
-                    RecieveDate = booking.RecieveOn,
-                    ReturnDate = booking.ReturnOn,
+                    PickUpDate = booking.RecieveOn,
+                    DropOffDate = booking.ReturnOn,
                     Total = driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours,
                 };
                 await _driverBookingRepository.AddAsync(driverBooking);
@@ -64,11 +64,12 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task CancelBookingAsync()
+        public async Task CancelDriverBookingAsync(int driverBookingId)
         {
             try
             {
-
+                var driverBooking = await _driverBookingRepository.GetByIdAsync(driverBookingId);
+                driverBooking.IsCancel  = true;
             }
             catch (NullReferenceException nullEx)
             {

@@ -12,7 +12,7 @@ namespace GoWheels_WebAPI.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "DriverConfirm",
-                table: "DriversBooking");
+                table: "DriverBookings");
         }
 
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace GoWheels_WebAPI.Migrations
         {
             migrationBuilder.AddColumn<bool>(
                 name: "DriverConfirm",
-                table: "DriversBooking",
+                table: "DriverBookings",
                 type: "bit",
                 nullable: false,
                 defaultValue: false);

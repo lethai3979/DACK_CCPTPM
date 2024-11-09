@@ -54,7 +54,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("AddDriverBooking/{bookingId}")]
+        [HttpPost("AddDriverBooking/{driverBookingId}")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddDriverBookingAsync(int bookingId)
         {
@@ -82,12 +82,21 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("CancelDriverBooking/{bookingId}")]
-        public async Task<ActionResult<OperationResult>> CancelDriverBookingAsync()
+        [HttpPost("CancelDriverBooking/{driverBookingId}")]
+        public async Task<ActionResult<OperationResult>> CancelDriverBookingAsync(int driverBookingId)
         {
             try
             {
-                await _driverBookingService.
+
+                await _driverBookingService.CancelDriverBookingAsync(driverBookingId);
+                var invoice = await _invoiceService.GetByDriverBookingIdAsync(driverBookingId);
+                invoice.DriverBookingId = null;
+                await _invoiceService.UpdateAsync(invoice);
+                var booking = await _bookingService.GetByIdAsync(invoice.BookingId);
+                booking.HasDriver = false;
+                booking.IsRequireDriver = true;
+                await _bookingService.UpdateAsync(booking.Id, booking);
+                return new OperationResult(true, "Cancel driver booking succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
             {

@@ -11,9 +11,9 @@ namespace GoWheels_WebAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                name: "Total",
+                name: "ReturnOn",
                 table: "Invoices",
-                newName: "Prepayment");
+                newName: "PickUpDate");
 
             migrationBuilder.AddColumn<bool>(
                 name: "RefundInvoice",
@@ -47,7 +47,7 @@ namespace GoWheels_WebAPI.Migrations
 
             migrationBuilder.RenameColumn(
                 name: "Total",
-                table: "DriversBooking",
+                table: "DriverBookings",
                 newName: "PrePayment");
         }
     }

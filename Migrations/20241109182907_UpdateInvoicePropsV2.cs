@@ -5,25 +5,26 @@
 namespace GoWheels_WebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDriverBookingProps : Migration
+    public partial class UpdateInvoicePropsV2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<decimal>(
-                name: "PrePayment",
+            migrationBuilder.RenameColumn(
+                name: "DropOffDate",
                 table: "DriverBookings",
-                type: "decimal(18,2)",
-                nullable: false,
-                defaultValue: 0m);
+                newName: "DropOffDate");
+
+            migrationBuilder.RenameColumn(
+                name: "PickUpDate",
+                table: "DriverBookings",
+                newName: "PickUpDate");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "PrePayment",
-                table: "DriverBookings");
+
         }
     }
 }

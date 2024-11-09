@@ -403,10 +403,10 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("RecieveDate")
+                    b.Property<DateTime>("PickUpDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ReturnDate")
+                    b.Property<DateTime>("DropOffDate")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("PrePayment")
@@ -416,7 +416,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("DriverId");
 
-                    b.ToTable("DriversBooking");
+                    b.ToTable("DriverBookings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Favorite", b =>

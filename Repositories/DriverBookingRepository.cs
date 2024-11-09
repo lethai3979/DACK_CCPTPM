@@ -1,5 +1,6 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,18 +20,25 @@ namespace GoWheels_WebAPI.Repositories
         }
 
         public async Task<List<DriverBooking>> GetAllByUserIdAsync(string userId)
-            => await _context.DriversBooking.Include(d => d.Driver)
+            => await _context.DriverBookings.Include(d => d.Driver)
+                                            .Include(d => d.Invoices)
+                                            .ThenInclude(i => i.Booking)
                                             .Where(d => !d.IsCancel && !d.IsDeleted && d.Driver.UserId == userId)
                                             .ToListAsync();
 
-        public Task<DriverBooking> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<DriverBooking> GetByIdAsync(int id)
+            => await _context.DriverBookings.Include(d => d.Driver)
+                                            .Include(d => d.Invoices)
+                                            .ThenInclude(i => i.Booking)
+                                            .FirstOrDefaultAsync(d => !d.IsCancel && !d.IsDeleted && d.Id == id) 
+                                            ?? throw new NullReferenceException("Driver booking not found");
+
+
+
 
         public async Task AddAsync(DriverBooking driverBooking)
         {
-            await _context.DriversBooking.AddAsync(driverBooking);
+            await _context.DriverBookings.AddAsync(driverBooking);
             await _context.SaveChangesAsync();
         }
 

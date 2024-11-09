@@ -56,7 +56,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Amentities", (string)null);
+                    b.ToTable("Amentities");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.ApplicationUser", b =>
@@ -226,7 +226,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>
@@ -259,7 +259,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CarTypes", (string)null);
+                    b.ToTable("CarTypes");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarTypeDetail", b =>
@@ -285,7 +285,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CarTypeDetails", (string)null);
+                    b.ToTable("CarTypeDetails");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Company", b =>
@@ -322,7 +322,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Driver", b =>
@@ -364,7 +364,7 @@ namespace GoWheels_WebAPI.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Drivers", (string)null);
+                    b.ToTable("Drivers");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.DriverBooking", b =>
@@ -385,6 +385,9 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<int>("DriverId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DropOffDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsCancel")
                         .HasColumnType("bit");
 
@@ -397,10 +400,7 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("RecieveDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ReturnDate")
+                    b.Property<DateTime>("PickUpDate")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Total")
@@ -410,7 +410,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("DriverId");
 
-                    b.ToTable("DriversBooking", (string)null);
+                    b.ToTable("DriverBookings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Favorite", b =>
@@ -437,7 +437,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Favorites", (string)null);
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Invoice", b =>
@@ -491,7 +491,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("DriverBookingId");
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Notify", b =>
@@ -522,7 +522,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notify", (string)null);
+                    b.ToTable("Notify");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>
@@ -613,7 +613,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PostAmenity", b =>
@@ -639,7 +639,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostAmenities", (string)null);
+                    b.ToTable("PostAmenities");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PostImage", b =>
@@ -661,7 +661,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostImages", (string)null);
+                    b.ToTable("PostImages");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.PostPromotion", b =>
@@ -687,7 +687,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("PromotionId");
 
-                    b.ToTable("PostPromotions", (string)null);
+                    b.ToTable("PostPromotions");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Promotion", b =>
@@ -729,7 +729,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Promotions", (string)null);
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Rating", b =>
@@ -775,7 +775,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ratings", (string)null);
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Report", b =>
@@ -817,7 +817,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("ReportTypeId");
 
-                    b.ToTable("Reports", (string)null);
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.ReportType", b =>
@@ -853,7 +853,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ReportTypes", (string)null);
+                    b.ToTable("ReportTypes");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.UserNotify", b =>
@@ -877,7 +877,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserNotify", (string)null);
+                    b.ToTable("UserNotify");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1099,7 +1099,7 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Invoice", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("Invoices")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1314,6 +1314,11 @@ namespace GoWheels_WebAPI.Migrations
                     b.Navigation("Rating");
 
                     b.Navigation("userNotifications");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Booking", b =>
+                {
+                    b.Navigation("Invoices");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>

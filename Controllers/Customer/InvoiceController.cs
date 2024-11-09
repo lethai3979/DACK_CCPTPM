@@ -47,6 +47,27 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
+        [HttpGet("GetAllByDriver")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceService.GetAllByDriverAsync();
+                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpPost("MomoPayment")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
