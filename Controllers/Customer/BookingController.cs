@@ -84,8 +84,54 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
+        }
 
+        [HttpGet("GetAllDriverRequireBookings")]
+        public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookingsAsync()
+        {
+            try
+            {
+                var bookings = await _bookingService.GetAllDriverRequireBookingsAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
 
+        [HttpGet("GetAllByDriver")]
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        {
+            try
+            {
+                var bookings = await _bookingService.GetAllByDriverAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpGet("GetAllPendingBookingsByUserId")]
@@ -178,9 +224,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }*/
                 if (ModelState.IsValid)
                 {
-                    var booking = _mapper.Map<Booking>(bookingDTO);
-                    var promotion = await _adminPromotionService.GetByIdAsync(bookingDTO.PromotionId);
-                    var isBookingValid = await _bookingService.CheckBookingValue(bookingDTO, promotion.DiscountValue);
+                    var booking = _mapper.Map<Booking>(bookingDTO);  
+                    var isBookingValid = await _bookingService.CheckBookingValue(bookingDTO, bookingDTO.DiscountValue);
                     if (isBookingValid)
                     {
                         await _bookingService.AddAsync(booking);
@@ -211,6 +256,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.UpdateOwnerConfirmAsync(id, isAccept);
+                if(isAccept)
+                {
+                    await _invoiceService.CreateInvoiceAsync(id);
+                }    
                 return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
             }
             catch(UnauthorizedAccessException authEx) 

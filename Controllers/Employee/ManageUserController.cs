@@ -3,13 +3,16 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Controllers.Employee
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Employee")]
     public class ManageUserController : ControllerBase
     {
         private readonly UserService _userService;
@@ -41,5 +44,30 @@ namespace GoWheels_WebAPI.Controllers.Employee
             }
         }
 
+        [HttpPost("ExamineDriverSubmit/{userId}")]
+        public async Task<ActionResult<OperationResult>> ExamineDriverSubmit(string userId, bool isAccept)
+        {
+            try
+            {
+                await _userService.ConfirmDriverSubmit(userId, isAccept);
+                return new OperationResult(true, "Driver submit confirmed", StatusCodes.Status200OK);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status404NotFound);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

@@ -16,23 +16,39 @@ namespace GoWheels_WebAPI.Repositories
         }   
 
         public async Task<List<Invoice>> GetAllAsync()
-            => await _context.Invoices.AsNoTracking().Include(i => i.Booking).ToListAsync();
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
+                                        .ToListAsync();
 
         public async Task<List<Invoice>> GetAllByUserIdAsync(string userId)
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
                                         .Where(i => i.Booking.UserId == userId)
                                         .ToListAsync();
+
+
 
         public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
-                                        .Where(i => i.Booking.Status.Equals("Refunded") && i.Total <= 0)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
+                                        .Where(i => i.Booking.Status.Equals("Refunded") && i.PrePayment <= 0)
                                         .ToListAsync();
 
         public async Task<Invoice> GetByIdAsync(int id)
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
                                         .FirstOrDefaultAsync(i => i.Id == id)
                                         ?? throw new NullReferenceException("Invoice not found");
 

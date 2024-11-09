@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.DTOs
 {
@@ -10,7 +11,11 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal FinalValue { get; set; }
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
+        public bool IsRequireDriver { get; set; }
         public int PostId { get; set; }
-        public int PromotionId { get; set; }
+
+        [AllowNull]
+        public int? PromotionId { get; set; }
+        public decimal DiscountValue { get; set; } 
     }
 }

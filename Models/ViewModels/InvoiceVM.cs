@@ -8,5 +8,6 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public decimal Total { get; set; }
         public DateTime ReturnOn { get; set; }
         public BookingVM Booking { get; set; } = null!;
+        public DriverBookingVM DriverBooking { get; set; } = null!;
     }
 }

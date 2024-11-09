@@ -139,16 +139,11 @@ namespace GoWheels_WebAPI.Service
 
                 return new UserVM
                 {
-                    UserId = user.Id,
+                    Id = user.Id,
                     Name = user.Name,
                     License = user.License,
                     Image = user.Image,
                     Birthday = user.Birthday,
-                    //ReportPoint = user.ReportPoint,
-                    //Posts = user.Posts,
-                    //Booking = user.Booking,
-                    //Rating = user.Rating,
-                    //Favorites = user.Favorites,
                     Role = userRoles.FirstOrDefault(),
                 };
             }

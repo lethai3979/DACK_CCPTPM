@@ -54,6 +54,8 @@ namespace GoWheels_WebAPI.Service
         public async Task<Promotion> GetByIdAsync(int id)
             => await _salepromotionRepository.GetByIdAsync(id);
 
+
+
         public async Task AddAsync(Promotion promotion)
         {
             try

@@ -9,15 +9,18 @@ namespace GoWheels_WebAPI.Service
     public class UserService
     {
         private readonly IUserRepository _autheticationRepository;
+        private readonly DriverService _driverService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IConfiguration _config;
 
         public UserService(IUserRepository autheticationRepository,
+                            DriverService driverService,
                             IHttpContextAccessor httpContextAccessor,
                             IConfiguration config)
         {
             _autheticationRepository = autheticationRepository;
+            _driverService = driverService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -164,12 +167,13 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(userId);
-                user.IsSubmitDriver = false;
+                user.IsSubmitDriver = false;  
+                user.isDriver = isAccept;
                 await _autheticationRepository.UpdateAsync(user);
                 if (isAccept)
                 {
+                    await _driverService.AddAsync(user);
                 }
-
             }
             catch (NullReferenceException nullEx)
             {

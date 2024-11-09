@@ -16,15 +16,13 @@ namespace GoWheels_WebAPI.Service
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        public AmenityService(AmenityRepository amenityRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment)
+        public AmenityService(AmenityRepository amenityRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _amenityRepository = amenityRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<List<Amenity>> GetAllAsync()

@@ -52,7 +52,8 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
             => await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
 
-
+        public async Task<List<Booking>> GetAllDriverRequireBookingsAsync()
+            => await _bookingRepository.GetAllDriverRequireBookingsAsync();
         public async Task<List<Booking>> GetAllPendingBookingsByUserIdAsync()
             => await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
 
@@ -68,6 +69,9 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<Booking>> GetPersonalBookingsAsync()
             => await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
+
+        public async Task<List<Booking>> GetAllByDriverAsync()
+            => await _bookingRepository.GetAllByDriverAsync(_userId);
 
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
@@ -125,6 +129,21 @@ namespace GoWheels_WebAPI.Service
                 booking.IsRequest = false;
                 booking.IsResponse = false;
                 booking.IsRideCounted = false;
+                if((booking.RecieveOn - booking.ReturnOn).TotalHours >= 72)
+                {
+                    if (booking.IsRequireDriver)
+                    {
+                        booking.HasDriver = post.HasDriver;
+                    }
+                    else
+                    {
+                        booking.HasDriver = true;
+                    }    
+                }    
+                else
+                {
+                    booking.HasDriver = true;
+                }    
                 await _bookingRepository.AddAsync(booking);
             }
             catch (DbUpdateException dbEx)

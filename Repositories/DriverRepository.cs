@@ -15,10 +15,13 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
         public async Task<List<Driver>> GetAllAsync()
-            => await _context.Drivers.Where(d => !d.IsDeleted).ToListAsync();
+            => await _context.Drivers.Include(d => d.User).Where(d => !d.IsDeleted).ToListAsync();
 
         public async Task<Driver> GetByIdAsync(int id)
             => await _context.Drivers.FirstOrDefaultAsync(d => !d.IsDeleted && d.Id == id) 
+                                                        ?? throw new NullReferenceException("Driver not found");
+        public async Task<Driver> GetByUserIdAsync(string userId)
+            => await _context.Drivers.FirstOrDefaultAsync(d => !d.IsDeleted && d.UserId == userId) 
                                                         ?? throw new NullReferenceException("Driver not found");
 
         public async Task AddAsync(Driver driver)

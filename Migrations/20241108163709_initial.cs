@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GoWheels_WebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,7 +55,7 @@ namespace GoWheels_WebAPI.Migrations
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ReportPoint = table.Column<int>(type: "int", nullable: true),
                     IsSubmitDriver = table.Column<bool>(type: "bit", nullable: false),
-                    DriverId = table.Column<int>(type: "int", nullable: false),
+                    isDriver = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -111,6 +111,23 @@ namespace GoWheels_WebAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Companies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notify",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notify", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -265,8 +282,8 @@ namespace GoWheels_WebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    License = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RatingPoint = table.Column<double>(type: "float", nullable: false),
+                    PricePerHour = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -365,6 +382,32 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserNotify",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    NotifyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserNotify", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserNotify_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserNotify_Notify_NotifyId",
+                        column: x => x.NotifyId,
+                        principalTable: "Notify",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DriversBooking",
                 columns: table => new
                 {
@@ -373,6 +416,7 @@ namespace GoWheels_WebAPI.Migrations
                     RecieveDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReturnDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DriverConfirm = table.Column<bool>(type: "bit", nullable: false),
+                    IsCancel = table.Column<bool>(type: "bit", nullable: false),
                     DriverId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -402,12 +446,14 @@ namespace GoWheels_WebAPI.Migrations
                     FinalValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RecieveOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReturnOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPay = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OwnerConfirm = table.Column<bool>(type: "bit", nullable: false),
+                    IsPay = table.Column<bool>(type: "bit", nullable: false),
                     IsRequest = table.Column<bool>(type: "bit", nullable: false),
                     IsResponse = table.Column<bool>(type: "bit", nullable: false),
                     IsRideCounted = table.Column<bool>(type: "bit", nullable: false),
+                    IsRequireDriver = table.Column<bool>(type: "bit", nullable: false),
+                    HasDriver = table.Column<bool>(type: "bit", nullable: false),
                     PostId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     PromotionId = table.Column<int>(type: "int", nullable: false),
@@ -793,6 +839,16 @@ namespace GoWheels_WebAPI.Migrations
                 name: "IX_Reports_ReportTypeId",
                 table: "Reports",
                 column: "ReportTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotify_NotifyId",
+                table: "UserNotify",
+                column: "NotifyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotify_UserId",
+                table: "UserNotify",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -838,6 +894,9 @@ namespace GoWheels_WebAPI.Migrations
                 name: "Reports");
 
             migrationBuilder.DropTable(
+                name: "UserNotify");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -851,6 +910,9 @@ namespace GoWheels_WebAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "ReportTypes");
+
+            migrationBuilder.DropTable(
+                name: "Notify");
 
             migrationBuilder.DropTable(
                 name: "Posts");
