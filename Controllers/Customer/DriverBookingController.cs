@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading;
 
 namespace GoWheels_WebAPI.Controllers.Customer
 {
@@ -16,20 +18,26 @@ namespace GoWheels_WebAPI.Controllers.Customer
         private readonly DriverBookingService _driverBookingService;
         private readonly BookingService _bookingService;
         private readonly InvoiceService _invoiceService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _userId;
         private readonly IMapper _mapper;
 
         public DriverBookingController(DriverBookingService driverBookingService, 
                                         BookingService bookingService,
                                         InvoiceService invoiceService, 
+                                        IHttpContextAccessor httpContextAccessor,
                                         IMapper mapper)
         {
             _driverBookingService = driverBookingService;
             _bookingService = bookingService;
             _invoiceService = invoiceService;
+            _httpContextAccessor = httpContextAccessor;
+            _userId = _httpContextAccessor.HttpContext?.User?
+                        .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _mapper = mapper;
         }
 
-        [HttpGet("GetAllDriverBooking")]
+        [HttpGet("GetAllDriverBookings")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetAllDriverBookingsByUserIdAsync()
         {
@@ -54,13 +62,17 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("AddDriverBooking/{driverBookingId}")]
+        [HttpPost("AddDriverBooking/{bookingId}")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> AddDriverBookingAsync(int bookingId)
         {
             try
             {
                 var booking = await _bookingService.GetByIdAsync(bookingId);
+                if(booking.HasDriver)
+                {
+                    return new OperationResult(false, "Driver already assigned", StatusCodes.Status409Conflict);
+                }    
                 await _driverBookingService.AddDriverBookingAsync(booking);
                 return new OperationResult(true, "Accept booking succesfully", StatusCodes.Status200OK);
             }
@@ -87,11 +99,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-
-                await _driverBookingService.CancelDriverBookingAsync(driverBookingId);
+                var driverBooking = await _driverBookingService.GetByIdAsync(driverBookingId);
+                if(driverBooking.Driver.UserId != _userId)
+                {
+                    return new OperationResult(false, "Unauthorized", StatusCodes.Status401Unauthorized);
+                }    
+                driverBooking.IsCancel = true;
+                await _driverBookingService.UpdateAsync(driverBooking);
                 var invoice = await _invoiceService.GetByDriverBookingIdAsync(driverBookingId);
-                invoice.DriverBookingId = null;
-                await _invoiceService.UpdateAsync(invoice);
+                await _invoiceService.UpdateCancelDriverBookingAsync(invoice, driverBooking.Total);
                 var booking = await _bookingService.GetByIdAsync(invoice.BookingId);
                 booking.HasDriver = false;
                 booking.IsRequireDriver = true;

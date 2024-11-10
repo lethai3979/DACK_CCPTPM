@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GoWheels_WebAPI.Models.Entities
 {
@@ -12,6 +13,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public int BookingId { get; set; }
         [ValidateNever]
         public Booking Booking { get; set; } = null!;
+        [AllowNull]
         public int? DriverBookingId { get; set; }
         public DriverBooking DriverBooking { get; set; } = null!;
     }

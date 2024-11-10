@@ -189,11 +189,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.RequestCancelBookingAsync(id);
-                return new OperationResult(true, "Cancellation request sent succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Cancel booking request sent succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
             {
                 return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (UnauthorizedAccessException authEx)
+            {
+                return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
             catch (DbUpdateException dbEx)
             {

@@ -23,7 +23,7 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.DriverBookings.Include(d => d.Driver)
                                             .Include(d => d.Invoices)
                                             .ThenInclude(i => i.Booking)
-                                            .Where(d => !d.IsCancel && !d.IsDeleted && d.Driver.UserId == userId)
+                                            .Where(d => !d.IsDeleted && d.Driver.UserId == userId)
                                             .ToListAsync();
 
         public async Task<DriverBooking> GetByIdAsync(int id)
@@ -34,7 +34,12 @@ namespace GoWheels_WebAPI.Repositories
                                             ?? throw new NullReferenceException("Driver booking not found");
 
 
-
+        public async Task<DriverBooking> GetByBookingIdAsync(int id)
+            => await _context.DriverBookings.Include(d => d.Driver)
+                                            .Include(d => d.Invoices)
+                                            .ThenInclude(i => i.Booking)
+                                            .FirstOrDefaultAsync(db => db.Invoices.Any(inv => inv.BookingId == id))
+                                            ?? throw new NullReferenceException("Driver booking not found");
 
         public async Task AddAsync(DriverBooking driverBooking)
         {
@@ -51,7 +56,7 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(DriverBooking driverBooking)
         {
-            var existingDriverBooking = _context.ChangeTracker.Entries<Driver>()
+            var existingDriverBooking = _context.ChangeTracker.Entries<DriverBooking>()
                                                  .FirstOrDefault(e => e.Entity.Id == driverBooking.Id);
 
             //detached same id obj

@@ -129,7 +129,7 @@ namespace GoWheels_WebAPI.Service
                 booking.IsRequest = false;
                 booking.IsResponse = false;
                 booking.IsRideCounted = false;
-                if((booking.RecieveOn - booking.ReturnOn).TotalHours >= 72)
+                if((booking.RecieveOn - DateTime.Now).TotalHours >= 72)
                 {
                     if (booking.IsRequireDriver)
                     {
@@ -293,20 +293,31 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var existingBooking = await _bookingRepository.GetByIdAsync(id);
+                if (existingBooking.UserId != _userId)
+                {
+                    throw new UnauthorizedAccessException("Unauthorized");
+                }
                 existingBooking.ModifiedById = _userId;
                 existingBooking.ModifiedOn = DateTime.Now;
-                if(existingBooking.IsPay)
+                if (existingBooking.HasDriver)
                 {
                     existingBooking.IsRequest = true;
                     existingBooking.Status = "Processing";
-                }    
+                }
                 else
                 {
-                    existingBooking.IsRequest = true;
-                    existingBooking.IsResponse = true;
-                    existingBooking.Status = "Canceled";
+                    if (existingBooking.IsPay)
+                    {
+                        existingBooking.IsRequest = true;
+                        existingBooking.Status = "Processing";
+                    }
+                    else
+                    {
+                        existingBooking.IsRequest = true;
+                        existingBooking.IsResponse = true;
+                        existingBooking.Status = "Canceled";
+                    }
                 }    
-
                 await _bookingRepository.UpdateAsync(existingBooking);
             }
             catch (DbUpdateException dbEx)
@@ -327,9 +338,22 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                booking.Status = isAccept ? "Refunded" : "Request denied";
+                if (isAccept)
+                {
+                    if (booking.IsPay)
+                    {
+                        booking.Status = "Refunded";
+                    }
+                    else 
+                    {
+                        booking.Status = "Canceled";
+                    }
+                }
+                else
+                {
+                    booking.Status = "Request denied";
+                }    
                 booking.IsResponse = true;
-                booking.IsPay = !isAccept;
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 await _bookingRepository.UpdateAsync(booking);

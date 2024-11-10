@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -28,6 +29,12 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<DriverBooking>> GetAllByUserIdAsync()
             => await _driverBookingRepository.GetAllByUserIdAsync(_userId);
+
+        public async Task<DriverBooking> GetByIdAsync(int id)
+            => await _driverBookingRepository.GetByIdAsync(id);
+
+        public async Task<DriverBooking> GetByBookingIdAsync(int id)
+            => await _driverBookingRepository.GetByBookingIdAsync(id);
 
         public async Task AddDriverBookingAsync(Booking booking)
         {
@@ -64,12 +71,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task CancelDriverBookingAsync(int driverBookingId)
+        public async Task UpdateAsync(DriverBooking driverBooking)
         {
             try
             {
-                var driverBooking = await _driverBookingRepository.GetByIdAsync(driverBookingId);
-                driverBooking.IsCancel  = true;
+                driverBooking.ModifiedOn = DateTime.UtcNow;
+                driverBooking.ModifiedById = _userId;
+                await _driverBookingRepository.UpdateAsync(driverBooking);
             }
             catch (NullReferenceException nullEx)
             {

@@ -94,12 +94,11 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(Invoice invoice)
         {
-            var existingInvoice = await _context.Promotions.AsNoTracking()
-                                                  .FirstOrDefaultAsync(p => p.Id == invoice.Id);
+            var existingInvoice = _context.Invoices.Local.FirstOrDefault(b => b.Id == invoice.Id);
 
-            if (existingInvoice == null)
+            if (existingInvoice != null)
             {
-                throw new KeyNotFoundException($"Promotion with ID {invoice.Id} not found.");
+                _context.Entry(existingInvoice).State = EntityState.Detached;
             }
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi

@@ -78,9 +78,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var booking = await _bookingService.GetByIdAsync(bookingId);
                 if(!booking.OwnerConfirm)
                 {
-                    return BadRequest("Owner confirm needed");
+                    return BadRequest("Owner confirm required");
                 }    
-                var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(booking);
+                var invoice = await _invoiceService.GetByBookingIdAsync(bookingId);
+                var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(invoice);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
                 if (payUrlToken != null)
@@ -105,7 +106,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _invoiceService.ProcessReturnUrlAsync(Request.Query);
-                return new OperationResult(true, "Create invoice successfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
             {

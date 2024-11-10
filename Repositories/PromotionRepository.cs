@@ -85,9 +85,9 @@ namespace GoWheels_WebAPI.Repositories
             var existingPromotion = await _context.Promotions.AsNoTracking()
                                       .FirstOrDefaultAsync(p => p.Id == promotion.Id);
 
-            if (existingPromotion == null)
+            if (existingPromotion != null)
             {
-                throw new KeyNotFoundException($"Promotion with ID {promotion.Id} not found.");
+                _context.Entry(existingPromotion).State = EntityState.Detached;
             }
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
