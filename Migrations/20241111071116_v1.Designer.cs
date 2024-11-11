@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241109110318_UpdateInvoice")]
-    partial class UpdateInvoice
+    [Migration("20241111071116_v1")]
+    partial class v1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -388,6 +388,9 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<int>("DriverId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DropOffDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsCancel")
                         .HasColumnType("bit");
 
@@ -401,9 +404,6 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("PickUpDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DropOffDate")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Total")
@@ -1102,7 +1102,7 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Invoice", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("Invoices")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1317,6 +1317,11 @@ namespace GoWheels_WebAPI.Migrations
                     b.Navigation("Rating");
 
                     b.Navigation("userNotifications");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Booking", b =>
+                {
+                    b.Navigation("Invoices");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>
