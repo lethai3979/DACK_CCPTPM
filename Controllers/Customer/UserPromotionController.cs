@@ -86,9 +86,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }
                 if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.AddAsync(promotion, promotionDTO.PostIds);
-                    return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.AddAsync(promotion, promotionDTO.PostIds);
+                        return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    }
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }
@@ -122,10 +126,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }
                 if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.UpdateAsync(id, promotion, promotionDTO.PostIds);
-                    return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
-
+                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.UpdateAsync(id, promotion, promotionDTO.PostIds);
+                        return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
+                    }
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }

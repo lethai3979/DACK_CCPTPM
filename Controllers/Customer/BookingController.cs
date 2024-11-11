@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using System.Globalization;
 
 namespace GoWheels_WebAPI.Controllers.Customer
 {
@@ -20,16 +19,21 @@ namespace GoWheels_WebAPI.Controllers.Customer
     public class BookingController : ControllerBase
     {
         private readonly BookingService _bookingService;
+        private readonly AdminPromotionService _adminPromotionService;
         private readonly InvoiceService _invoiceService;
         private IMapper _mapper;
 
-        public BookingController(BookingService bookingService, InvoiceService invoiceService, IMapper mapper)
+        public BookingController(BookingService bookingService, 
+                                    AdminPromotionService adminPromotionService, 
+                                    InvoiceService invoiceService, 
+                                    IMapper mapper)
         {
             _bookingService = bookingService;
+            _adminPromotionService = adminPromotionService;
             _invoiceService = invoiceService;
             _mapper = mapper;
         }
-        [Authorize(Roles = "User")]
+
         [HttpGet("GetById/{id}")]
         [Authorize]
         public async Task<ActionResult<OperationResult>> GetById(int id)
@@ -54,10 +58,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-       
 
-        
-        [Authorize(Roles = "User")]
         [HttpGet("GetPersonalBookings")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
@@ -81,12 +82,59 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-
-
         }
 
-        [Authorize(Roles = "User")]
+
+        [HttpGet("GetAllDriverRequireBookings")]
+        public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookingsAsync()
+        {
+            try
+            {
+                var bookings = await _bookingService.GetAllDriverRequireBookingsAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpGet("GetAllByDriver")]
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        {
+            try
+            {
+                var bookings = await _bookingService.GetAllByDriverAsync();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpGet("GetAllPendingBookingsByUserId")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
         {
             try
@@ -140,11 +188,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.RequestCancelBookingAsync(id);
-                return new OperationResult(true, "Cancellation request sent succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Cancel booking request sent succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
             {
                 return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (UnauthorizedAccessException authEx)
+            {
+                return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
             catch (DbUpdateException dbEx)
             {
@@ -173,9 +225,14 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }*/
                 if (ModelState.IsValid)
                 {
-                    var booking = _mapper.Map<Booking>(bookingDTO);
-                    await _bookingService.AddAsync(booking);
-                    return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                    var booking = _mapper.Map<Booking>(bookingDTO);  
+                    var isBookingValid = await _bookingService.CheckBookingValue(bookingDTO, bookingDTO.DiscountValue);
+                    if (isBookingValid)
+                    {
+                        await _bookingService.AddAsync(booking);
+                        return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
+                    }
+                    return new OperationResult(false, "Booking values invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Booking data invalid");
             }
@@ -193,7 +250,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-
         [HttpPut("ConfirmBooking")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> ConfirmBookingAsync(int id, bool isAccept)
@@ -201,6 +257,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.UpdateOwnerConfirmAsync(id, isAccept);
+                if(isAccept)
+                {
+                    await _invoiceService.CreateInvoiceAsync(id);
+                }    
                 return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
             }
             catch(UnauthorizedAccessException authEx) 

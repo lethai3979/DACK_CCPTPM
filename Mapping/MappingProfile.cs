@@ -30,6 +30,8 @@ namespace GoWheels_WebAPI.Mapping
             CreateMap<Favorite, FavoriteVM>().ReverseMap();
             CreateMap<Booking, BookingVM>().ReverseMap();
             CreateMap<Invoice, InvoiceVM>().ReverseMap();
+            CreateMap<Driver, DriverVM>().ReverseMap();
+            CreateMap<DriverBooking, DriverBookingVM>().ReverseMap();   
 
 
             //DTOs

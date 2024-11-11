@@ -70,6 +70,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
+                                    .ThenInclude(r => r.User)
                                     .Include(p => p.User)
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)

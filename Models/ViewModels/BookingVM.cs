@@ -12,9 +12,11 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public string? Status { get; set; }
         public bool IsRequest { get; set; }
         public bool IsResponse { get; set; }
+        public bool IsRequireDriver { get; set; }
+        public bool HasDriver { get; set; }
         public bool IsPay { get; set; }
         public string? UserId { get; set; }
         public PostVM Post { get; set; } = null!;
-        public PromotionVM PromotionVM { get; set; } = null!;
+        public PromotionVM Promotion { get; set; } = null!;
     }
 }

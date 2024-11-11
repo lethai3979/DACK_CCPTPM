@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +41,7 @@ namespace GoWheels_WebAPI.Service
             {
                 return new List<DateTime>();
             }
-            //Lấy từng ngày trong từng booking ra và gắn vào 
+            //Lấy từng ngày trong từng bookingDTO ra và gắn vào 
             var bookedDates = bookings.SelectMany(b => Enumerable.Range(0, (b.ReturnOn - b.RecieveOn).Days + 1)
                                                                  .Select(offset => b.RecieveOn.AddDays(offset)))
                                         .Distinct()
@@ -50,16 +49,19 @@ namespace GoWheels_WebAPI.Service
             return bookedDates;
         }
 
-
         public async Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId)
             => await _bookingRepository.GetAllWaitingBookingByPostIdAsync(postId);
 
-
+        public async Task<List<Booking>> GetAllDriverRequireBookingsAsync()
+            => await _bookingRepository.GetAllDriverRequireBookingsAsync();
         public async Task<List<Booking>> GetAllPendingBookingsByUserIdAsync()
             => await _bookingRepository.GetAllPendingBookingByUserIdAsync(_userId);
 
         public async Task<List<Booking>> GetAllAsync()
             => await _bookingRepository.GetAllAsync();
+
+        public async Task<List<Booking>> GetAllCompleteBookingAsync()
+            => await _bookingRepository.GetAllCompleteBookingsAsync();
 
         public async Task<List<Booking>> GetAllCancelRequestAsync()
             => await _bookingRepository.GetAllCancelRequestAsync();
@@ -68,8 +70,46 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Booking>> GetPersonalBookingsAsync()
             => await _bookingRepository.GetAllPersonalBookingsAsync(_userId);
 
+        public async Task<List<Booking>> GetAllByDriverAsync()
+            => await _bookingRepository.GetAllByDriverAsync(_userId);
+
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
+
+        public async Task<bool> CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue)
+        {
+            var post = await _postService.GetByIdAsync(bookingDTO.PostId);
+            var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
+            var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
+            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.Total / 2;
+            var isFinalValueValid = true;
+            if (promotionValue > 1)
+            {
+                isFinalValueValid = bookingDTO.FinalValue == bookingDTO.Total - promotionValue;
+            }
+            else
+            {
+                isFinalValueValid = bookingDTO.FinalValue == bookingDTO.Total - (bookingDTO.Total * promotionValue);
+            }
+            if (isPrePaymentValid && isFinalValueValid)
+            {
+                if (bookingHours % 24 != 0)
+                {
+                    if (bookingDTO.Total == (post.PricePerHour * (decimal)bookingHours))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (bookingDTO.Total == (post.PricePerDay * (decimal)bookingDays))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         public async Task AddAsync(Booking booking)
         {
@@ -89,6 +129,21 @@ namespace GoWheels_WebAPI.Service
                 booking.IsRequest = false;
                 booking.IsResponse = false;
                 booking.IsRideCounted = false;
+                if((booking.RecieveOn - DateTime.Now).TotalHours >= 72)
+                {
+                    if (booking.IsRequireDriver)
+                    {
+                        booking.HasDriver = post.HasDriver;
+                    }
+                    else
+                    {
+                        booking.HasDriver = true;
+                    }    
+                }    
+                else
+                {
+                    booking.HasDriver = true;
+                }    
                 await _bookingRepository.AddAsync(booking);
             }
             catch (DbUpdateException dbEx)
@@ -238,20 +293,31 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var existingBooking = await _bookingRepository.GetByIdAsync(id);
+                if (existingBooking.UserId != _userId)
+                {
+                    throw new UnauthorizedAccessException("Unauthorized");
+                }
                 existingBooking.ModifiedById = _userId;
                 existingBooking.ModifiedOn = DateTime.Now;
-                if(existingBooking.IsPay)
+                if (existingBooking.HasDriver)
                 {
                     existingBooking.IsRequest = true;
                     existingBooking.Status = "Processing";
-                }    
+                }
                 else
                 {
-                    existingBooking.IsRequest = true;
-                    existingBooking.IsResponse = true;
-                    existingBooking.Status = "Canceled";
+                    if (existingBooking.IsPay)
+                    {
+                        existingBooking.IsRequest = true;
+                        existingBooking.Status = "Processing";
+                    }
+                    else
+                    {
+                        existingBooking.IsRequest = true;
+                        existingBooking.IsResponse = true;
+                        existingBooking.Status = "Canceled";
+                    }
                 }    
-
                 await _bookingRepository.UpdateAsync(existingBooking);
             }
             catch (DbUpdateException dbEx)
@@ -272,9 +338,22 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                booking.Status = isAccept ? "Refunded" : "Request denied";
+                if (isAccept)
+                {
+                    if (booking.IsPay)
+                    {
+                        booking.Status = "Refunded";
+                    }
+                    else 
+                    {
+                        booking.Status = "Canceled";
+                    }
+                }
+                else
+                {
+                    booking.Status = "Request denied";
+                }    
                 booking.IsResponse = true;
-                booking.IsPay = !isAccept;
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 await _bookingRepository.UpdateAsync(booking);

@@ -25,6 +25,16 @@ namespace GoWheels_WebAPI.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<ReportType> ReportTypes { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<DriverBooking> DriverBookings { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Driver)
+                .WithOne(p => p.User)
+                .HasForeignKey<Driver>(p => p.UserId);
 
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

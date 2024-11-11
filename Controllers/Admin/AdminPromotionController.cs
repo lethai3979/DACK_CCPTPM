@@ -49,13 +49,36 @@ namespace GoWheels_WebAPI.Controllers.Admin
             }
         }
 
-
         [HttpGet("GetAllAdminPromotion")]
         public async Task<ActionResult<OperationResult>> GetAllAdminPromotionsAsync()
         {
             try
             {
                 var promotions = await _promotionService.GetAllAdminPromotionsAsync();
+                var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
+            }
+            catch (NullReferenceException aEx)
+            {
+                return new OperationResult(false, aEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpGet("GetAllAdminPromotionByUserId")]
+        public async Task<ActionResult<OperationResult>> GetAllAdminPromotionsByUserIdAsync()
+        {
+            try
+            {
+                var promotions = await _promotionService.GetAllAdminPromotionsByUserIdAsync();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -110,9 +133,13 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 }
                 if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.AddAsync(promotion);
-                    return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    if (promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.AddAsync(promotion);
+                        return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
+                    }
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }
@@ -146,10 +173,13 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 }
                 if (ModelState.IsValid)
                 {
-                    var promotion = _mapper.Map<Promotion>(promotionDTO);
-                    await _promotionService.UpdateAsync(id, promotion);
-                    return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
-
+                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    {
+                        var promotion = _mapper.Map<Promotion>(promotionDTO);
+                        await _promotionService.UpdateAsync(id, promotion);
+                        return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
+                    }   
+                    return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
             }

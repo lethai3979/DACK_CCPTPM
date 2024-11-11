@@ -47,6 +47,27 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
+        [HttpGet("GetAllByDriver")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceService.GetAllByDriverAsync();
+                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpPost("MomoPayment")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
@@ -57,9 +78,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var booking = await _bookingService.GetByIdAsync(bookingId);
                 if(!booking.OwnerConfirm)
                 {
-                    return BadRequest("Owner confirm needed");
+                    return BadRequest("Owner confirm required");
                 }    
-                var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(booking);
+                var invoice = await _invoiceService.GetByBookingIdAsync(bookingId);
+                var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(invoice);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
                 if (payUrlToken != null)
@@ -84,7 +106,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _invoiceService.ProcessReturnUrlAsync(Request.Query);
-                return new OperationResult(true, "Create invoice successfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
             {

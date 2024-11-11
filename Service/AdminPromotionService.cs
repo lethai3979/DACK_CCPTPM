@@ -42,17 +42,19 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
         public async Task<List<Promotion>> GetAllAsync()
-
             => await _salepromotionRepository.GetAllAsync();
 
+
         public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
-        {
-            var promoList = await _salepromotionRepository.GetAllAdminPromotionsAsync();
-            return promoList;
-        }
+            => await _salepromotionRepository.GetAllAdminPromotionsAsync();
+
+        public async Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync()
+            => await _salepromotionRepository.GetAllAdminPromotionsByUserIdAsync(_userId);
 
         public async Task<Promotion> GetByIdAsync(int id)
             => await _salepromotionRepository.GetByIdAsync(id);
+
+
 
         public async Task AddAsync(Promotion promotion)
         {

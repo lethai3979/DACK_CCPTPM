@@ -23,8 +23,20 @@
 
   <ItemGroup>
     <Folder Include="Service\Interface\" />
-    <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\images\amenities\" />
+    <Folder Include="wwwroot\images\companies\" />
+    <Folder Include="wwwroot\images\posts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\images\ImageUser\avtDisc.jpg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\images\ImageUser\user.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

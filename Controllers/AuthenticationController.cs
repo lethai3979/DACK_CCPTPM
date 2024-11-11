@@ -43,6 +43,24 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
+        [HttpGet("CheckLockoutStatus")]
+        public async Task<IActionResult> CheckLockoutStatus()
+        {
+            try
+            {
+                var result = await _authenService.CheckLockoutStatus();
+                return Ok(result);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return NotFound(nullEx.Message);
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("GetUser")]
         public async Task<ActionResult<UserVM>> GetUser()
         {

@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -57,6 +58,16 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new InvalidOperationException("Wrong email or password");
             }
+            if (user.LockoutEnabled)
+            {
+                if (user.LockoutEnd.HasValue)
+                {
+                    var lockoutDay = (user.LockoutEnd!.Value - DateTime.Now).TotalDays;
+                    if (lockoutDay <= 7)
+                        return "Account banned until: " + user.LockoutEnd.ToString();
+                    return "Account permanently banned";
+                }    
+            }    
             var token = await GenerateJwtToken(user);
 
             return token;
@@ -89,6 +100,13 @@ namespace GoWheels_WebAPI.Service
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<bool> CheckLockoutStatus()
+        {
+            var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+            return user.LockoutEnabled;
+        }
+
         public async Task<UserVM?> GetUserFromToken(string token)
         {
             // Định nghĩa các hằng số cho Claim Types
@@ -121,16 +139,11 @@ namespace GoWheels_WebAPI.Service
 
                 return new UserVM
                 {
-                    UserId = user.Id,
+                    Id = user.Id,
                     Name = user.Name,
                     License = user.License,
                     Image = user.Image,
                     Birthday = user.Birthday,
-                    //ReportPoint = user.ReportPoint,
-                    //Posts = user.Posts,
-                    //Booking = user.Booking,
-                    //Rating = user.Rating,
-                    //Favorites = user.Favorites,
                     Role = userRoles.FirstOrDefault(),
                 };
             }

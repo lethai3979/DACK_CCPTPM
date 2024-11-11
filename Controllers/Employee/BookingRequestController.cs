@@ -17,12 +17,17 @@ namespace GoWheels_WebAPI.Controllers.Employee
     {
         private readonly BookingService _bookingService;
         private readonly InvoiceService _invoiceService;
+        private readonly DriverBookingService _driverBookingService;
         private readonly IMapper _mapper;
 
-        public BookingRequestController(BookingService bookingService, InvoiceService invoiceService, IMapper mapper)
+        public BookingRequestController(BookingService bookingService, 
+                                        InvoiceService invoiceService, 
+                                        DriverBookingService driverBookingService,
+                                        IMapper mapper)
         {
             _bookingService = bookingService;
             _invoiceService = invoiceService;
+            _driverBookingService = driverBookingService;
             _mapper = mapper;
         }
 
@@ -52,12 +57,17 @@ namespace GoWheels_WebAPI.Controllers.Employee
         } 
 
 
-        [HttpPost("ExamineCancelBooking/{id}&&{isAccept}")]
-        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int id, bool isAccept)
+        [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
+        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, bool isAccept)
         {
             try
             {
-                await _invoiceService.RefundAsync(id, isAccept);
+                var booking = await _bookingService.GetByIdAsync(bookingId);
+                await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
+                await _invoiceService.RefundAsync(booking, isAccept);
+                var driverBooking = await _driverBookingService.GetByBookingIdAsync(bookingId);
+                driverBooking.IsCancel = isAccept;
+                await _driverBookingService.UpdateAsync(driverBooking);
                 return new OperationResult(true, "Cancellation request processed successfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

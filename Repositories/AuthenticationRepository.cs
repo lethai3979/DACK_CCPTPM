@@ -23,6 +23,9 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
+        public async Task<List<ApplicationUser>> GetAllSubmitDriversAsync()
+            => await _userManager.Users.Where(u => u.IsSubmitDriver).ToListAsync(); 
+
         public async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
              => await _userManager.AddToRoleAsync(user, roleName);
 

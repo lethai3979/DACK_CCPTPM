@@ -84,6 +84,9 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSubmitDriver")
+                        .HasColumnType("bit");
+
                     b.Property<string>("License")
                         .HasColumnType("nvarchar(max)");
 
@@ -126,6 +129,9 @@ namespace GoWheels_WebAPI.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<bool>("isDriver")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -157,6 +163,9 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<decimal>("FinalValue")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("HasDriver")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -164,6 +173,9 @@ namespace GoWheels_WebAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRequest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequireDriver")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsResponse")
@@ -187,7 +199,7 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<decimal>("PrePayment")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("PromotionId")
+                    b.Property<int?>("PromotionId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("RecieveOn")
@@ -313,6 +325,94 @@ namespace GoWheels_WebAPI.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Driver", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PricePerHour")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double>("RatingPoint")
+                        .HasColumnType("float");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Drivers");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.DriverBooking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DropOffDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCancel")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PickUpDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("DriverBookings");
+                });
+
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Favorite", b =>
                 {
                     b.Property<int>("Id")
@@ -358,7 +458,13 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DriverBookingId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPay")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedById")
@@ -366,6 +472,12 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PrePayment")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("RefundInvoice")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("ReturnOn")
                         .HasColumnType("datetime2");
@@ -377,7 +489,40 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasIndex("BookingId");
 
+                    b.HasIndex("DriverBookingId");
+
                     b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Notify", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notify");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>
@@ -442,7 +587,10 @@ namespace GoWheels_WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerHour")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RentLocation")
@@ -708,6 +856,30 @@ namespace GoWheels_WebAPI.Migrations
                     b.ToTable("ReportTypes");
                 });
 
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.UserNotify", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("NotifyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotifyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserNotify");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -851,9 +1023,7 @@ namespace GoWheels_WebAPI.Migrations
 
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Promotion", "Promotion")
                         .WithMany("Bookings")
-                        .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PromotionId");
 
                     b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "User")
                         .WithMany("Booking")
@@ -885,6 +1055,28 @@ namespace GoWheels_WebAPI.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Driver", b =>
+                {
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "User")
+                        .WithOne("Driver")
+                        .HasForeignKey("GoWheels_WebAPI.Models.Entities.Driver", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.DriverBooking", b =>
+                {
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.Driver", "Driver")
+                        .WithMany("DriverBookings")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
+                });
+
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Favorite", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Post", "Post")
@@ -907,12 +1099,18 @@ namespace GoWheels_WebAPI.Migrations
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Invoice", b =>
                 {
                     b.HasOne("GoWheels_WebAPI.Models.Entities.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("Invoices")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.DriverBooking", "DriverBooking")
+                        .WithMany("Invoices")
+                        .HasForeignKey("DriverBookingId");
+
                     b.Navigation("Booking");
+
+                    b.Navigation("DriverBooking");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>
@@ -1027,6 +1225,25 @@ namespace GoWheels_WebAPI.Migrations
                     b.Navigation("ReportType");
                 });
 
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.UserNotify", b =>
+                {
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.Notify", "Notify")
+                        .WithMany("UserNotifications")
+                        .HasForeignKey("NotifyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GoWheels_WebAPI.Models.Entities.ApplicationUser", "user")
+                        .WithMany("userNotifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Notify");
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1087,11 +1304,21 @@ namespace GoWheels_WebAPI.Migrations
                 {
                     b.Navigation("Booking");
 
+                    b.Navigation("Driver")
+                        .IsRequired();
+
                     b.Navigation("Favorites");
 
                     b.Navigation("Posts");
 
                     b.Navigation("Rating");
+
+                    b.Navigation("userNotifications");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Booking", b =>
+                {
+                    b.Navigation("Invoices");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.CarType", b =>
@@ -1106,6 +1333,21 @@ namespace GoWheels_WebAPI.Migrations
                     b.Navigation("CarTypeDetail");
 
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Driver", b =>
+                {
+                    b.Navigation("DriverBookings");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.DriverBooking", b =>
+                {
+                    b.Navigation("Invoices");
+                });
+
+            modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Notify", b =>
+                {
+                    b.Navigation("UserNotifications");
                 });
 
             modelBuilder.Entity("GoWheels_WebAPI.Models.Entities.Post", b =>

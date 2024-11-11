@@ -12,7 +12,8 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public required int Seat { get; set; }
         public string? RentLocation { get; set; }
         public bool HasDriver { get; set; }
-        public required decimal Price { get; set; }
+        public decimal PricePerHour { get; set; }
+        public decimal PricePerDay { get; set; }
         public bool Gear { get; set; }
         public string? Fuel { get; set; }
         public decimal FuelConsumed { get; set; }

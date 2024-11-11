@@ -16,33 +16,75 @@ namespace GoWheels_WebAPI.Repositories
         }   
 
         public async Task<List<Invoice>> GetAllAsync()
-            => await _context.Invoices.AsNoTracking().Include(i => i.Booking).ToListAsync();
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
+                                        .OrderByDescending(i => i.CreatedOn)
+                                        .ToListAsync();
 
         public async Task<List<Invoice>> GetAllByUserIdAsync(string userId)
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
                                         .Where(i => i.Booking.UserId == userId)
+                                        .OrderByDescending(i => i.CreatedOn)
+                                        .ToListAsync();
+
+        public async Task<List<Invoice>> GetAllByDriverAsync(string userId)
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
+                                        .Where(i => i.DriverBooking.Driver.UserId == userId)
+                                        .OrderByDescending(i => i.CreatedOn)
                                         .ToListAsync();
 
         public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
-                                        .Where(i => i.Booking.Status.Equals("Refunded") && i.Total <= 0)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(i => i.Driver)
+                                        .ThenInclude(i => i.User)
+                                        .Where(i => i.RefundInvoice)
+                                        .OrderByDescending(i => i.CreatedOn)
                                         .ToListAsync();
 
         public async Task<Invoice> GetByIdAsync(int id)
             => await _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(d => d.Driver)
+                                        .ThenInclude(d => d.User)
                                         .FirstOrDefaultAsync(i => i.Id == id)
                                         ?? throw new NullReferenceException("Invoice not found");
 
 
         public async Task<Invoice> GetByBookingIdAsync(int bookingId)
-        => await _context.Invoices.AsNoTracking()
-                                    .Include(i => i.Booking)
-                                    .OrderByDescending(b => b.Id)
-                                    .FirstOrDefaultAsync(i => i.BookingId == bookingId)
-                                    ?? throw new NullReferenceException("Invoice not found");
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .ThenInclude(d => d.Driver)
+                                        .ThenInclude(d => d.User)
+                                        .FirstOrDefaultAsync(i => i.BookingId == bookingId)
+                                        ?? throw new NullReferenceException("Invoice not found");
+
+        public async Task<Invoice> GetByDriverBookingIdAsync(int driverBooking)
+            => await _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .ThenInclude(b => b.User)
+                                        .Include(i => i.DriverBooking)
+                                        .FirstOrDefaultAsync(i => i.DriverBookingId == driverBooking)
+                                        ?? throw new NullReferenceException("Invoice not found");
 
         public async Task AddAsync(Invoice invoice)
         {
@@ -52,12 +94,11 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task UpdateAsync(Invoice invoice)
         {
-            var existingInvoice = await _context.Promotions.AsNoTracking()
-                                                  .FirstOrDefaultAsync(p => p.Id == invoice.Id);
+            var existingInvoice = _context.Invoices.Local.FirstOrDefault(b => b.Id == invoice.Id);
 
-            if (existingInvoice == null)
+            if (existingInvoice != null)
             {
-                throw new KeyNotFoundException($"Promotion with ID {invoice.Id} not found.");
+                _context.Entry(existingInvoice).State = EntityState.Detached;
             }
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
