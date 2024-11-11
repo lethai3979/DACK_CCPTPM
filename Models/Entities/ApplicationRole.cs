@@ -7,6 +7,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public const string Admin = "Admin";
         public const string User = "User";
         public const string Employee = "Employee";
+        public const string Driver = "Driver";
 
         public static async Task InitialRoles(IServiceProvider serviceProvider)
         {
@@ -14,6 +15,7 @@ namespace GoWheels_WebAPI.Models.Entities
             await CreateRoleIfExistAsync(roleManager, Admin);
             await CreateRoleIfExistAsync(roleManager, User);
             await CreateRoleIfExistAsync(roleManager, Employee);
+            await CreateRoleIfExistAsync(roleManager, Driver);
         }
         public static async Task CreateRoleIfExistAsync(RoleManager<IdentityRole> roleManager, string roleName)
         {

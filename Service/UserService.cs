@@ -67,7 +67,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateUserInfoAsync(ApplicationUser user, IFormFile License, IFormFile Image)
+        public async Task UpdateUserInfoAsync(ApplicationUser user, IFormFile License, IFormFile CIC, IFormFile Image)
         {
             try
             {
@@ -76,6 +76,7 @@ namespace GoWheels_WebAPI.Service
                 existingUser.PhoneNumber = user.PhoneNumber == null ? existingUser.PhoneNumber : user.PhoneNumber;
                 existingUser.Birthday = user.Birthday == null ? existingUser.Birthday : user.Birthday;
                 existingUser.License = user.License == null ? existingUser.License : await SaveImage(License);
+                existingUser.CIC = user.CIC == null ? existingUser.CIC : await SaveImage(CIC);
                 existingUser.Image = user.Image == null ? existingUser.Image : await SaveImage(Image);
                 await _autheticationRepository.UpdateAsync(existingUser);
             }
@@ -137,9 +138,9 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(_userId);
-                if (user.License.IsNullOrEmpty())
+                if (user.License.IsNullOrEmpty() || user.CIC.IsNullOrEmpty())
                 {
-                    throw new InvalidOperationException("License required");
+                    throw new InvalidOperationException("License & CIC required");
                 }
                 user.IsSubmitDriver = true;
                 await _autheticationRepository.UpdateAsync(user);
@@ -169,6 +170,7 @@ namespace GoWheels_WebAPI.Service
                 var user = await _autheticationRepository.FindByUserIdAsync(userId);
                 user.IsSubmitDriver = false;  
                 user.isDriver = isAccept;
+                
                 await _autheticationRepository.UpdateAsync(user);
                 if (isAccept)
                 {

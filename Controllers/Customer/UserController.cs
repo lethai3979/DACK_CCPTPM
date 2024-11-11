@@ -32,7 +32,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var user = _mapper.Map<ApplicationUser>(userDTO);
-                    await _userService.UpdateUserInfoAsync(user, userDTO.License!, userDTO.Image!);
+                    await _userService.UpdateUserInfoAsync(user, userDTO.License!, userDTO.CIC!, userDTO.Image!);
                     return new OperationResult(true, "User information update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("User data invalid");
