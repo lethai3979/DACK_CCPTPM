@@ -59,7 +59,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetPersonalBookings")]
+        [HttpGet("GetPersonalBookings")] // khách hàng
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetPersonalBookings()
         {
@@ -133,7 +133,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetAllPendingBookingsByUserId")]
+        [HttpGet("GetAllPendingBookingsByUserId")] // chủ xe
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
         {
@@ -215,7 +215,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> AddAsync(BookingDTO bookingDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] BookingDTO bookingDTO)
         {
             try
             {
@@ -252,7 +252,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPut("ConfirmBooking")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> ConfirmBookingAsync(int id, bool isAccept)
+        public async Task<ActionResult<OperationResult>> ConfirmBookingAsync([FromForm] int id,[FromForm] bool isAccept)
         {
             try
             {

@@ -15,7 +15,7 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public bool IsRequireDriver { get; set; }
         public bool HasDriver { get; set; }
         public bool IsPay { get; set; }
-        public string? UserId { get; set; }
+        public UserVM User { get; set; } = null!;
         public PostVM Post { get; set; } = null!;
         public PromotionVM Promotion { get; set; } = null!;
     }

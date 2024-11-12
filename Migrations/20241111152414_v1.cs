@@ -51,6 +51,7 @@ namespace GoWheels_WebAPI.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     License = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CIC = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ReportPoint = table.Column<int>(type: "int", nullable: true),
