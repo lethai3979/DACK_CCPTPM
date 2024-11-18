@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpGet("GetAllCancelRequest")]
-        public async Task<ActionResult<OperationResult>> GetAllCancelRequestAsync()
+        public async Task<ActionResult<OperationResult>> GetAllCancelRequestAsync()     //Get tất cả các hủy booking 
         {
             try
             {
@@ -58,7 +58,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
-        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, bool isAccept)
+        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
         {
             try
             {
@@ -89,7 +89,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpGet("GetAllRefundInvoice")]
-        public async Task<ActionResult<OperationResult>> GetAllRefundInvoiceAsync()
+        public async Task<ActionResult<OperationResult>> GetAllRefundInvoiceAsync() // lấy tất cả các hóa đơn hoàn lại
         {
             try
             {

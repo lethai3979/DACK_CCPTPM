@@ -85,6 +85,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
+                                    .Include(p => p.User)
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)

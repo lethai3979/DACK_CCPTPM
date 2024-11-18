@@ -25,7 +25,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPut("UpdateUserInfo")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> UpdateUserInfoAsync([FromForm]UserDTO userDTO)
+        public async Task<ActionResult<OperationResult>> UpdateUserInfoAsync([FromForm] UserDTO userDTO)
         {
             try
             {

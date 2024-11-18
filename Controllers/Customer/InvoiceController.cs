@@ -68,13 +68,18 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("MomoPayment")]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
-        {
+        public bool isMB { get; set; }
 
+        [HttpPost("MomoPayment/{bookingId}")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId,[FromForm] bool isMobile)
+        {
             try
             {
+                if(isMobile)
+                {
+                    isMB = true;
+                }
                 var booking = await _bookingService.GetByIdAsync(bookingId);
                 if(!booking.OwnerConfirm)
                 {
@@ -100,13 +105,23 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return BadRequest(new { message = ex.Message });
             }
         }
+        
+        
+
         [HttpGet("ReturnUrl")]
         public async Task<ActionResult<OperationResult>> ReturnUrl()
         {
             try
             {
                 await _invoiceService.ProcessReturnUrlAsync(Request.Query);
-                return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);
+                if (isMB)
+                {
+                    return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);
+                }
+                else
+                {
+                    return Redirect("http://192.168.1.5:5173/Information/User/HistoryBooking");
+                }
             }
             catch (NullReferenceException nullEx)
             {

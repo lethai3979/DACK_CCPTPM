@@ -45,7 +45,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpPost("ExamineDriverSubmit/{userId}")]
-        public async Task<ActionResult<OperationResult>> ExamineDriverSubmit(string userId, bool isAccept)
+        public async Task<ActionResult<OperationResult>> ExamineDriverSubmit([FromForm] string userId, [FromForm] bool isAccept)
         {
             try
             {

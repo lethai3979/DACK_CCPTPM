@@ -75,7 +75,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpPut("ExamineReport/{id}")]
-        public async Task<ActionResult<OperationResult>> ExamineReportPost(int id, bool isAccept)
+        public async Task<ActionResult<OperationResult>> ExamineReportPost(int id,[FromForm] bool isAccept)
         {
             try
             {

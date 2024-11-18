@@ -141,8 +141,11 @@ namespace GoWheels_WebAPI.Service
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    CIC = user.CIC,
+                    PhoneNumber = user.PhoneNumber,
                     License = user.License,
                     Image = user.Image,
+                    ReportPoint = user.ReportPoint,
                     Birthday = user.Birthday,
                     Role = userRoles.FirstOrDefault(),
                 };

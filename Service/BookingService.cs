@@ -89,7 +89,8 @@ namespace GoWheels_WebAPI.Service
             }
             else
             {
-                isFinalValueValid = bookingDTO.FinalValue == bookingDTO.Total - (bookingDTO.Total * promotionValue);
+                var value = bookingDTO.Total * (1 - promotionValue);
+                isFinalValueValid = bookingDTO.FinalValue == Math.Ceiling(value);
             }
             if (isPrePaymentValid && isFinalValueValid)
             {
