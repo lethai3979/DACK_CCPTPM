@@ -138,6 +138,15 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var userRole = _httpContextAccessor.HttpContext!.User.IsInRole("Driver");
+                if (userRole)
+                {
+                    throw new InvalidOperationException("Account is already a driver");
+                }
+                if (user.IsSubmitDriver)
+                {
+                    throw new InvalidOperationException("Submit already sent");
+                }
                 if (user.License.IsNullOrEmpty() || user.CIC.IsNullOrEmpty())
                 {
                     throw new InvalidOperationException("License & CIC required");
@@ -169,21 +178,21 @@ namespace GoWheels_WebAPI.Service
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(userId);
                 user.IsSubmitDriver = false;  
-                user.isDriver = isAccept;
-                
+                user.isDriver = isAccept;             
                 await _autheticationRepository.UpdateAsync(user);
                 if (isAccept)
                 {
                     await _driverService.AddAsync(user);
+                    await _autheticationRepository.AddUserToRoleAsync(user, ApplicationRole.Driver);
                 }
             }
             catch (NullReferenceException nullEx)
             {
-                throw new NullReferenceException(nullEx.InnerException!.Message);
+                throw new NullReferenceException(nullEx.Message);
             }
             catch (DbUpdateException dbEx)
             {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
+                throw new DbUpdateException(dbEx.Message);
             }
             catch (InvalidOperationException operationEx)
             {
