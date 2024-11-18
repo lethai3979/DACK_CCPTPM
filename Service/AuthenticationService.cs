@@ -142,6 +142,7 @@ namespace GoWheels_WebAPI.Service
                     Id = user.Id,
                     Name = user.Name,
                     License = user.License,
+                    CIC = user.CIC,
                     Image = user.Image,
                     Birthday = user.Birthday,
                     Role = userRoles.FirstOrDefault(),
