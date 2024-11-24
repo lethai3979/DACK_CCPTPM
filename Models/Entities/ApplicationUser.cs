@@ -8,8 +8,6 @@ namespace GoWheels_WebAPI.Models.Entities
         public string? License { get; set; }
         public string? CIC { get; set; }
         public string? Image { get; set; }
-        public string? Longitude { get; set; }
-        public string? Latitude { get; set; }
         public DateTime? Birthday { get; set; }
         public int? ReportPoint { get; set; } = 0;
         public bool IsSubmitDriver { get; set; }

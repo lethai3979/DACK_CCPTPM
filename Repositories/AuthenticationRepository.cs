@@ -27,6 +27,9 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<ApplicationUser>> GetAllSubmitDriversAsync()
             => await _userManager.Users.Where(u => u.IsSubmitDriver).ToListAsync(); 
 
+        public async Task<List<ApplicationUser>> GetAllUserAsync()
+            => await _userManager.Users.ToListAsync();
+
         public async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
         {
             var trackedUser = _context.ChangeTracker.Entries<IdentityUser>().FirstOrDefault(b => b.Entity.Id == user.Id);

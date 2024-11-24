@@ -36,6 +36,12 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<ApplicationUser>> GetAllDriverSubmitAsync()
             => await _autheticationRepository.GetAllSubmitDriversAsync();
 
+        public async Task<List<ApplicationUser>> GetAllUserAsync()
+            => await _autheticationRepository.GetAllUserAsync();
+
+        public async Task<ApplicationUser> GetByUserIdAsync()
+            => await _autheticationRepository.FindByUserIdAsync(_userId);
+
         public async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
