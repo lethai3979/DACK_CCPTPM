@@ -51,6 +51,13 @@ namespace GoWheels_WebAPI.Repositories
             }
         }
 
+        public async Task<bool> CheckValidPasswordAsync(ApplicationUser user, string password)
+            => await _userManager.CheckPasswordAsync(user, password);
+        
+        public async Task ChangePasswordAsyncAsync(ApplicationUser user, string currentPassword, string newPassword)
+            => await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+
         public async Task<ApplicationUser> FindByUserIdAsync(string userId)
             => await _userManager.FindByIdAsync(userId) ?? throw new NullReferenceException("User not found");
 
@@ -75,5 +82,8 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<bool> ValidatePasswordAsync(ApplicationUser user, string password)
             => await _userManager.CheckPasswordAsync(user, password);
+
+        public async Task<bool> IsInRoleAsync(ApplicationUser user, string roleName)
+            => await _userManager.IsInRoleAsync(user, roleName);
     }
 }

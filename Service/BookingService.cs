@@ -12,6 +12,7 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly BookingRepository _bookingRepository;
         private readonly PostService _postService;
+        private readonly DriverService _driverService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
@@ -19,11 +20,13 @@ namespace GoWheels_WebAPI.Service
 
         public BookingService(BookingRepository bookingRepository, 
                                 PostService postService,
+                                DriverService driverService,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
+            _driverService = driverService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -42,10 +45,10 @@ namespace GoWheels_WebAPI.Service
                 return new List<DateTime>();
             }
             //Lấy từng ngày trong từng bookingDTO ra và gắn vào 
-            var bookedDates = bookings.SelectMany(b => Enumerable.Range(0, (b.ReturnOn - b.RecieveOn).Days + 1)
-                                                                 .Select(offset => b.RecieveOn.AddDays(offset)))
-                                        .Distinct()
-                                        .ToList();
+            var bookedDates = bookings
+                            .SelectMany(b => new List<DateTime> { b.RecieveOn, b.ReturnOn }) // Lấy cả hai ngày
+                            .Distinct() // Loại bỏ các ngày trùng lặp
+                            .ToList();
             return bookedDates;
         }
 
@@ -212,6 +215,10 @@ namespace GoWheels_WebAPI.Service
                 booking.Status = isAccept ? "Accept Booking" : "Denied";
                 booking.OwnerConfirm = isAccept;
                 await _bookingRepository.UpdateAsync(booking);
+                if(isAccept)
+                {
+                    //await _driverService.SendNotifyToDrivers(booking);
+                }
             }
             catch (DbUpdateException dbEx)
             {
