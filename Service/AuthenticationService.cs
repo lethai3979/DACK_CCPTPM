@@ -53,6 +53,15 @@ namespace GoWheels_WebAPI.Service
             return result;
         }
 
+        public void RemoveUserFromSession()
+        {
+            var session = _httpContextAccessor?.HttpContext?.Session;
+            if (session != null)
+            {
+                session.Remove(_userId);
+            };
+        }
+
         public async Task<string> LoginAsync(LoginVM loginViewModel)
         {
             var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);

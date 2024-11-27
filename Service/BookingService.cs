@@ -213,11 +213,11 @@ namespace GoWheels_WebAPI.Service
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 booking.Status = isAccept ? "Accept Booking" : "Denied";
-                booking.OwnerConfirm = isAccept;
+                booking.OwnerConfirm = false;
                 await _bookingRepository.UpdateAsync(booking);
                 if(isAccept)
                 {
-                    //await _driverService.SendNotifyToDrivers(booking);
+                    await _driverService.SendNotifyToDrivers(booking);
                 }
             }
             catch (DbUpdateException dbEx)

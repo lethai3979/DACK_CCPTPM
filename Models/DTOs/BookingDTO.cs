@@ -13,9 +13,9 @@ namespace GoWheels_WebAPI.Models.DTOs
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
         [Required]
-        public double Longitude { get; set; }
+        public string? Longitude { get; set; }
         [Required]
-        public double Latitude { get; set; }
+        public string? Latitude { get; set; }
         public bool IsRequireDriver { get; set; }
         public int PostId { get; set; }
 

@@ -76,7 +76,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
             }
         }
 
-        [HttpGet("UpdateUserLocation")]
+        [HttpGet("UpdateUserLocation/{latitude}&&{longitude}")]
         [Authorize]
         public async Task<ActionResult<OperationResult>> UpdateDriverLocation(string longitude, string latitude)
         {

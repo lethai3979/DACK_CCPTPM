@@ -18,7 +18,7 @@ namespace GoWheels_WebAPI.Service
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public DriverService(DriverRepository driverRepository, 
+        public DriverService(DriverRepository driverRepository,
                                 NotifyService notifyService,
                                 IHttpContextAccessor httpContextAccessor,
                                 GoogleApiService googleApiService)
@@ -119,8 +119,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
-/*                var drivers = await _driverRepository.GetAllAsync();
-                var coordinateString = ConvertCoordinateToString(drivers);*/
                 var session = _httpContextAccessor.HttpContext!.Session;
                 var userIds = session.Keys.ToList();
                 var userLocations = new List<(string userId, string location)>();
@@ -132,9 +130,6 @@ namespace GoWheels_WebAPI.Service
                         var user = JsonSerializer.Deserialize<UserVM>(userString!)!;
                         var userLocationString = $"{user.Latitude},{user.Longitude}";
                         userLocations.Add((userId, userLocationString));
-                        //var user = JsonSerializer.Deserialize<UserVM>(userString!)!;
-                        //var userLocationString = $"{user.Latitude},{user.Longitude}";
-                        //var respone = await _googleApiService.GetDistanceAsync(userLocationString, bookingLocationString);
                     }
                 }
                 var respone = await _googleApiService.GetDistanceAsync(userLocations, bookingLocationString);
@@ -149,6 +144,7 @@ namespace GoWheels_WebAPI.Service
                         IsRead = false,
                         UserId = userId,
                     };
+                    await _notifyService.AddAsync(notify);
                 }
             }
             catch (DbUpdateException dbEx)
@@ -168,15 +164,14 @@ namespace GoWheels_WebAPI.Service
         private List<string> GetUserWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(string userId, string location)> userLocations)
         {
             var usersWithinRange = new List<string>();
-            var elements = distanceMatrixRespone.Rows[0].Elements;
-            for(var i = 0; i < elements.Count; i++)
+            for(var i = 0; i < distanceMatrixRespone.Rows.Count; i++)
             {
-                var distance = elements[i].Distance?.Value ?? int.MaxValue;
-                if(distance < 10000)
+                var distance = distanceMatrixRespone.Rows[i].Elements[0].Distance?.Value ?? int.MaxValue;
+                if (distance < 10000)
                 {
                     usersWithinRange.Add(userLocations[i].userId);
-                }    
-            }  
+                }
+            }    
             return usersWithinRange;
         }
     }
