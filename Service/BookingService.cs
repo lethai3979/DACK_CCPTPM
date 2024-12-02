@@ -16,6 +16,7 @@ namespace GoWheels_WebAPI.Service
         private readonly PostService _postService;
         private readonly DriverService _driverService;
         private readonly GoogleApiService _googleApiService;
+        private readonly NotifyService _notifyService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
@@ -25,6 +26,7 @@ namespace GoWheels_WebAPI.Service
                                 PostService postService,
                                 DriverService driverService,
                                 GoogleApiService googleApiService,
+                                NotifyService notifyService,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
@@ -32,6 +34,7 @@ namespace GoWheels_WebAPI.Service
             _postService = postService;
             _driverService = driverService;
             _googleApiService = googleApiService;
+            _notifyService = notifyService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -191,6 +194,16 @@ namespace GoWheels_WebAPI.Service
                     booking.HasDriver = true;
                 }    
                 await _bookingRepository.AddAsync(booking);
+                var notify = new Notify()
+                {
+                    BookingId = booking.Id,
+                    UserId = post.UserId,
+                    CreateOn = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false,
+                    Content = "You have new booking request"
+                };
+                await _notifyService.AddAsync(notify);
             }
             catch (DbUpdateException dbEx)
             {
@@ -257,10 +270,24 @@ namespace GoWheels_WebAPI.Service
                 booking.Status = isAccept ? "Accept Booking" : "Denied";
                 booking.OwnerConfirm = false;
                 await _bookingRepository.UpdateAsync(booking);
-                if(isAccept)
+                var notify = new Notify()
+                {
+                    BookingId = booking.Id,
+                    UserId = booking.UserId,
+                    CreateOn = DateTime.Now,
+                    IsDeleted = false,
+                    IsRead = false
+                };
+                if (isAccept)
                 {
                     await _driverService.SendNotifyToDrivers(booking);
+                    notify.Content = "Your booking confirmed by owner";
                 }
+                else
+                {
+                    notify.Content = "Your booking has been denied";
+                }
+                await _notifyService.AddAsync(notify);
             }
             catch (DbUpdateException dbEx)
             {
@@ -388,6 +415,14 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
+                var notify = new Notify()
+                {
+                    BookingId = booking.Id,
+                    UserId = booking.UserId,
+                    CreateOn = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false
+                };
                 if (isAccept)
                 {
                     if (booking.IsPay)
@@ -398,15 +433,18 @@ namespace GoWheels_WebAPI.Service
                     {
                         booking.Status = "Canceled";
                     }
+                    notify.Content = "Your cancellation request has been confirmed";
                 }
                 else
                 {
                     booking.Status = "Request denied";
+                    notify.Content = "Your cancellation request has been denied";
                 }    
                 booking.IsResponse = true;
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 await _bookingRepository.UpdateAsync(booking);
+                await _notifyService.AddAsync(notify);
             }
             catch (DbUpdateException dbEx)
             {

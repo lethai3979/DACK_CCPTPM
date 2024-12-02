@@ -139,11 +139,11 @@ namespace GoWheels_WebAPI.Service
                 {
                     var notify = new Notify()
                     {
-                        Content = booking.Id.ToString(),
                         CreateOn = DateTime.Now,
-                        Title = "New booking nearby",
+                        Content = "New booking nearby",
                         IsRead = false,
                         UserId = userId,
+                        BookingId = booking.Id,
                     };
                     await _notifyService.AddAsync(notify);
                 }

@@ -1,10 +1,13 @@
-﻿namespace GoWheels_WebAPI.Models.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GoWheels_WebAPI.Models.Entities
 {
     public class Notify 
     {
         public int Id { get; set; }
-        public required string Title { get; set; }
-        public required string Content { get; set; }
+        [Required]
+        public string? Content { get; set; }
+        public required int BookingId { get; set; }
         public required DateTime CreateOn { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsRead { get; set; }
