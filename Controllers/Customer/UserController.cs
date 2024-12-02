@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,36 @@ namespace GoWheels_WebAPI.Controllers.Customer
             _mapper = mapper;
         }
 
+        [HttpGet("GetUserByToken")]
+        [Authorize]
+        public async Task<ActionResult<OperationResult>> GetUserByTokenAsync()
+        {
+            try
+            {
+                var user = await _userService.GetByUserIdAsync();
+                var userVM = _mapper.Map<UserVM>(user);
+                var userRoles = await _userService.GetUserRolesAsync(user);
+                foreach (var role in userRoles)
+                {
+                    userVM.Roles.Add(role);
+                }
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: userVM);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
 
         [HttpPut("UpdateUserInfo")]
         [Authorize]

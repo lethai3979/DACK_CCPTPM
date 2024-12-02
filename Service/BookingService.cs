@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.GoogleRespone;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ namespace GoWheels_WebAPI.Service
         private readonly BookingRepository _bookingRepository;
         private readonly PostService _postService;
         private readonly DriverService _driverService;
+        private readonly GoogleApiService _googleApiService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
@@ -21,12 +24,14 @@ namespace GoWheels_WebAPI.Service
         public BookingService(BookingRepository bookingRepository, 
                                 PostService postService,
                                 DriverService driverService,
+                                GoogleApiService googleApiService,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
             _driverService = driverService;
+            _googleApiService = googleApiService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -76,6 +81,43 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Booking>> GetAllByDriverAsync()
             => await _bookingRepository.GetAllByDriverAsync(_userId);
 
+        public async Task<List<Booking>> GetAllByLocation(string latitude, string longitude)
+        {
+            try
+            {
+                var driverLocationString = $"{latitude},{longitude}";
+                var bookings = await _bookingRepository.GetAllDriverRequireBookingsAsync();
+                var bookingLocations = new List<(int bookingId, string location)>();
+                foreach(var booking in bookings)
+                {
+                    var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
+                    bookingLocations.Add((booking.Id, bookingLocationString));
+                }
+                var respone = await _googleApiService.GetDistanceAsync(bookingLocations, driverLocationString);
+                var bookingsWithinRange = GetBookingsWithinRange(respone, bookingLocations);
+                var bookingInRange = bookings.Where(b => bookingsWithinRange.Any(id => id == b.Id)).ToList();
+                return bookingInRange;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private List<int> GetBookingsWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
+        {
+            var bookingsWithinRange = new List<int>();
+            for (var i = 0; i < distanceMatrixRespone.Rows.Count; i++)
+            {
+                var distance = distanceMatrixRespone.Rows[i].Elements[0].Distance?.Value ?? int.MaxValue;
+                if (distance < 10000)
+                {
+                    bookingsWithinRange.Add(bookingLocations[i].bookingId);
+                }
+            }
+            return bookingsWithinRange;
+        }
+
         public async Task<Booking> GetByIdAsync(int id) 
             => await _bookingRepository.GetByIdAsync(id);
 
@@ -84,7 +126,7 @@ namespace GoWheels_WebAPI.Service
             var post = await _postService.GetByIdAsync(bookingDTO.PostId);
             var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
             var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
-            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.Total / 2;
+            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.PrePayment / 2;
             var isFinalValueValid = true;
             if (promotionValue > 1)
             {

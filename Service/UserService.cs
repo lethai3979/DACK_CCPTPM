@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -37,10 +38,38 @@ namespace GoWheels_WebAPI.Service
             => await _autheticationRepository.GetAllSubmitDriversAsync();
 
         public async Task<List<ApplicationUser>> GetAllUserAsync()
-            => await _autheticationRepository.GetAllUserAsync();
+        {
+            var userRequest = _httpContextAccessor.HttpContext?.User;
+            var users = await _autheticationRepository.GetAllUserAsync();
+            if (userRequest != null && userRequest.IsInRole("User"))
+            {
+                foreach (var user in users)
+                {
+                    user.CIC = string.Empty;
+                    user.License = string.Empty;
+                }
+            }
+            return users;
+        }
+
 
         public async Task<ApplicationUser> GetByUserIdAsync()
             => await _autheticationRepository.FindByUserIdAsync(_userId);
+        public async Task<ApplicationUser> GetByUserIdAsync(string userId)
+        {
+            var user = await _autheticationRepository.FindByUserIdAsync(userId);
+            var userRequest = _httpContextAccessor.HttpContext?.User;
+            if (userRequest != null && userRequest.IsInRole("User"))
+            {
+                user.CIC = string.Empty;
+                user.License = string.Empty;
+            }    
+            return user;
+        }
+
+
+        public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user)
+            => await _autheticationRepository.GetUserRolesAsync(user);
 
         public async Task<string> SaveImage(IFormFile file)
         {
@@ -124,6 +153,40 @@ namespace GoWheels_WebAPI.Service
                 if (user.ReportPoint > 15)
                 {
                     user.LockoutEnd = DateTime.Now.AddYears(1000);
+                }
+                await _autheticationRepository.UpdateAsync(user);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.InnerException!.Message);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task UpdateUserLockAccountAsync(string userId)
+        {
+            try
+            {
+                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                user.LockoutEnabled = !user.LockoutEnabled;
+                if(user.LockoutEnabled)
+                {
+                    user.LockoutEnd = DateTime.Now.AddYears(1000);
+                }
+                else
+                {
+                    user.LockoutEnd = null;
                 }
                 await _autheticationRepository.UpdateAsync(user);
             }

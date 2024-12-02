@@ -134,6 +134,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 var respone = await _googleApiService.GetDistanceAsync(userLocations, bookingLocationString);
                 var usersInRange = GetUserWithinRange(respone, userLocations);
+
                 foreach (var userId in usersInRange)
                 {
                     var notify = new Notify()

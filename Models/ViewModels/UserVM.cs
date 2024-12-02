@@ -10,8 +10,11 @@
         public string? Image { get; set; }
         public string? Longitude { get; set; }
         public string? Latitude { get; set; }
+        public bool LockoutEnabled { get; set; }
+        public DateTimeOffset LockoutEnd { get; set; }
         public int? ReportPoint {  get; set; }
         public DateTime? Birthday { get; set; }
         public IList<string> Roles { get; set; } = new List<string>();
+        public DriverVM Driver { get; set; } = null!;
     }
 }

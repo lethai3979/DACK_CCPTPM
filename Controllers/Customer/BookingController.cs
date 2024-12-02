@@ -110,6 +110,31 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
+        [HttpGet("GetAllBookingsInRange/{latitude}&&{longitude}")]
+        [Authorize(Roles = "Driver")]// getall cho tài xế
+        public async Task<ActionResult<OperationResult>> GetAllBookingsInRange(string latitude, string longitude)
+        {
+            try
+            {
+                var bookings = await _bookingService.GetAllByLocation(latitude, longitude);
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpGet("GetAllByDriver")]
         public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
         {
@@ -158,6 +183,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
+
 
         [HttpGet("GetAllBookedDates/{id}")]
         public async Task<ActionResult<OperationResult>> GetAllBookedDatesByPostId(int id)

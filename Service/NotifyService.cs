@@ -26,6 +26,9 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<Notify>> GetAllByUserIdAsync()
             => await _notifyRepository.GetAllByUserIdAsync(_userId);
+        
+        public async Task<Notify> GetByIdAsync(int id)
+            => await _notifyRepository.GetByIdAsync(id);
 
         public async Task AddAsync(Notify notify)
         {
@@ -74,6 +77,10 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var notify = await _notifyRepository.GetByIdAsync(id);
+                if(notify.UserId != _userId)
+                {
+                    throw new UnauthorizedAccessException("Unauthorize");
+                }    
                 await _notifyRepository.DeleteAsync(notify);
             }
             catch (DbUpdateException dbEx)
