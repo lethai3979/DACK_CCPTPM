@@ -268,7 +268,7 @@ namespace GoWheels_WebAPI.Service
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 booking.Status = isAccept ? "Accept Booking" : "Denied";
-                booking.OwnerConfirm = false;
+                booking.OwnerConfirm = isAccept;
                 await _bookingRepository.UpdateAsync(booking);
                 var notify = new Notify()
                 {
