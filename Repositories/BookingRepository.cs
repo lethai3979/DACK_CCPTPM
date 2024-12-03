@@ -71,8 +71,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted 
-                                                        && b.PostId == postId 
-                                                        && b.IsPay 
+                                                        && b.PostId == postId  
                                                         && b.OwnerConfirm 
                                                         && b.RecieveOn > DateTime.Now)
                                         .OrderByDescending(b => b.CreatedOn)
