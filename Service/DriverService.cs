@@ -1,8 +1,9 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Hubs;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
-using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -15,16 +16,19 @@ namespace GoWheels_WebAPI.Service
         private readonly DriverRepository _driverRepository;
         private readonly NotifyService _notifyService;
         private readonly GoogleApiService _googleApiService;
+        private readonly IHubContext<NotifyHub> _hubcontext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
         public DriverService(DriverRepository driverRepository,
                                 NotifyService notifyService,
+                                IHubContext<NotifyHub> hubContext,
                                 IHttpContextAccessor httpContextAccessor,
                                 GoogleApiService googleApiService)
         {
             _driverRepository = driverRepository;
             _notifyService = notifyService;
+            _hubcontext = hubContext;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -146,7 +150,12 @@ namespace GoWheels_WebAPI.Service
                         BookingId = booking.Id,
                     };
                     await _notifyService.AddAsync(notify);
+                    if (NotifyHub.userConnectionsDic.TryGetValue(userId, out var connectionId))
+                    {
+                        await _hubcontext.Groups.AddToGroupAsync(connectionId, booking.Id.ToString());
+                    }
                 }
+                await _hubcontext.Clients.Group(booking.Id.ToString()).SendAsync("ReceiveMessage", "System", "New booking nearby");
             }
             catch (DbUpdateException dbEx)
             {

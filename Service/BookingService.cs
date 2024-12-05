@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
@@ -17,6 +20,7 @@ namespace GoWheels_WebAPI.Service
         private readonly DriverService _driverService;
         private readonly GoogleApiService _googleApiService;
         private readonly NotifyService _notifyService;
+        private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
@@ -27,6 +31,7 @@ namespace GoWheels_WebAPI.Service
                                 DriverService driverService,
                                 GoogleApiService googleApiService,
                                 NotifyService notifyService,
+                                IHubContext<NotifyHub> hubContext,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
@@ -35,6 +40,7 @@ namespace GoWheels_WebAPI.Service
             _driverService = driverService;
             _googleApiService = googleApiService;
             _notifyService = notifyService;
+            _hubContext = hubContext;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -129,7 +135,7 @@ namespace GoWheels_WebAPI.Service
             var post = await _postService.GetByIdAsync(bookingDTO.PostId);
             var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
             var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
-            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.PrePayment / 2;
+            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.FinalValue / 2;
             var isFinalValueValid = true;
             if (promotionValue > 1)
             {
@@ -204,6 +210,10 @@ namespace GoWheels_WebAPI.Service
                     Content = "You have new booking request"
                 };
                 await _notifyService.AddAsync(notify);
+                if(NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", "New booking request");
+                }    
             }
             catch (DbUpdateException dbEx)
             {
@@ -288,6 +298,11 @@ namespace GoWheels_WebAPI.Service
                     notify.Content = "Your booking has been denied";
                 }
                 await _notifyService.AddAsync(notify);
+                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", isAccept ? "Booking accepted" : "Booking denied");
+
+                }
             }
             catch (DbUpdateException dbEx)
             {

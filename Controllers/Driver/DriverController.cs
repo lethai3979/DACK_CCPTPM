@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GoWheels_WebAPI.Controllers.Driver
 {
@@ -15,16 +17,19 @@ namespace GoWheels_WebAPI.Controllers.Driver
         private readonly DriverService _driverService;
         private readonly UserService _userService;
         private readonly BookingService _bookingService;
+        private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IMapper _mapper;
 
         public DriverController(DriverService driverService, 
                                 UserService userService, 
                                 BookingService bookingService,
+                                IHubContext<NotifyHub> hubContext,
                                 IMapper mapper)
         {
             _driverService = driverService;
             _userService = userService;
             _bookingService = bookingService;
+            _hubContext = hubContext;
             _mapper = mapper;
         }
 
@@ -57,8 +62,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
         {
             try
             {
-                var booking = await _bookingService.GetByIdAsync(1);
-                await _driverService.SendNotifyToDrivers(booking);
+                await _hubContext.Clients.Group("group1").SendAsync("RecieveMessage", "hi");
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -78,7 +82,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpGet("UpdateUserLocation/{latitude}&&{longitude}")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> UpdateDriverLocation(string longitude, string latitude)
+        public async Task<ActionResult<OperationResult>> UpdateDriverLocation(string latitude, string longitude)
         {
             try
             {

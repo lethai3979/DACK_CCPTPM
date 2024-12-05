@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
@@ -43,19 +44,35 @@ builder.Services.AddAuthentication(options =>
         RoleClaimType = ClaimTypes.Role,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
     };
+    options.SaveToken = true;
+    //options.Events = new JwtBearerEvents
+    //    {
+    //        OnMessageReceived = context =>
+    //        {
+    //            // Đọc token từ query string khi dùng SignalR
+    //            var accessToken = context.Request.Query["access_token"];
+    //            if (!string.IsNullOrEmpty(accessToken))
+    //            {
+    //                context.Token = accessToken;
+    //            }
+    //            return Task.CompletedTask;
+    //        }
+    //    };
 });
-
+builder.Services.AddHttpContextAccessor();
 //cho vuejs
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
                    .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .AllowCredentials();
         });
 });
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<GoogleApiService>(client =>
 {
@@ -107,11 +124,16 @@ builder.Services.AddScoped<ReportTypeService>();
 builder.Services.AddScoped<StartupService>();
 builder.Services.AddScoped<UserPromotionService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSignalR();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Product APIs", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo 
+    {
+        Title = "Product APIs", Version = "v1" 
+    });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -137,10 +159,10 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 // Add NewtonsoftJSON for serializing/deserializing JSON
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-});
+//builder.Services.AddControllers().AddNewtonsoftJson(options =>
+//{
+//    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+//});
 
 
 var app = builder.Build();
@@ -165,12 +187,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseSession();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Query.ContainsKey("access_token"))
+    {
+        var accessToken = context.Request.Query["access_token"];
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            context.Request.Headers["Authorization"] = $"Bearer {accessToken}";
+        }
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
-app.UseCors("AllowAllOrigins");
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAllOrigins");
+// Map SignalR Hub
+app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
 app.MapControllers();
 app.Run();
