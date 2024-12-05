@@ -269,22 +269,35 @@ namespace GoWheels_WebAPI.Service
 
             MomoSecurity crypto = new();
             string signature = crypto.signSHA256(rawHash, serectkey);
+/*
+            string momoUrl = $"momo://?/v2/gateway/pay?" +
+                     $"partnerCode={partnerCode}" +
+                     $"&accessKey={accessKey}" +
+                     $"&requestId={requestId}" +
+                     $"&amount={amount}" +
+                     $"&orderId={orderid}" +
+                     $"&orderInfo={Uri.EscapeDataString(orderInfo)}" +
+                     $"&returnUrl={Uri.EscapeDataString(returnUrl)}" +
+                     $"&notifyUrl={Uri.EscapeDataString(notifyUrl)}" +
+                     $"&extraData={Uri.EscapeDataString(extraData)}" +
+                     $"&signature={Uri.EscapeDataString(signature)}";
+            return momoUrl;*/
 
             // Build request JSON
             JObject message = new()
-            {
-                { "partnerCode", partnerCode },
-                { "accessKey", accessKey },
-                { "requestId", requestId },
-                { "amount", amount },
-                { "orderId", orderid },
-                { "orderInfo", orderInfo },
-                { "returnUrl", returnUrl },
-                { "notifyUrl", notifyUrl },
-                { "extraData", extraData },
-                { "requestType", "captureMoMoWallet" },
-                { "signature", signature }
-            };
+                        {
+                            { "partnerCode", partnerCode },
+                            { "accessKey", accessKey },
+                            { "requestId", requestId },
+                            { "amount", amount },
+                            { "orderId", orderid },
+                            { "orderInfo", orderInfo },
+                            { "returnUrl", returnUrl },
+                            { "notifyUrl", notifyUrl },
+                            { "extraData", extraData },
+                            { "requestType", "captureMoMoWallet" },
+                            { "signature", signature }
+                        };
 
             // Send payment request through the repository
             var jsonResponse = await PaymentRequest.SendPaymentRequestAsync(endpoint, message.ToString());

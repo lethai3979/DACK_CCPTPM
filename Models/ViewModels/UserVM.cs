@@ -15,6 +15,5 @@
         public int? ReportPoint {  get; set; }
         public DateTime? Birthday { get; set; }
         public IList<string> Roles { get; set; } = new List<string>();
-        public DriverVM Driver { get; set; } = null!;
     }
 }

@@ -301,7 +301,6 @@ namespace GoWheels_WebAPI.Service
                 if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
                 {
                     await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", isAccept ? "Booking accepted" : "Booking denied");
-
                 }
             }
             catch (DbUpdateException dbEx)

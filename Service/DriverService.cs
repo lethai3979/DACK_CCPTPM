@@ -53,7 +53,7 @@ namespace GoWheels_WebAPI.Service
                     CreatedOn = DateTime.Now,
                     CreatedById = _userId,
                     UserId = user.Id,
-                    PricePerHour = 20000,
+                    PricePerHour = 70000,
                     RatingPoint = 0
                 };
                 await _driverRepository.AddAsync(driver);

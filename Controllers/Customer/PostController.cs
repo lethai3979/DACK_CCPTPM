@@ -75,6 +75,30 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
+        [HttpGet("GetAllByUserId/{userId}")]
+        public async Task<ActionResult<OperationResult>> GetAllByUserId(string userId)
+        {
+            try
+            {
+                var posts = await _postService.GetAllByUserId(userId);
+                var postVMs = _mapper.Map<List<PostVM>>(posts);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpGet("GetByIdAsync/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {

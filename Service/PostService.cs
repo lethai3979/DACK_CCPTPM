@@ -43,6 +43,8 @@ namespace GoWheels_WebAPI.Service
         public async Task<List<Post>> GetAllByUserId()
             => await _postRepository.GetPostsByUserIdAsync(_userId);
 
+        public async Task<List<Post>> GetAllByUserId(string userId)
+    => await _postRepository.GetPostsByUserIdAsync(userId);
 
         public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {
