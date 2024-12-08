@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Threading;
 
 namespace GoWheels_WebAPI.Controllers.Driver
 {
@@ -15,16 +13,16 @@ namespace GoWheels_WebAPI.Controllers.Driver
     [ApiController]
     public class DriverBookingController : ControllerBase
     {
-        private readonly DriverBookingService _driverBookingService;
-        private readonly BookingService _bookingService;
-        private readonly InvoiceService _invoiceService;
+        private readonly IDriverBookingService _driverBookingService;
+        private readonly IBookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IMapper _mapper;
 
-        public DriverBookingController(DriverBookingService driverBookingService,
-                                        BookingService bookingService,
-                                        InvoiceService invoiceService,
+        public DriverBookingController(IDriverBookingService driverBookingService,
+                                        IBookingService bookingService,
+                                        IInvoiceService invoiceService,
                                         IHttpContextAccessor httpContextAccessor,
                                         IMapper mapper)
         {

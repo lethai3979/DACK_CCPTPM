@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class DriverRepository : IGenericRepository<Driver>
+    public class DriverRepository : IDriverRepository
     {
         private readonly ApplicationDbContext _context;
 

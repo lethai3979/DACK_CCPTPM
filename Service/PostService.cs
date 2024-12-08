@@ -1,29 +1,26 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class PostService
+    public class PostService : IPostService
     {
 
-        private readonly PostRepository _postRepository;
-        private readonly PostAmenityRepository _postAmenityRepository;
-        private readonly AmenityService _amenityService;
+        private readonly IPostRepository _postRepository;
+        private readonly IPostAmenityRepository _postAmenityRepository;
+        private readonly IAmenityService _amenityService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private  readonly string _userId;
 
-        public PostService(PostRepository postRepository,
-                            PostAmenityRepository postAmenityRepository,
-                            AmenityService amenityService,
-                            IHttpContextAccessor httpContextAccessor,
-                            IMapper mapper)
+        public PostService(IPostRepository postRepository,
+                            IPostAmenityRepository postAmenityRepository,
+                            IAmenityService amenityService,
+                            IHttpContextAccessor httpContextAccessor)
         {
             _postRepository = postRepository;
             _postAmenityRepository = postAmenityRepository;
@@ -44,7 +41,7 @@ namespace GoWheels_WebAPI.Service
             => await _postRepository.GetPostsByUserIdAsync(_userId);
 
         public async Task<List<Post>> GetAllByUserId(string userId)
-    => await _postRepository.GetPostsByUserIdAsync(userId);
+            => await _postRepository.GetPostsByUserIdAsync(userId);
 
         public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {
@@ -91,7 +88,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> SaveImage(IFormFile file)
+        private async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

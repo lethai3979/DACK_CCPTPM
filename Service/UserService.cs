@@ -2,28 +2,26 @@
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _autheticationRepository;
-        private readonly DriverService _driverService;
+        private readonly IDriverService _driverService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly string _userId;
-        private readonly IConfiguration _config;
 
         public UserService(IUserRepository autheticationRepository,
-                            DriverService driverService,
+                            IDriverService driverService,
                             IHttpContextAccessor httpContextAccessor,
-                            IMapper mapper,
-                            IConfiguration config)
+                            IMapper mapper)
         {
             _autheticationRepository = autheticationRepository;
             _driverService = driverService;
@@ -31,7 +29,6 @@ namespace GoWheels_WebAPI.Service
             _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-            _config = config;
         }
 
         public async Task<List<ApplicationUser>> GetAllDriverSubmitAsync()
@@ -52,7 +49,6 @@ namespace GoWheels_WebAPI.Service
             return users;
         }
 
-
         public async Task<ApplicationUser> GetByUserIdAsync()
             => await _autheticationRepository.FindByUserIdAsync(_userId);
         public async Task<ApplicationUser> GetByUserIdAsync(string userId)
@@ -71,7 +67,7 @@ namespace GoWheels_WebAPI.Service
         public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user)
             => await _autheticationRepository.GetUserRolesAsync(user);
 
-        public async Task<string> SaveImage(IFormFile file)
+        private async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

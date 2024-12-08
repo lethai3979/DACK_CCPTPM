@@ -1,11 +1,11 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class FavoriteRepository
+    public class FavoriteRepository : IFavoriteRepository
     {
         private readonly ApplicationDbContext _context;
 

@@ -1,33 +1,27 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class CompanyService
+    public class CompanyService : ICompanyService   
     {
-        private readonly CompanyRepository _companyRepository;
-        private readonly CarTypeDetailRepository _carTypeDetailRepository;
-        private readonly CarTypeRepository _carTypeRepository;
+        private readonly IGenericRepository<Company> _companyRepository;
+        private readonly ICarTypeDetailRepository _carTypeDetailRepository;
+        private readonly IGenericRepository<CarType> _carTypeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
         private readonly string _userId;
 
-        public CompanyService(CompanyRepository companyRepository, 
-                            IMapper mapper, 
-                            IHttpContextAccessor httpContextAccessor, 
-                            CarTypeDetailRepository carTypeDetailRepository,
-                            CarTypeRepository carTypeRepository)
+        public CompanyService(IGenericRepository<Company> companyRepository, 
+                            IHttpContextAccessor httpContextAccessor,
+                            ICarTypeDetailRepository carTypeDetailRepository,
+                            IGenericRepository<CarType> carTypeRepository)
         {
             _companyRepository = companyRepository;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _carTypeDetailRepository = carTypeDetailRepository;
             _carTypeRepository = carTypeRepository;
@@ -60,7 +54,7 @@ namespace GoWheels_WebAPI.Service
                 company.CreatedOn = DateTime.Now;
                 company.IsDeleted = false;
                 await _companyRepository.AddAsync(company);
-                await _companyRepository.AddCompanyDetailAsync(company.Id, carTypeIds);
+                await _carTypeDetailRepository.AddCarTypesListAsync(company.Id, carTypeIds);
             }
             catch (DbUpdateException dbEx)
             {
@@ -75,7 +69,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> SaveImage(IFormFile file)
+        private async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,10 +18,10 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class ReportTypeController : ControllerBase
     {
-        private readonly ReportTypeService _reportTypeService;
+        private readonly IReportTypeService _reportTypeService;
         private readonly IMapper _mapper;
 
-        public ReportTypeController(ReportTypeService reportTypeService, IMapper mapper)
+        public ReportTypeController(IReportTypeService reportTypeService, IMapper mapper)
         {
             _reportTypeService = reportTypeService;
             _mapper = mapper;

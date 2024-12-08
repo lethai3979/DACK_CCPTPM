@@ -2,7 +2,8 @@
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,20 +12,20 @@ using System.Text.Json;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class DriverService
+    public class DriverService : IDriverService
     {
-        private readonly DriverRepository _driverRepository;
-        private readonly NotifyService _notifyService;
-        private readonly GoogleApiService _googleApiService;
+        private readonly IDriverRepository _driverRepository;
+        private readonly INotifyService _notifyService;
+        private readonly ILocatorService _googleApiService;
         private readonly IHubContext<NotifyHub> _hubcontext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public DriverService(DriverRepository driverRepository,
-                                NotifyService notifyService,
+        public DriverService(IDriverRepository driverRepository,
+                                INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
                                 IHttpContextAccessor httpContextAccessor,
-                                GoogleApiService googleApiService)
+                                ILocatorService googleApiService)
         {
             _driverRepository = driverRepository;
             _notifyService = notifyService;

@@ -2,7 +2,7 @@
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +15,10 @@ namespace GoWheels_WebAPI.Controllers.Admin
 
     public class AdminPromotionController : ControllerBase
     {
-        private readonly AdminPromotionService _promotionService;
+        private readonly IAdminPromotionService _promotionService;
         private readonly IMapper _mapper;
 
-        public AdminPromotionController(AdminPromotionService promotionService, IMapper mapper)
+        public AdminPromotionController(IAdminPromotionService promotionService, IMapper mapper)
         {
             _promotionService = promotionService;
             _mapper = mapper;

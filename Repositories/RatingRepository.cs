@@ -7,7 +7,7 @@ using Microsoft.VisualBasic;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class RatingRepository : IGenericRepository<Rating>
+    public class RatingRepository : IRatingRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;

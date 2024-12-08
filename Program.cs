@@ -5,6 +5,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -87,43 +88,44 @@ builder.Services.AddSession(config =>
 
 builder.Services.AddControllers();
 //Register dependency service
-builder.Services.AddScoped<AdminPromotionService>();
-builder.Services.AddScoped<AmenityRepository>();
-builder.Services.AddScoped<AmenityService>();
-builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddScoped<BookingRepository>();
-builder.Services.AddScoped<BookingService>();
-builder.Services.AddScoped<CarTypeDetailRepository>();
-builder.Services.AddScoped<CarTypeRepository>();
-builder.Services.AddScoped<CarTypeService>();
-builder.Services.AddScoped<CompanyRepository>();
-builder.Services.AddScoped<CompanyService>();
-builder.Services.AddScoped<DriverRepository>();
-builder.Services.AddScoped<DriverService>();
-builder.Services.AddScoped<DriverBookingRepository>();
-builder.Services.AddScoped<DriverBookingService>();
-builder.Services.AddScoped<FavoriteRepository>();
-builder.Services.AddScoped<FavoriteService>();
+builder.Services.AddScoped<IAdminPromotionService, AdminPromotionService>();
+builder.Services.AddScoped<IGenericRepository<Amenity>, AmenityRepository>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IBookingService,BookingService>();
+builder.Services.AddScoped<ICarTypeDetailRepository, CarTypeDetailRepository>();
+builder.Services.AddScoped<IGenericRepository<CarType>, CarTypeRepository>();
+builder.Services.AddScoped<ICarTypeService, CarTypeService>();
+builder.Services.AddScoped<IGenericRepository<Company>, CompanyRepository>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IDriverBookingRepository, DriverBookingRepository>();
+builder.Services.AddScoped<IDriverBookingService, DriverBookingService>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
-builder.Services.AddScoped<InvoiceRepository>();
-builder.Services.AddScoped<InvoiceService>();
-builder.Services.AddScoped<NotifyRepository>();
-builder.Services.AddScoped<NotifyService>();
-builder.Services.AddScoped<PostAmenityRepository>();
-builder.Services.AddScoped<PostPromotionReposity>();
-builder.Services.AddScoped<PostPromotionService>();
-builder.Services.AddScoped<PostRepository>();
-builder.Services.AddScoped<PostService>();
-builder.Services.AddScoped<PromotionRepository>();
-builder.Services.AddScoped<RatingRepository>();
-builder.Services.AddScoped<RatingService>();
-builder.Services.AddScoped<ReportRepository>();
-builder.Services.AddScoped<ReportService>();
-builder.Services.AddScoped<ReportTypeRepository>();
-builder.Services.AddScoped<ReportTypeService>();
-builder.Services.AddScoped<StartupService>();
-builder.Services.AddScoped<UserPromotionService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<INotifyRepository, NotifyRepository>();
+builder.Services.AddScoped<INotifyService, NotifyService>();
+builder.Services.AddScoped<IPostAmenityRepository, PostAmenityRepository>();
+builder.Services.AddScoped<IPostPromotionRepository, PostPromotionRepository>();
+builder.Services.AddScoped<IPostPromotionService, PostPromotionService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IGenericRepository<Report>, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IGenericRepository<ReportType>, ReportTypeRepository>();
+builder.Services.AddScoped<IReportTypeService, ReportTypeService>();
+builder.Services.AddScoped<IStartupService, StartupService>();
+builder.Services.AddScoped<IUserPromotionService, UserPromotionService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILocatorService, GoogleApiService>();
 builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -174,7 +176,7 @@ using (var scope = app.Services.CreateScope())
     await ApplicationRole.InitialRoles(services);//Initial default role
 
     //Startup Service
-    var startupService = scope.ServiceProvider.GetRequiredService<StartupService>();
+    var startupService = scope.ServiceProvider.GetRequiredService<IStartupService>();
     await startupService.UpdateBookingsOnStartup();
     await startupService.UpdatePostOnStartup();
 }

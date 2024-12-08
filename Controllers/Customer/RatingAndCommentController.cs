@@ -3,9 +3,9 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,9 +16,9 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class RatingAndCommentController : ControllerBase
     {
-        private readonly RatingService _ratingAndCommentService;
+        private readonly IRatingService _ratingAndCommentService;
         private readonly IMapper _mapper;
-        public RatingAndCommentController(RatingService ratingAndCommentService, IMapper mapper)
+        public RatingAndCommentController(IRatingService ratingAndCommentService, IMapper mapper)
         {
             _ratingAndCommentService = ratingAndCommentService;
             _mapper = mapper;

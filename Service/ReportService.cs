@@ -1,33 +1,28 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Repositories.Interface;
-using GoWheels_WebAPI.Utilities;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class ReportService
+    public class ReportService : IReportService
     {
-        private readonly ReportRepository _reportRepository;
-        private readonly BookingService _bookingService;
-        private readonly InvoiceService _invoiceService;
-        private readonly UserService _userService;  
-        private readonly PostService _postService;
+        private readonly IGenericRepository<Report> _reportRepository;
+        private readonly IBookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IUserService _userService;  
+        private readonly IPostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
         private readonly string _userId;
 
-        public ReportService(ReportRepository reportRepository, 
-                                BookingService bookingService,
-                                InvoiceService invoiceService,
-                                UserService userService,
-                                PostService postService,
-                                IHttpContextAccessor httpContextAccessor, 
-                                IMapper mapper)
+        public ReportService(IGenericRepository<Report> reportRepository,
+                                IBookingService bookingService,
+                                IInvoiceService invoiceService,
+                                IUserService userService,
+                                IPostService postService,
+                                IHttpContextAccessor httpContextAccessor)
         {
             _reportRepository = reportRepository;
             _bookingService = bookingService;
@@ -37,7 +32,6 @@ namespace GoWheels_WebAPI.Service
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-            _mapper = mapper;
         }
 
         public async Task<List<Report>> GetAllAsync()
@@ -116,7 +110,5 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
-
     }
 }

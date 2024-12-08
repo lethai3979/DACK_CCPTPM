@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class PostRepository : IGenericRepository<Post>
+    public class PostRepository : IPostRepository
     {
         private readonly ApplicationDbContext _context;
 

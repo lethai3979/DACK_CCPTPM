@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,9 +13,9 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class UserReportController : ControllerBase
     {
-        private readonly ReportService _reportService;
+        private readonly IReportService _reportService;
         private readonly IMapper _mapper;
-        public UserReportController(ReportService reportService, IMapper mapper)
+        public UserReportController(IReportService reportService, IMapper mapper)
         {
             _reportService = reportService;
             _mapper = mapper;

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class BookingRepository : IGenericRepository<Booking>
+    public class BookingRepository : IBookingRepository
     {
         private readonly ApplicationDbContext _context;
 

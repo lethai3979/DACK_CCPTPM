@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,10 +18,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class PostController : ControllerBase
     {
-        private readonly PostService _postService;
+        private readonly IPostService _postService;
         private readonly IMapper _mapper;
 
-        public PostController(PostService postService, IMapper mapper)
+        public PostController(IPostService postService, IMapper mapper)
         {
             _postService = postService;
             _mapper = mapper;

@@ -2,10 +2,9 @@
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +16,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [Authorize(Roles = "User")]
     public class FavoriteController : ControllerBase
     {
-        private readonly FavoriteService _favoriteService;
+        private readonly IFavoriteService _favoriteService;
         private readonly IMapper _mapper;
 
-        public FavoriteController(FavoriteService favoriteService, IMapper mapper)
+        public FavoriteController(IFavoriteService favoriteService, IMapper mapper)
         {
             _favoriteService = favoriteService;
             _mapper = mapper;

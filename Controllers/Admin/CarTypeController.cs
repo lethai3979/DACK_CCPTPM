@@ -2,13 +2,11 @@
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GoWheels_WebAPI.Controllers
 {
@@ -18,11 +16,11 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class CarTypeController : ControllerBase
     {
-        private readonly CarTypeService _carTypeService;
+        private readonly ICarTypeService _carTypeService;
         private readonly IMapper _mapper;
         
 
-        public CarTypeController(CarTypeService carTypeService, IMapper mapper)
+        public CarTypeController(ICarTypeService carTypeService, IMapper mapper)
         {
             _carTypeService = carTypeService;
             _mapper = mapper;

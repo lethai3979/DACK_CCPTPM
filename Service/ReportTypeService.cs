@@ -1,20 +1,18 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class ReportTypeService
+    public class ReportTypeService : IReportTypeService
     {
-        private readonly ReportTypeRepository _reportTypeRepository;
+        private readonly IGenericRepository<ReportType> _reportTypeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _userId;
-        public ReportTypeService(ReportTypeRepository reportTypeRepository, IHttpContextAccessor httpContextAccessor)
+        public ReportTypeService(IGenericRepository<ReportType> reportTypeRepository, IHttpContextAccessor httpContextAccessor)
         {
             _reportTypeRepository = reportTypeRepository;
             _httpContextAccessor = httpContextAccessor;

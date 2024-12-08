@@ -1,30 +1,24 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class UserPromotionService
+    public class UserPromotionService : IUserPromotionService
     {
-        private readonly PromotionRepository _promotionRepository;
-        private readonly PostPromotionService _postPromotionService;
-        private readonly PostService _postService;
+        private readonly IPromotionRepository _promotionRepository;
+        private readonly IPostPromotionService _postPromotionService;
+        private readonly IPostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        private readonly IMapper _mapper;
 
-        public UserPromotionService(PromotionRepository promotionRepository,
-                                    PostPromotionService postPromotionService,
-                                    PostService postService,
-                                    IHttpContextAccessor httpContextAccessor,
-                                    IMapper mapper)
+        public UserPromotionService(IPromotionRepository promotionRepository,
+                                    IPostPromotionService postPromotionService,
+                                    IPostService postService,
+                                    IHttpContextAccessor httpContextAccessor)
         {
             _promotionRepository = promotionRepository;
             _postPromotionService = postPromotionService;
@@ -32,7 +26,6 @@ namespace GoWheels_WebAPI.Service
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
-            _mapper = mapper;
         }
 
         public async Task<List<Promotion>> GetAllByUserRoleAsync()
@@ -44,7 +37,7 @@ namespace GoWheels_WebAPI.Service
         public async Task<Promotion> GetByIdAsync(int id)
             => await _promotionRepository.GetUserPromotionByIdAsync(id, _userId);
 
-        public async Task<bool> CheckValidatePost(List<int> postIds)
+        private async Task<bool> CheckValidatePost(List<int> postIds)
         {
             foreach (var postId in postIds)
             {
@@ -92,7 +85,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<bool> IsPostIdsChange(List<int> postIds, int promotionId)
+        private async Task<bool> IsPostIdsChange(List<int> postIds, int promotionId)
         {
             var previousDetails = await _postPromotionService.GetAllByPromotionIdAsync(promotionId);
             var posts = await _postService.GetAllAsync();
@@ -108,7 +101,7 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
-        public async Task UpdatePostPromotionsAsync(int promotionId, List<int> postIds)
+        private async Task UpdatePostPromotionsAsync(int promotionId, List<int> postIds)
         {
             var postPromotions = await _postPromotionService.GetAllByPromotionIdAsync(promotionId);
             await _postPromotionService.DeletedRangeAsync(postPromotions);

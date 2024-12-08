@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +13,10 @@ namespace GoWheels_WebAPI.Controllers.Employee
     [Authorize(Roles = "Employee, Admin")]
     public class ManagerReportController : ControllerBase
     {
-        private readonly ReportService _reportService;
+        private readonly IReportService _reportService;
         private readonly IMapper _mapper;
 
-        public ManagerReportController(ReportService reportService, 
+        public ManagerReportController(IReportService reportService, 
                                         IMapper mapper)
         {
             _reportService = reportService;

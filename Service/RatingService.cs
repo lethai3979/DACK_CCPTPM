@@ -1,25 +1,21 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class RatingService
+    public class RatingService : IRatingService
     {
-        private readonly RatingRepository _ratingRepository;
-        private readonly PostService _postService;
+        private readonly IRatingRepository _ratingRepository;
+        private readonly IPostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        public RatingService(RatingRepository ratingAndCommentRepository
-                            , PostService postService
-                            , IHttpContextAccessor contextAccessor)
+        public RatingService(IRatingRepository ratingAndCommentRepository, 
+                                IPostService postService, 
+                                IHttpContextAccessor contextAccessor)
         {
             _ratingRepository = ratingAndCommentRepository;
             _postService = postService;

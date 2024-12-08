@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +17,10 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        private readonly CompanyService _companyService;
+        private readonly ICompanyService _companyService;
         private readonly IMapper _mapper;
 
-        public CompanyController(CompanyService companyService, IMapper mapper)
+        public CompanyController(ICompanyService companyService, IMapper mapper)
         {
             _companyService = companyService;
             _mapper = mapper;

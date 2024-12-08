@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +17,10 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class AmenityController : ControllerBase
     {
-        private readonly AmenityService _amenityService;
+        private readonly IAmenityService _amenityService;
         private readonly IMapper _mapper;
 
-        public AmenityController(AmenityService amenityService, IMapper mapper)
+        public AmenityController(IAmenityService amenityService, IMapper mapper)
         {
             _amenityService = amenityService;
             _mapper = mapper;

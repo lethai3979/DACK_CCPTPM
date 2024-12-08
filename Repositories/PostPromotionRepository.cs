@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class PostPromotionReposity : IGenericRepository<PostPromotion>
+    public class PostPromotionRepository : IPostPromotionRepository
     {
         private readonly ApplicationDbContext _context;
 
-        public PostPromotionReposity(ApplicationDbContext context)
+        public PostPromotionRepository(ApplicationDbContext context)
         {
             _context = context;
         }

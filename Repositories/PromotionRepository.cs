@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class PromotionRepository : IGenericRepository<Promotion>
+    public class PromotionRepository : IPromotionRepository
     {
         private readonly ApplicationDbContext _context;
         public PromotionRepository(ApplicationDbContext context)

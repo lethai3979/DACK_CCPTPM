@@ -2,9 +2,9 @@
 using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -14,21 +14,18 @@ namespace GoWheels_WebAPI.Controllers.Driver
     [ApiController]
     public class DriverController : ControllerBase
     {
-        private readonly DriverService _driverService;
-        private readonly UserService _userService;
-        private readonly BookingService _bookingService;
+        private readonly IDriverService _driverService;
+        private readonly IUserService _userService;
         private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IMapper _mapper;
 
-        public DriverController(DriverService driverService, 
-                                UserService userService, 
-                                BookingService bookingService,
+        public DriverController(IDriverService driverService, 
+                                IUserService userService, 
                                 IHubContext<NotifyHub> hubContext,
                                 IMapper mapper)
         {
             _driverService = driverService;
             _userService = userService;
-            _bookingService = bookingService;
             _hubContext = hubContext;
             _mapper = mapper;
         }

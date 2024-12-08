@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -17,10 +15,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
     public class InvoiceController : ControllerBase
     {
         public bool isMB { get; set; }
-        private readonly InvoiceService _invoiceService;
-        private readonly BookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IBookingService _bookingService;
         private readonly IMapper _mapper;
-        public InvoiceController(InvoiceService invoiceService, BookingService bookingService, IMapper mapper)
+        public InvoiceController(IInvoiceService invoiceService, IBookingService bookingService, IMapper mapper)
         {
             _invoiceService = invoiceService;
             _bookingService = bookingService;

@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,14 +13,14 @@ namespace GoWheels_WebAPI.Controllers.Employee
     [ApiController]
     public class BookingRequestController : ControllerBase
     {
-        private readonly BookingService _bookingService;
-        private readonly InvoiceService _invoiceService;
-        private readonly DriverBookingService _driverBookingService;
+        private readonly IBookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IDriverBookingService _driverBookingService;
         private readonly IMapper _mapper;
 
-        public BookingRequestController(BookingService bookingService, 
-                                        InvoiceService invoiceService, 
-                                        DriverBookingService driverBookingService,
+        public BookingRequestController(IBookingService bookingService,
+                                        IInvoiceService invoiceService, 
+                                        IDriverBookingService driverBookingService,
                                         IMapper mapper)
         {
             _bookingService = bookingService;

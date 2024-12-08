@@ -14,18 +14,6 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddCompanyDetailAsync(int companyId, List<int> carTypeIds)
-        {
-            foreach (var carTypeId in carTypeIds)
-            {
-                var carTypeDetail = new CarTypeDetail();
-                carTypeDetail.CarTypeId = carTypeId;
-                carTypeDetail.CompanyId = companyId;
-                await _context.CarTypeDetails.AddAsync(carTypeDetail);
-            }
-            await _context.SaveChangesAsync();
-        }
-
         public async Task AddAsync(Company company)
         {
             await _context.Companies.AddAsync(company);

@@ -1,21 +1,18 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
-using GoWheels_WebAPI.Utilities;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class FavoriteService
+    public class FavoriteService : IFavoriteService
     {
-        private readonly FavoriteRepository _favoriteRepository;
+        private readonly IFavoriteRepository _favoriteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public FavoriteService(FavoriteRepository favoriteRepository,
+        public FavoriteService(IFavoriteRepository favoriteRepository,
                                 IHttpContextAccessor httpContextAccessor)
         {
             _favoriteRepository = favoriteRepository;

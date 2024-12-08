@@ -1,34 +1,22 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.DTOs;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class AdminPromotionService
+    public class AdminPromotionService : IAdminPromotionService
     {
-        private readonly PromotionRepository _salepromotionRepository;
-        private readonly PostPromotionService _postPromotionService;
-        private readonly PostService _postService;
+        private readonly IPromotionRepository _salepromotionRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        private readonly IMapper _mapper;
-        public AdminPromotionService(PromotionRepository salepromotionRepository,
-                                    PostPromotionService postPromotionService,
-                                    PostService postService,
-                                    IHttpContextAccessor contextAccessor,
-                                    IMapper mapper)
+        public AdminPromotionService(IPromotionRepository salepromotionRepository,
+                                    IHttpContextAccessor contextAccessor)
         {
             _salepromotionRepository = salepromotionRepository;
-            _postPromotionService = postPromotionService;
-            _postService = postService;
             _httpContextAccessor = contextAccessor;
-            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }

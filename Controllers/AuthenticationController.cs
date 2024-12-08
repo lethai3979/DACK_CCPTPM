@@ -1,5 +1,6 @@
 ﻿using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,9 +12,9 @@ namespace GoWheels_WebAPI.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly AuthenticationService _authenService;
+        private readonly IAuthenticationService _authenService;
 
-        public AuthenticationController(AuthenticationService service)
+        public AuthenticationController(IAuthenticationService service)
         {
             _authenService = service;
         }

@@ -1,24 +1,21 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class NotifyService
+    public class NotifyService : INotifyService
     {
-        private readonly NotifyRepository _notifyRepository;
-        private readonly IMapper _mapper;
+        private readonly INotifyRepository _notifyRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public NotifyService(NotifyRepository notifyRepository, 
-                                IMapper mapper, 
+        public NotifyService(INotifyRepository notifyRepository, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _notifyRepository = notifyRepository;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";

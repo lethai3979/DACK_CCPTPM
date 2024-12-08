@@ -3,13 +3,11 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 
 namespace GoWheels_WebAPI.Controllers.Customer
 {
@@ -18,18 +16,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly BookingService _bookingService;
-        private readonly AdminPromotionService _adminPromotionService;
-        private readonly InvoiceService _invoiceService;
+        private readonly IBookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
         private IMapper _mapper;
 
-        public BookingController(BookingService bookingService, 
-                                    AdminPromotionService adminPromotionService, 
-                                    InvoiceService invoiceService, 
+        public BookingController(IBookingService bookingService,
+                                    IInvoiceService invoiceService, 
                                     IMapper mapper)
         {
             _bookingService = bookingService;
-            _adminPromotionService = adminPromotionService;
             _invoiceService = invoiceService;
             _mapper = mapper;
         }

@@ -1,19 +1,17 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Data;
+﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class CarTypeDetailRepository
+    public class CarTypeDetailRepository : ICarTypeDetailRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
 
-        public CarTypeDetailRepository(ApplicationDbContext context, IMapper mapper)
+        public CarTypeDetailRepository(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<List<CarTypeDetail>> GetCarTypeDetails(int id)

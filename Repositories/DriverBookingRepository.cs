@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class DriverBookingRepository : IGenericRepository<DriverBooking>
+    public class DriverBookingRepository : IDriverBookingRepository
     {
         private readonly ApplicationDbContext _context;
 

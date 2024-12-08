@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Service\Interface\" />
     <Folder Include="wwwroot\images\amenities\" />
     <Folder Include="wwwroot\images\companies\" />
     <Folder Include="wwwroot\images\posts\" />

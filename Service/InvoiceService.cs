@@ -1,37 +1,28 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
-using GoWheels_WebAPI.Models.Entities;
-using System.Security.Claims;
-using GoWheels_WebAPI.Utilities;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Payment;
-using Newtonsoft.Json.Linq;
-using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class InvoiceService
+    public class InvoiceService : IInvoiceService
     {
-        private readonly InvoiceRepository _invoiceRepository;
-        private readonly BookingService _bookingService;
-        private readonly PostService _postService;
-        private readonly IMapper _mapper;
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IBookingService _bookingService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IConfiguration _configuration;
 
-        public InvoiceService(InvoiceRepository invoiceRepository,
-                                BookingService bookingService,
-                                PostService postService,
-                                IMapper mapper,
+        public InvoiceService(IInvoiceRepository invoiceRepository,
+                                IBookingService bookingService,
                                 IHttpContextAccessor httpContextAccessor,
                                 IConfiguration configuration)
         {
             _invoiceRepository = invoiceRepository;
             _bookingService = bookingService;
-            _postService = postService;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -367,6 +358,5 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
     }
 }

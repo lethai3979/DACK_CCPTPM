@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,9 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class NotifiyController : ControllerBase
     {
-        private readonly NotifyService _notifyService;
+        private readonly INotifyService _notifyService;
         private readonly IMapper _mapper;
-        public NotifiyController(NotifyService notifyService, IMapper mapper)
+        public NotifiyController(INotifyService notifyService, IMapper mapper)
         {
             _notifyService = notifyService;
             _mapper = mapper;

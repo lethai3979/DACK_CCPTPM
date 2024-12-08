@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +16,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class UserPromotionController : ControllerBase
     {
-        private readonly UserPromotionService _promotionService;
+        private readonly IUserPromotionService _promotionService;
         private readonly IMapper _mapper;
 
-        public UserPromotionController(UserPromotionService promotionService, IMapper mapper)
+        public UserPromotionController(IUserPromotionService promotionService, IMapper mapper)
         {
             _promotionService = promotionService;
             _mapper = mapper;

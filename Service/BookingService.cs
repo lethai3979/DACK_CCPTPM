@@ -3,36 +3,33 @@ using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class BookingService
+    public class BookingService : IBookingService
     {
-        private readonly BookingRepository _bookingRepository;
-        private readonly PostService _postService;
-        private readonly DriverService _driverService;
-        private readonly GoogleApiService _googleApiService;
-        private readonly NotifyService _notifyService;
+        private readonly IBookingRepository _bookingRepository;
+        private readonly IPostService _postService;
+        private readonly IDriverService _driverService;
+        private readonly ILocatorService _googleApiService;
+        private readonly INotifyService _notifyService;
         private readonly IHubContext<NotifyHub> _hubContext;
-        private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
 
-        public BookingService(BookingRepository bookingRepository, 
-                                PostService postService,
-                                DriverService driverService,
-                                GoogleApiService googleApiService,
-                                NotifyService notifyService,
+        public BookingService(IBookingRepository bookingRepository, 
+                                IPostService postService,
+                                IDriverService driverService,
+                                ILocatorService googleApiService,
+                                INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
-                                IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
@@ -41,7 +38,6 @@ namespace GoWheels_WebAPI.Service
             _googleApiService = googleApiService;
             _notifyService = notifyService;
             _hubContext = hubContext;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";

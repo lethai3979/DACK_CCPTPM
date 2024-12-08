@@ -1,26 +1,24 @@
-﻿using AutoMapper;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
-using GoWheels_WebAPI.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Models.DTOs;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class CarTypeService
+    public class CarTypeService : ICarTypeService
     {
-        private readonly CarTypeRepository _carTypeRepository;
-        private readonly CompanyRepository _companyRepository;
-        private readonly CarTypeDetailRepository _carTypeDetailRepository;
+        private readonly IGenericRepository<CarType> _carTypeRepository;
+        private readonly IGenericRepository<Company> _companyRepository;
+        private readonly ICarTypeDetailRepository _carTypeDetailRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public CarTypeService(CarTypeRepository carTypeRepository,
-                            CompanyRepository companyRepository,
-                            CarTypeDetailRepository carTypeDetailRepository,
+        public CarTypeService(IGenericRepository<CarType> carTypeRepository,
+                            IGenericRepository<Company> companyRepository,
+                            ICarTypeDetailRepository carTypeDetailRepository,
                             IHttpContextAccessor httpContextAccessor)
     {
             _carTypeRepository = carTypeRepository;

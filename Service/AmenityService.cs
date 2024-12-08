@@ -1,25 +1,21 @@
 ﻿using AutoMapper;
-using GoWheels_WebAPI.Data;
-using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 namespace GoWheels_WebAPI.Service
 {
-    public class AmenityService
+    public class AmenityService : IAmenityService
     {
-        public readonly AmenityRepository _amenityRepository;
+        public readonly IGenericRepository<Amenity> _amenityRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
-        private readonly IMapper _mapper;
-        public AmenityService(AmenityRepository amenityRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public AmenityService(IGenericRepository<Amenity> amenityRepository, IHttpContextAccessor httpContextAccessor)
         {
             _amenityRepository = amenityRepository;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -59,7 +55,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
         
-        public async Task<string> SaveImage(IFormFile file)
+        private async Task<string> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -94,10 +90,6 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception("Could not save file", ex);
             }
         }
-
-
-
-
 
         public async Task DeletedByIdAsync(int id)
         {

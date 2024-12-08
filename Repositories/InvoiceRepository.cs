@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoWheels_WebAPI.Repositories
 {
-    public class InvoiceRepository : IGenericRepository<Invoice>
+    public class InvoiceRepository : IInvoiceRepository
     {
         private readonly ApplicationDbContext _context;
 

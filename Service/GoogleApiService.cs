@@ -1,11 +1,12 @@
 ﻿using Azure;
 using GoWheels_WebAPI.Models.GoogleRespone;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class GoogleApiService
+    public class GoogleApiService : ILocatorService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;

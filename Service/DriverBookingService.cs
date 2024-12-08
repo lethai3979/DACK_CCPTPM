@@ -1,22 +1,22 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Repositories;
+using GoWheels_WebAPI.Repositories.Interface;
+using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GoWheels_WebAPI.Service
 {
-    public class DriverBookingService
+    public class DriverBookingService : IDriverBookingService
     {
-        private readonly DriverBookingRepository _driverBookingRepository;
-        private readonly DriverService _driverService;
-        private readonly InvoiceService _invoiceService;
+        private readonly IDriverBookingRepository _driverBookingRepository;
+        private readonly IDriverService _driverService;
+        private readonly IInvoiceService _invoiceService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
-        public DriverBookingService(DriverBookingRepository driverBookingRepository, 
-                                    DriverService driverService,
-                                    InvoiceService invoiceService,
+        public DriverBookingService(IDriverBookingRepository driverBookingRepository,
+                                    IDriverService driverService,
+                                    IInvoiceService invoiceService,
                                     IHttpContextAccessor httpContextAccessor)
         {
             _driverBookingRepository = driverBookingRepository;
