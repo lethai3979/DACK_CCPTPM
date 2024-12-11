@@ -1,10 +1,13 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Utilities;
 
 namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IPostService
     {
+
         Task<List<Post>> GetAllAsync();
+        List<Post> ApplyFilters(List<Post> posts,SearchFilterModel filterModel);
         Task<Post> GetByIdAsync(int id);
         Task<List<Post>> GetAllByUserId();
         Task<List<Post>> GetAllByUserId(string userId);

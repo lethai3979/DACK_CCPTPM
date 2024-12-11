@@ -1,5 +1,4 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
@@ -31,8 +30,7 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<List<Post>> GetAllAsync()
-           => await _postRepository.GetAllAsync();
-
+            => await _postRepository.GetAllAsync();
 
         public async Task<Post> GetByIdAsync(int id)
             => await _postRepository.GetByIdAsync(id);
@@ -42,6 +40,44 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<Post>> GetAllByUserId(string userId)
             => await _postRepository.GetPostsByUserIdAsync(userId);
+        public List<Post> ApplyFilters(List<Post> query, SearchFilterModel filterModel)
+        {
+            if (!string.IsNullOrWhiteSpace(filterModel.Company))
+            {
+                query = query.Where(post => post.Company.Name == filterModel.Company).ToList();
+            }
+
+            if (filterModel.Seat > 0)
+            {
+                query = query.Where(post => post.Seat == filterModel.Seat).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterModel.Gear))
+            {
+                query = filterModel.Gear switch
+                {
+                    "Số sàn" => query.Where(post => !post.Gear).ToList(),
+                    _ => query.Where(post => post.Gear).ToList()
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterModel.Fuel))
+            {
+                query = filterModel.Fuel switch
+                {
+                    "Xăng" => query.Where(post => post.Fuel == "Xăng").ToList(),
+                    "Điện" => query.Where(post => post.Fuel == "Điện").ToList(),
+                    _ => query.Where(post => post.Fuel == "Dầu").ToList()
+                };
+            }
+
+            if (filterModel.HasDriver)
+            {
+                query = query.Where(post => post.HasDriver).ToList();
+            }
+
+            return query;
+        }
 
         public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
         {

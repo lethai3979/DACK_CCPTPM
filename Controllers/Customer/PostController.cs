@@ -28,12 +28,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public async Task<ActionResult<OperationResult>> GetAllAsync(int? pageIndex,[FromQuery] SearchFilterModel filterModel)
         {
             try
             {
+                int currentPageIndex = pageIndex ?? 1;
                 var posts = await _postService.GetAllAsync();
-                var postVMs = _mapper.Map<List<PostVM>>(posts);
+                posts = _postService.ApplyFilters(posts, filterModel);
+                var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 2);
+                var postVMs = _mapper.Map<List<PostVM>>(paginateList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
             }
             catch (NullReferenceException nullEx)
@@ -80,7 +83,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         public async Task<ActionResult<OperationResult>> GetAllByUserId(string userId)
         {
             try
-            {
+            {               
                 var posts = await _postService.GetAllByUserId(userId);
                 var postVMs = _mapper.Map<List<PostVM>>(posts);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);

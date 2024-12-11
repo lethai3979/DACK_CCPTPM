@@ -19,5 +19,6 @@ namespace GoWheels_WebAPI.Service.Interface
         Task RefundReportedBookingAsync(Booking booking);
         Task<string> ProcessMomoPaymentAsync(Invoice invoice);
         Task ProcessReturnUrlAsync(IQueryCollection queryParams);
+        //Task CalculateRevenuesByYears
     }
 }
