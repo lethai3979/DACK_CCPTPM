@@ -125,6 +125,10 @@ namespace GoWheels_WebAPI.Service
             {
                 var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
                 var session = _httpContextAccessor.HttpContext!.Session;
+                if(session == null)
+                {
+                    return;
+                }    
                 var userIds = session.Keys.ToList();
                 var userLocations = new List<(string userId, string location)>();
                 foreach (var userId in userIds)
