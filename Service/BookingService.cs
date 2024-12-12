@@ -208,7 +208,7 @@ namespace GoWheels_WebAPI.Service
                 _notifyService.Add(notify);
                 if(NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
                 {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", "New booking request");
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", "System", "New booking request");
                 }    
             }
             catch (DbUpdateException dbEx)
