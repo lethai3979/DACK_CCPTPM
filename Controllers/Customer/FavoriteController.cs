@@ -26,11 +26,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllFavorite")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var favorites = await _favoriteService.GetAll();
+                var favorites = _favoriteService.GetAll();
                 var favoriteVMs = _mapper.Map<List<FavoriteVM>>(favorites);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: favoriteVMs);
             }
@@ -51,7 +51,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("AddToFavorite")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] FavoriteDTO favoriteDTO)
+        public ActionResult<OperationResult> Add([FromForm] FavoriteDTO favoriteDTO)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var favorite = _mapper.Map<Favorite>(favoriteDTO);
-                    await _favoriteService.Add(favorite);
+                    _favoriteService.Add(favorite);
                     return new OperationResult(true, "Favorite add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Favorite data invalid");
@@ -82,11 +82,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpDelete("RemoveFavorite/{id}")]
-        public async Task<ActionResult<OperationResult>> RemoveAsync(int id)
+        public ActionResult<OperationResult> Remove(int id)
         {
             try
             {
-                await _favoriteService.Deleted(id);
+                _favoriteService.Deleted(id);
                 return new OperationResult(true, "Favorite deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

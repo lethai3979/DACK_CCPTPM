@@ -37,11 +37,11 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpGet("GetAllDriverBookings")]
         [Authorize(Roles = "Driver")]
-        public async Task<ActionResult<OperationResult>> GetAllDriverBookingsByUserIdAsync()
+        public ActionResult<OperationResult> GetAllDriverBookingsByUserId()
         {
             try
             {
-                var driverBookings = await _driverBookingService.GetAllByUserId();
+                var driverBookings = _driverBookingService.GetAllByUserId();
                 var driverBookingsVMs = _mapper.Map<List<DriverBookingVM>>(driverBookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: driverBookingsVMs);
             }
@@ -62,16 +62,16 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpPost("AddDriverBooking/{bookingId}")]
         [Authorize(Roles = "Driver")]
-        public async Task<ActionResult<OperationResult>> AddDriverBookingAsync(int bookingId)
+        public ActionResult<OperationResult> AddDriverBooking(int bookingId)
         {
             try
             {
-                var booking = await _bookingService.GetById(bookingId);
+                var booking = _bookingService.GetById(bookingId);
                 if (booking.HasDriver)
                 {
                     return new OperationResult(false, "Driver already assigned", StatusCodes.Status409Conflict);
                 }
-                await _driverBookingService.AddDriverBookingAsync(booking);
+                _driverBookingService.AddDriverBooking(booking);
                 return new OperationResult(true, "Accept booking succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -94,23 +94,23 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpPost("CancelDriverBooking/{driverBookingId}")]
         [Authorize(Roles = "Driver")]
-        public async Task<ActionResult<OperationResult>> CancelDriverBookingAsync(int driverBookingId) // hủy tài xế cho đơn
+        public ActionResult<OperationResult> CancelDriverBooking(int driverBookingId) // hủy tài xế cho đơn
         {
             try
             {
-                var driverBooking = await _driverBookingService.GetById(driverBookingId);
+                var driverBooking = _driverBookingService.GetById(driverBookingId);
                 if (driverBooking.Driver.UserId != _userId)
                 {
                     return new OperationResult(false, "Unauthorized", StatusCodes.Status401Unauthorized);
                 }
                 driverBooking.IsCancel = true;
-                await _driverBookingService.UpdateAsync(driverBooking);
-                var invoice = await _invoiceService.GetByDriverBookingId(driverBookingId);
-                await _invoiceService.UpdateCancelDriverBookingAsync(invoice, driverBooking.Total);
-                var booking = await _bookingService.GetById(invoice.BookingId);
+                _driverBookingService.Update(driverBooking);
+                var invoice = _invoiceService.GetByDriverBookingId(driverBookingId);
+                _invoiceService.UpdateCancelDriverBooking(invoice, driverBooking.Total);
+                var booking = _bookingService.GetById(invoice.BookingId);
                 booking.HasDriver = false;
                 booking.IsRequireDriver = true;
-                await _bookingService.Update(booking.Id, booking);
+                _bookingService.Update(booking.Id, booking);
                 return new OperationResult(true, "Cancel driver booking succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

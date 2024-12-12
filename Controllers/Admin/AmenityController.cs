@@ -26,19 +26,19 @@ namespace GoWheels_WebAPI.Controllers
             _mapper = mapper;
         }
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var result = await _amenityService.GetAll();
+                var result = _amenityService.GetAll();
                 var amenityVMs = _mapper.Map<List<AmenityVM>>(result);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityVMs);
             }
-            catch(NullReferenceException nullEx)
+            catch (NullReferenceException nullEx)
             {
                 return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
             }
-            catch(AutoMapperMappingException mapperEx)
+            catch (AutoMapperMappingException mapperEx)
             {
                 return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
             }
@@ -51,11 +51,11 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetById(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var result = await _amenityService.GetById(id);
+                var result = _amenityService.GetById(id);
                 var amenityVM = _mapper.Map<AmenityVM>(result);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityVM);
             }
@@ -75,7 +75,7 @@ namespace GoWheels_WebAPI.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] AmenityDTO amenityDTO)
+        public ActionResult<OperationResult> Add([FromForm] AmenityDTO amenityDTO)
         {
             try
             {
@@ -102,11 +102,11 @@ namespace GoWheels_WebAPI.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {
-                await _amenityService.DeletedById(id);
+                _amenityService.DeletedById(id);
                 return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
@@ -124,7 +124,7 @@ namespace GoWheels_WebAPI.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] AmenityDTO amenityDTO)
+        public ActionResult<OperationResult> Update(int id, [FromForm] AmenityDTO amenityDTO)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.Update(id, amenity, amenityDTO.IconImage!);
+                    _amenityService.Update(id, amenity, amenityDTO.IconImage!);
                     return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");

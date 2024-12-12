@@ -28,12 +28,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync(int? pageIndex,[FromQuery] SearchFilterModel filterModel)
+        public ActionResult<OperationResult> GetAll(int? pageIndex, [FromQuery] SearchFilterModel filterModel)
         {
             try
             {
                 int currentPageIndex = pageIndex ?? 1;
-                var posts = await _postService.GetAll();
+                var posts = _postService.GetAll();
                 posts = _postService.ApplyFilters(posts, filterModel);
                 var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 2);
                 var postVMs = _mapper.Map<List<PostVM>>(paginateList);
@@ -56,11 +56,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetPersonalPosts")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetAllByUserId()
+        public ActionResult<OperationResult> GetAllByUserId()
         {
             try
             {
-                var posts = await _postService.GetAllByUserId();
+                var posts = _postService.GetAllByUserId();
                 var postVMs = _mapper.Map<List<PostVM>>(posts);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
             }
@@ -80,11 +80,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllByUserId/{userId}")]
-        public async Task<ActionResult<OperationResult>> GetAllByUserId(string userId)
+        public ActionResult<OperationResult> GetAllByUserId(string userId)
         {
             try
-            {               
-                var posts = await _postService.GetAllByUserId(userId);
+            {
+                var posts = _postService.GetAllByUserId(userId);
                 var postVMs = _mapper.Map<List<PostVM>>(posts);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
             }
@@ -104,11 +104,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var post = await _postService.GetById(id);
+                var post = _postService.GetById(id);
                 var postVM = _mapper.Map<PostVM>(post);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVM);
             }
@@ -129,7 +129,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PostDTO postDTO)
+        public ActionResult<OperationResult> Add([FromForm] PostDTO postDTO)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.Add(post, postDTO.Image!, postDTO.ImagesList!, postDTO.AmenitiesIds);
+                    _postService.Add(post, postDTO.Image!, postDTO.ImagesList!, postDTO.AmenitiesIds);
                     return new OperationResult(true, "Post add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -161,7 +161,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id,[FromForm] PostDTO postDTO)
+        public ActionResult<OperationResult> Update(int id, [FromForm] PostDTO postDTO)
         {
             try
             {
@@ -172,8 +172,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.Update(id, post, postDTO.Image!,postDTO.AmenitiesIds);
-                    await _postService.UpdatePostImages(postDTO.ImagesList!, id);
+                    _postService.Update(id, post, postDTO.Image!, postDTO.AmenitiesIds);
+                    _postService.UpdatePostImages(postDTO.ImagesList!, id);
                     return new OperationResult(true, "Post update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -186,7 +186,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             {
                 return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
             }
-            catch(UnauthorizedAccessException authEx)
+            catch (UnauthorizedAccessException authEx)
             {
                 return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
@@ -202,11 +202,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Delete/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {
-                await _postService.DeleteById(id);
+                _postService.DeleteById(id);
                 return new OperationResult(true, "Post deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

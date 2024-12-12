@@ -23,11 +23,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllNotify")]
-        public async Task<ActionResult<OperationResult>> GetAllByUserId()
+        public ActionResult<OperationResult> GetAllByUserId()
         {
             try
             {
-                var notifications = await _notifyService.GetAllByUserId();
+                var notifications = _notifyService.GetAllByUserId();
                 var notificationVMs = _mapper.Map<List<NotifyVM>>(notifications);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: notificationVMs);
             }
@@ -43,11 +43,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetById(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var notification = await _notifyService.GetById(id);
+                var notification = _notifyService.GetById(id);
                 var notificationVM = _mapper.Map<NotifyVM>(notification);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: notificationVM);
             }
@@ -63,11 +63,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPut("MarkAsRead/{id}")]
-        public async Task<ActionResult<OperationResult>> MarkAsReadAsync(int id)
+        public ActionResult<OperationResult> MarkAsRead(int id)
         {
             try
             {
-                await _notifyService.MarkAsRead(id);
+                _notifyService.MarkAsRead(id);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -93,11 +93,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpDelete("DeleteNotify/{id}")]
-        public async Task<ActionResult<OperationResult>> DeleteNotify(int id)
+        public ActionResult<OperationResult> DeleteNotify(int id)
         {
             try
             {
-                await _notifyService.Delete(id);
+                _notifyService.Delete(id);
                 return new OperationResult(true, "Deleted notify succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

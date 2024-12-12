@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var users = await _userService.GetAllUser();
+                var users = _userService.GetAllUser();
                 var userVMs = new List<UserVM>();
                 foreach(var user in users) 
                 {
@@ -83,13 +83,13 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
         [HttpGet("GetAllDriverSubmit")]
         [Authorize(Roles = "Admin, Employee")]
-        public async Task<ActionResult<OperationResult>> GetAllDriverSubmitAsync()
+        public ActionResult<OperationResult> GetAllDriverSubmit()
         {
             try
             {
-                var users = await _userService.GetAllDriverSubmit();
+                var users = _userService.GetAllDriverSubmit();
                 var userVMs = _mapper.Map<List<UserVM>>(users);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK,data: userVMs);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: userVMs);
             }
             catch (AutoMapperMappingException mapperEx)
             {

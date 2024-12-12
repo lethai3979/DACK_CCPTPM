@@ -27,19 +27,19 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var carTypesList = await _carTypeService.GetAll();
+                var carTypesList = _carTypeService.GetAll();
                 var carTypeVMs = _mapper.Map<List<CarTypeVM>>(carTypesList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVMs);
             }
-            catch(NullReferenceException aEx)
+            catch (NullReferenceException aEx)
             {
                 return new OperationResult(false, aEx.Message, StatusCodes.Status204NoContent);
             }
-            catch(AutoMapperMappingException mapperEx)
+            catch (AutoMapperMappingException mapperEx)
             {
                 return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
             }
@@ -51,11 +51,11 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var carType = await _carTypeService.GetById(id);
+                var carType = _carTypeService.GetById(id);
                 var carTypeVM = _mapper.Map<CarTypeVM>(carType);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVM);
             }
@@ -75,7 +75,7 @@ namespace GoWheels_WebAPI.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPost("Add")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] CarTypeDTO carTypeDTO)
+        public ActionResult<OperationResult> Add([FromBody] CarTypeDTO carTypeDTO)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var carType = _mapper.Map<CarType>(carTypeDTO);
-                    await _carTypeService.Add(carType, carTypeDTO.CompanyIds);
+                    _carTypeService.Add(carType, carTypeDTO.CompanyIds);
                     return new OperationResult(true, "Car type add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Car type data invalid");
@@ -107,11 +107,11 @@ namespace GoWheels_WebAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("Delete/{id}")]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {
-                await _carTypeService.DeleteById(id);
+                _carTypeService.DeleteById(id);
                 return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
@@ -130,7 +130,7 @@ namespace GoWheels_WebAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("Update/{id}")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, CarTypeDTO carTypeDTO)
+        public ActionResult<OperationResult> Update(int id, CarTypeDTO carTypeDTO)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var carType = _mapper.Map<CarType>(carTypeDTO);
-                    await _carTypeService.Update(id, carType, carTypeDTO.CompanyIds);
+                    _carTypeService.Update(id, carType, carTypeDTO.CompanyIds);
                     return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);
 
                 }

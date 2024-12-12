@@ -28,11 +28,11 @@ namespace GoWheels_WebAPI.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var reportTypes = await _reportTypeService.GetAll();
+                var reportTypes = _reportTypeService.GetAll();
                 var reportTypeVMs = _mapper.Map<List<ReportTypeVM>>(reportTypes);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVMs);
             }
@@ -53,11 +53,11 @@ namespace GoWheels_WebAPI.Controllers
 
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var reportType = await _reportTypeService.GetById(id);
+                var reportType = _reportTypeService.GetById(id);
                 var reportTypeVM = _mapper.Map<ReportTypeVM>(reportType);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVM);
             }
@@ -78,7 +78,7 @@ namespace GoWheels_WebAPI.Controllers
 
         [HttpPost("Add")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] ReportTypeDTO reportTypeDTO)
+        public ActionResult<OperationResult> Add([FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var reportType = _mapper.Map<ReportType>(reportTypeDTO);
-                    await _reportTypeService.Add(reportType);
+                    _reportTypeService.Add(reportType);
                     return new OperationResult(true, "Report type add succesfully", StatusCodes.Status200OK);
 
                 }
@@ -112,7 +112,7 @@ namespace GoWheels_WebAPI.Controllers
 
         [HttpPost("Update/{id}")]
         [Authorize(Roles = "Admin")]
-        public async  Task<ActionResult<OperationResult>> UpdateAsync (int id, [FromForm] ReportTypeDTO reportTypeDTO)
+        public ActionResult<OperationResult> Update(int id, [FromForm] ReportTypeDTO reportTypeDTO)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var reportType = _mapper.Map<ReportType>(reportTypeDTO);
-                    await _reportTypeService.Update(id, reportType);
+                    _reportTypeService.Update(id, reportType);
                     return new OperationResult(true, "Report type update succesfully", StatusCodes.Status200OK);
 
                 }
@@ -149,11 +149,11 @@ namespace GoWheels_WebAPI.Controllers
 
         [HttpPost("Delete/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> DeletedAsync(int id)
+        public ActionResult<OperationResult> Deleted(int id)
         {
             try
             {
-                await _reportTypeService.DeletedById(id);
+                _reportTypeService.DeletedById(id);
                 return new OperationResult(true, "Report type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

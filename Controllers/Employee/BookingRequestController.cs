@@ -31,11 +31,11 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpGet("GetAllCancelRequest")]
-        public async Task<ActionResult<OperationResult>> GetAllCancelRequestAsync()//Get tất cả các hủy booking 
+        public ActionResult<OperationResult> GetAllCancelRequest()//Get tất cả các hủy booking 
         {
             try
             {
-                var requests = await _bookingService.GetAllCancelRequest();
+                var requests = _bookingService.GetAllCancelRequest();
                 var requestVMs = _mapper.Map<List<BookingVM>>(requests);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: requestVMs);
             }
@@ -52,20 +52,20 @@ namespace GoWheels_WebAPI.Controllers.Employee
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        } 
+        }
 
 
         [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
-        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
+        public ActionResult<OperationResult> ExamineCancelBooking(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
         {
             try
             {
-                var booking = await _bookingService.GetById(bookingId);
-                await _bookingService.ExamineCancelBookingRequest(booking, isAccept);
-                await _invoiceService.RefundAsync(booking, isAccept);
-                var driverBooking = await _driverBookingService.GetByBookingId(bookingId);
+                var booking = _bookingService.GetById(bookingId);
+                _bookingService.ExamineCancelBookingRequest(booking, isAccept);
+                _invoiceService.Refund(booking, isAccept);
+                var driverBooking = _driverBookingService.GetByBookingId(bookingId);
                 driverBooking.IsCancel = isAccept;
-                await _driverBookingService.UpdateAsync(driverBooking);
+                _driverBookingService.Update(driverBooking);
                 return new OperationResult(true, "Cancellation request processed successfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -87,11 +87,11 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpGet("GetAllRefundInvoice")]
-        public async Task<ActionResult<OperationResult>> GetAllRefundInvoiceAsync() // lấy tất cả các hóa đơn hoàn lại
+        public ActionResult<OperationResult> GetAllRefundInvoice() // lấy tất cả các hóa đơn hoàn lại
         {
             try
             {
-                var invoices = await _invoiceService.GetAllRefundInvoices();
+                var invoices = _invoiceService.GetAllRefundInvoices();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }

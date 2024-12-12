@@ -26,11 +26,11 @@ namespace GoWheels_WebAPI.Controllers.Admin
 
         [HttpGet("GetAll")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var promotions = await _promotionService.GetAll();
+                var promotions = _promotionService.GetAll();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -50,11 +50,11 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpGet("GetAllAdminPromotion")]
-        public async Task<ActionResult<OperationResult>> GetAllAdminPromotionsAsync()
+        public ActionResult<OperationResult> GetAllAdminPromotions()
         {
             try
             {
-                var promotions = await _promotionService.GetAllAdminPromotions();
+                var promotions = _promotionService.GetAllAdminPromotions();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -74,11 +74,11 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpGet("GetAllAdminPromotionByUserId")]
-        public async Task<ActionResult<OperationResult>> GetAllAdminPromotionsByUserIdAsync()
+        public ActionResult<OperationResult> GetAllAdminPromotionsByUserId()
         {
             try
             {
-                var promotions = await _promotionService.GetAllAdminPromotionsByUserId();
+                var promotions = _promotionService.GetAllAdminPromotionsByUserId();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -98,11 +98,11 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var promotion = await _promotionService.GetById(id);
+                var promotion = _promotionService.GetById(id);
                 var promotionVM = _mapper.Map<PromotionVM>(promotion);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVM);
             }
@@ -123,7 +123,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
 
         [HttpPost("Add")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PromotionDTO promotionDTO)
+        public ActionResult<OperationResult> Add([FromForm] PromotionDTO promotionDTO)
         {
             try
             {
@@ -143,7 +143,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 }
                 return BadRequest("Promotion data invalid");
             }
-            catch(UnauthorizedAccessException authEx) 
+            catch (UnauthorizedAccessException authEx)
             {
                 return new OperationResult(false, authEx.Message, StatusCodes.Status401Unauthorized);
             }
@@ -163,7 +163,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
 
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
+        public ActionResult<OperationResult> Update(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
             {
@@ -173,12 +173,12 @@ namespace GoWheels_WebAPI.Controllers.Admin
                 }
                 if (ModelState.IsValid)
                 {
-                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    if (promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
                         _promotionService.Update(id, promotion);
                         return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
-                    }   
+                    }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
                 }
                 return BadRequest("Promotion data invalid");
@@ -200,7 +200,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
 
         [HttpPost("Delete/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {

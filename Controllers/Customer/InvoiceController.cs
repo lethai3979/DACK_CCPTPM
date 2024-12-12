@@ -27,11 +27,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetPersonalInvoices")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetPersonalInvoicesAsync()
+        public ActionResult<OperationResult> GetPersonalInvoices()
         {
             try
             {
-                var invoices = await _invoiceService.GetPersonalInvoices();
+                var invoices = _invoiceService.GetPersonalInvoices();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
@@ -48,11 +48,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
         [Authorize(Roles = "Driver")]
-        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        public ActionResult<OperationResult> GetAllByDriver()
         {
             try
             {
-                var invoices = await _invoiceService.GetAllByDriver();
+                var invoices = _invoiceService.GetAllByDriver();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
@@ -79,12 +79,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 {
                     isMB = true;
                 }
-                var booking = await _bookingService.GetById(bookingId);
+                var booking = _bookingService.GetById(bookingId);
                 if(!booking.OwnerConfirm)
                 {
                     return BadRequest("Owner confirm required");
                 }    
-                var invoice = await _invoiceService.GetByBookingId(bookingId);
+                var invoice = _invoiceService.GetByBookingId(bookingId);
                 var responseFromMomo = await _invoiceService.ProcessMomoPayment(invoice);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
@@ -104,15 +104,15 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
-        
+
+
 
         [HttpGet("ReturnUrl")]
-        public async Task<ActionResult<OperationResult>> ReturnUrl()
+        public ActionResult<OperationResult> ReturnUrl()
         {
             try
             {
-                await _invoiceService.ProcessReturnUrl(Request.Query);
+                _invoiceService.ProcessReturnUrl(Request.Query);
                 if (isMB)
                 {
                     return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);

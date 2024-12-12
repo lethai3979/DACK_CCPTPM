@@ -24,11 +24,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
             _mapper = mapper;
         }
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var ratings = await _ratingAndCommentService.GetAll();
+                var ratings = _ratingAndCommentService.GetAll();
                 var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVMs);
             }
@@ -48,11 +48,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetCommentByPostId/{id}")]
-        public async Task<ActionResult<OperationResult>> GetCommentByPostId(int id)
+        public ActionResult<OperationResult> GetCommentByPostId(int id)
         {
             try
             {
-                var ratings = await _ratingAndCommentService.GetAllByPostId(id);
+                var ratings = _ratingAndCommentService.GetAllByPostId(id);
                 var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVMs);
             }
@@ -72,11 +72,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var rating = await _ratingAndCommentService.GetById(id);
+                var rating = _ratingAndCommentService.GetById(id);
                 var ratingVM = _mapper.Map<RatingVM>(rating);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVM);
             }
@@ -97,7 +97,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] RatingDTO ratingDTO)
+        public ActionResult<OperationResult> Add([FromBody] RatingDTO ratingDTO)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var rating = _mapper.Map<Rating>(ratingDTO);
-                    await _ratingAndCommentService.Add(rating);
+                    _ratingAndCommentService.Add(rating);
                     return new OperationResult(true, "Comment add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Comment data invalid");
@@ -129,11 +129,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpDelete("Delete/{id}")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {
-                await _ratingAndCommentService.DeleteById(id);
+                _ratingAndCommentService.DeleteById(id);
                 return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
 
             }
@@ -153,7 +153,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Update/{id}")]
         [Authorize]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromBody] RatingDTO ratingDTO)
+        public ActionResult<OperationResult> Update(int id, [FromBody] RatingDTO ratingDTO)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var rating = _mapper.Map<Rating>(ratingDTO);
-                    await _ratingAndCommentService.Update(id, rating);
+                    _ratingAndCommentService.Update(id, rating);
                     return new OperationResult(true, "Comment update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Comment data invalid");

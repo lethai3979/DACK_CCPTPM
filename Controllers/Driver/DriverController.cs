@@ -31,11 +31,11 @@ namespace GoWheels_WebAPI.Controllers.Driver
         }
 
         [HttpGet("GetAllDrivers")]
-        public async Task<ActionResult<OperationResult>> GetAllDriversAsync()
+        public ActionResult<OperationResult> GetAllDrivers()
         {
             try
             {
-                var drivers = await _driverService.GetAll();
+                var drivers = _driverService.GetAll();
                 var driverVMs = _mapper.Map<List<DriverVM>>(drivers);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: driverVMs);
             }
@@ -54,7 +54,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
             }
         }
 
-        [HttpGet("TestConvert")]
+/*        [HttpGet("TestConvert")]
         public async Task<ActionResult<OperationResult>> TestConvert()
         {
             try
@@ -75,7 +75,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        }
+        }*/
 
         [HttpGet("UpdateUserLocation/{latitude}&&{longitude}")]
         [Authorize]

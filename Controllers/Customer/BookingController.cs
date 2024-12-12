@@ -82,11 +82,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllDriverRequireBookings")]
         [Authorize(Roles = "Driver")]// getall cho tài xế
-        public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookingsAsync()
+        public ActionResult<OperationResult> GetAllDriverRequireBookings()
         {
             try
             {
-                var bookings = await _bookingService.GetAllDriverRequireBookings();
+                var bookings = _bookingService.GetAllDriverRequireBookings();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -107,11 +107,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllBookingsInRange/{latitude}&&{longitude}")]
         [Authorize(Roles = "Driver")]// getall cho tài xế
-        public async Task<ActionResult<OperationResult>> GetAllBookingsInRange(string latitude, string longitude)
+        public ActionResult<OperationResult> GetAllBookingsInRange(string latitude, string longitude)
         {
             try
             {
-                var bookings = await _bookingService.GetAllByLocation(latitude, longitude);
+                var bookings = _bookingService.GetAllByLocation(latitude, longitude);
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -131,11 +131,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllByDriver")]
-        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        public ActionResult<OperationResult> GetAllByDriver()
         {
             try
             {
-                var bookings = await _bookingService.GetAllByDriver();
+                var bookings = _bookingService.GetAllByDriver();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -156,11 +156,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllPendingBookingsByUserId")] // chủ xe
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetAllPendingBookingsByUserId()
+        public ActionResult<OperationResult> GetAllPendingBookingsByUserId()
         {
             try
             {
-                var bookings = await _bookingService.GetAllPendingBookingsByUserId();
+                var bookings = _bookingService.GetAllPendingBookingsByUserId();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -181,12 +181,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         [HttpGet("GetAllBookedDates/{id}")]
-        public async Task<ActionResult<OperationResult>> GetAllBookedDatesByPostId(int id)
+        public ActionResult<OperationResult> GetAllBookedDatesByPostId(int id)
         {
             try
             {
-                var bookedDates = await _bookingService.GetBookedDateByPostId(id);
-                return new OperationResult(true,statusCode: StatusCodes.Status200OK, data: bookedDates);
+                var bookedDates = _bookingService.GetBookedDateByPostId(id);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookedDates);
             }
             catch (DbUpdateException dbEx)
             {
@@ -205,11 +205,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("SendCancelRequest/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)  //Hủy đơn đjăt xe từ User
+        public ActionResult<OperationResult> SendCancelRequestBooking(int id)  //Hủy đơn đjăt xe từ User
         {
             try
             {
-                await _bookingService.RequestCancelBooking(id);
+                _bookingService.RequestCancelBooking(id);
                 return new OperationResult(true, "Cancel booking request sent succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -237,21 +237,21 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] BookingDTO bookingDTO)
+        public ActionResult<OperationResult> Add([FromForm] BookingDTO bookingDTO)
         {
             try
             {
-/*                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
-                {
-                    return BadRequest("return date or recieve date invalid");
-                }*/
+                /*                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+                                {
+                                    return BadRequest("return date or recieve date invalid");
+                                }*/
                 if (ModelState.IsValid)
                 {
-                    var booking = _mapper.Map<Booking>(bookingDTO);  
-                    var isBookingValid = await _bookingService.CheckBookingValue(bookingDTO, bookingDTO.DiscountValue);
+                    var booking = _mapper.Map<Booking>(bookingDTO);
+                    var isBookingValid = _bookingService.CheckBookingValue(bookingDTO, bookingDTO.DiscountValue);
                     if (isBookingValid)
                     {
-                        await _bookingService.Add(booking);
+                        _bookingService.Add(booking);
                         return new OperationResult(true, "Booking add succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Booking values invalid", StatusCodes.Status400BadRequest);
@@ -282,7 +282,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 
                 if(isAccept)
                 {
-                    await _invoiceService.CreateInvoice(id);
+                    _invoiceService.CreateInvoice(id);
                 }    
                 return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
             }

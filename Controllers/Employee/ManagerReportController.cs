@@ -24,11 +24,11 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var reports = await _reportService.GetAll();
+                var reports = _reportService.GetAll();
                 var reportVMs = _mapper.Map<List<ReportVM>>(reports);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVMs);
             }
@@ -48,11 +48,11 @@ namespace GoWheels_WebAPI.Controllers.Employee
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var report = await _reportService.GetById(id);
+                var report = _reportService.GetById(id);
                 var reportVM = _mapper.Map<ReportVM>(report);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVM);
             }

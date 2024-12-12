@@ -23,14 +23,14 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("ReportByPostId")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> ReportByPostId([FromForm]ReportDTO reportDTO)
+        public ActionResult<OperationResult> ReportByPostId([FromForm] ReportDTO reportDTO)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     var report = _mapper.Map<Report>(reportDTO);
-                    await _reportService.CreateReport(report);
+                    _reportService.CreateReport(report);
                     return new OperationResult(true, "Report created succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Report data invalid");

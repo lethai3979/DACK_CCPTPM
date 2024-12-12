@@ -26,11 +26,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllByUserId")]
-        public async Task<ActionResult<OperationResult>> GetAllAsync()
+        public ActionResult<OperationResult> GetAll()
         {
             try
             {
-                var promotions = await _promotionService.GetAllByUserId();
+                var promotions = _promotionService.GetAllByUserId();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -52,11 +52,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
+        public ActionResult<OperationResult> GetById(int id)
         {
             try
             {
-                var promotion = await _promotionService.GetById(id);
+                var promotion = _promotionService.GetById(id);
                 var promotionVM = _mapper.Map<PromotionVM>(promotion);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVM);
             }
@@ -77,7 +77,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] PromotionDTO promotionDTO)
+        public ActionResult<OperationResult> Add([FromForm] PromotionDTO promotionDTO)
         {
             try
             {
@@ -87,10 +87,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }
                 if (ModelState.IsValid)
                 {
-                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    if (promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.Add(promotion, promotionDTO.PostIds);
+                        _promotionService.Add(promotion, promotionDTO.PostIds);
                         return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -117,7 +117,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Update/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
+        public ActionResult<OperationResult> Update(int id, [FromForm] PromotionDTO promotionDTO)
         {
             try
             {
@@ -127,10 +127,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }
                 if (ModelState.IsValid)
                 {
-                    if(promotionDTO.ExpiredDate > DateTime.Now)
+                    if (promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.Update(id, promotion, promotionDTO.PostIds);
+                        _promotionService.Update(id, promotion, promotionDTO.PostIds);
                         return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -153,11 +153,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Delete/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
+        public ActionResult<OperationResult> Delete(int id)
         {
             try
             {
-                await _promotionService.DeleteById(id);
+                _promotionService.DeleteById(id);
                 return new OperationResult(true, "Promotion deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
