@@ -4,8 +4,8 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IDriverBookingRepository : IGenericRepository<DriverBooking>
     {
-        Task<List<DriverBooking>> GetAllByUserIdAsync(string userId);
-        Task<DriverBooking> GetByBookingIdAsync(int id);
+        List<DriverBooking> GetAllByUserId(string userId);
+        DriverBooking GetByBookingId(int id);
 
     }
 }

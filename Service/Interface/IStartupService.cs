@@ -2,8 +2,8 @@
 {
     public interface IStartupService
     {
-        Task UpdateBookingsOnStartup();
-        Task UpdatePostOnStartup();
+        void UpdateBookingsOnStartup();
+        void UpdatePostOnStartup();
 
     }
 }

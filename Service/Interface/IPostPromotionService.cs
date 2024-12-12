@@ -4,9 +4,9 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IPostPromotionService
     {
-        Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId);
-        Task AddRangeAsync(int promotionId, List<int> postIds);
-        Task DeletedRangeAsync(List<PostPromotion> postPromotions);
+        List<PostPromotion> GetAllByPromotionId(int promotionId);
+        void AddRange(int promotionId, List<int> postIds);
+        void DeletedRange(List<PostPromotion> postPromotions);
 
     }
 }

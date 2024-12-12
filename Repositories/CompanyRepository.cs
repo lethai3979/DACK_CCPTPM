@@ -14,33 +14,33 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Company company)
+        public void Add(Company company)
         {
-            await _context.Companies.AddAsync(company);
-            await _context.SaveChangesAsync();
+            _context.Companies.Add(company);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Company company)
+        public void Delete(Company company)
         {
             _context.Entry(company).State = EntityState.Modified;
             company.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Company>> GetAllAsync()
-            => await _context.Companies.AsNoTracking()
+        public List<Company> GetAll()
+            => _context.Companies.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.CarType)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<Company> GetByIdAsync(int id)
-            => await _context.Companies.AsNoTracking()
+        public Company GetById(int id)
+            => _context.Companies.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.CarType)
-                                        .FirstOrDefaultAsync(c => c.Id == id) 
+                                        .FirstOrDefault(c => c.Id == id) 
                                         ?? throw new NullReferenceException("Company not found");
 
-        public async Task UpdateAsync(Company company)
+        public void Update(Company company)
         {
             //Check if there's any obj with same id being tracked
             var existingCompany = _context.ChangeTracker.Entries<Company>()
@@ -55,7 +55,7 @@ namespace GoWheels_WebAPI.Repositories
             _context.Companies.Attach(company);  // Attach target modified obj to context 
             _context.Entry(company).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(company).State = EntityState.Detached;

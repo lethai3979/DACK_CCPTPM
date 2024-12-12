@@ -32,7 +32,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                var reportTypes = await _reportTypeService.GetAllAsync();
+                var reportTypes = await _reportTypeService.GetAll();
                 var reportTypeVMs = _mapper.Map<List<ReportTypeVM>>(reportTypes);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVMs);
             }
@@ -52,12 +52,12 @@ namespace GoWheels_WebAPI.Controllers
         }
 
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             try
             {
-                var reportType = await _reportTypeService.GetByIdAsync(id);
+                var reportType = await _reportTypeService.GetById(id);
                 var reportTypeVM = _mapper.Map<ReportTypeVM>(reportType);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportTypeVM);
             }
@@ -89,7 +89,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var reportType = _mapper.Map<ReportType>(reportTypeDTO);
-                    await _reportTypeService.AddAsync(reportType);
+                    await _reportTypeService.Add(reportType);
                     return new OperationResult(true, "Report type add succesfully", StatusCodes.Status200OK);
 
                 }
@@ -123,7 +123,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var reportType = _mapper.Map<ReportType>(reportTypeDTO);
-                    await _reportTypeService.UpdateAsync(id, reportType);
+                    await _reportTypeService.Update(id, reportType);
                     return new OperationResult(true, "Report type update succesfully", StatusCodes.Status200OK);
 
                 }
@@ -153,7 +153,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                await _reportTypeService.DeletedByIdAsync(id);
+                await _reportTypeService.DeletedById(id);
                 return new OperationResult(true, "Report type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

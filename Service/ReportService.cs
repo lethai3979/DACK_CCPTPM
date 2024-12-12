@@ -34,20 +34,20 @@ namespace GoWheels_WebAPI.Service
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Report>> GetAllAsync()
-            => await _reportRepository.GetAllAsync();
+        public List<Report> GetAll()
+            => _reportRepository.GetAll();
 
-        public async Task<Report> GetByIdAsync(int id)
-            => await _reportRepository.GetByIdAsync(id);
+        public Report GetById(int id)
+            => _reportRepository.GetById(id);
 
-        public async Task CreateReportAsync(Report report)
+        public void CreateReport(Report report)
         {
             try
             {
                 report.IsDeleted = false;
                 report.CreatedById = _userId;
                 report.CreatedOn = DateTime.Now;
-                await _reportRepository.AddAsync(report);
+                _reportRepository.Add(report);
             }
             catch (DbUpdateException dbEx)
             {
@@ -63,30 +63,30 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task ConfirmReportAsync(int id, bool isAccept)
+        public async Task ConfirmReport(int id, bool isAccept)
         {
             try
             {
-                var report = await _reportRepository.GetByIdAsync(id);
+                var report = _reportRepository.GetById(id);
                 report.IsDeleted = true;
                 report.ModifiedById = _userId;
                 report.ModifiedOn = DateTime.Now;
-                await _reportRepository.UpdateAsync(report);
+                _reportRepository.Update(report);
                 if (isAccept)
                 {
-                    var post = await _postService.GetByIdAsync(report.PostId);
+                    var post = _postService.GetById(report.PostId);
                     if(post.IsDisabled)
                     {
                         return;
                     }    
-                    await _postService.DisablePostByIdAsync(post.Id);
-                    var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(post.Id);
+                    _postService.DisablePostById(post.Id);
+                    var bookings = _bookingService.GetAllUnRecieveBookingsByPostId(post.Id);
                     foreach (var booking in bookings)
                     {
-                        await _bookingService.ExamineCancelBookingRequestAsync(booking, true);
+                        _bookingService.ExamineCancelBookingRequest(booking, true);
                         if (booking.IsPay)
                         {
-                            await _invoiceService.RefundReportedBookingAsync(booking);
+                            _invoiceService.RefundReportedBooking(booking);
                         }     
                     }
                     await _userService.UpdateUserReportPointAsync(report.Post.UserId!, report.ReportType.ReportPoint);

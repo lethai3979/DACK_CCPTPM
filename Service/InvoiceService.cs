@@ -29,33 +29,33 @@ namespace GoWheels_WebAPI.Service
             _configuration = configuration;
         }
 
-        public async Task<List<Invoice>> GetAllAsync()
-            => await _invoiceRepository.GetAllAsync();
+        public List<Invoice> GetAll()
+            => _invoiceRepository.GetAll();
 
-        public async Task<List<Invoice>> GetPersonalInvoicesAsync()
-            => await _invoiceRepository.GetAllByUserIdAsync(_userId);
+        public List<Invoice> GetPersonalInvoices()
+            => _invoiceRepository.GetAllByUserId(_userId);
 
-        public async Task<List<Invoice>> GetAllByDriverAsync()
-            => await _invoiceRepository.GetAllByDriverAsync(_userId);
+        public List<Invoice> GetAllByDriver()
+            => _invoiceRepository.GetAllByDriver(_userId);
 
-        public async Task<Invoice> GetByIdAsync(int id)
-            => await _invoiceRepository.GetByIdAsync(id);
+        public Invoice GetById(int id)
+            => _invoiceRepository.GetById(id);
 
 
-        public async Task<Invoice> GetByBookingIdAsync(int bookingId)
-            => await _invoiceRepository.GetByBookingIdAsync(bookingId);
+        public Invoice GetByBookingId(int bookingId)
+            => _invoiceRepository.GetByBookingId(bookingId);
 
-        public async Task<Invoice> GetByDriverBookingIdAsync(int driverBookingId)
-            => await _invoiceRepository.GetByDriverBookingIdAsync(driverBookingId);
+        public Invoice GetByDriverBookingId(int driverBookingId)
+            => _invoiceRepository.GetByDriverBookingId(driverBookingId);
 
-        public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
-            => await _invoiceRepository.GetAllRefundInvoicesAsync();
+        public List<Invoice> GetAllRefundInvoices()
+            => _invoiceRepository.GetAllRefundInvoices();
 
-        public async Task CreateInvoiceAsync(int bookingId)
+        public void CreateInvoice(int bookingId)
         {
             try
             {
-                var booking = await _bookingService.GetByIdAsync(bookingId);
+                var booking = _bookingService.GetById(bookingId);
                 var invoice = new Invoice()
                 {
                     PrePayment = booking.PrePayment,
@@ -67,7 +67,7 @@ namespace GoWheels_WebAPI.Service
                     IsPay = false,
                     RefundInvoice = false,
                 };
-                await _invoiceRepository.AddAsync(invoice);
+                _invoiceRepository.Add(invoice);
             }
             catch (DbUpdateException dbEx)
             {
@@ -83,16 +83,16 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task AddDriverToInvocieAsync(Booking booking, DriverBooking driverBooking)
+        public void AddDriverToInvocie(Booking booking, DriverBooking driverBooking)
         {
             try
             {
-                var invoice = await _invoiceRepository.GetByBookingIdAsync(booking.Id);
+                var invoice = _invoiceRepository.GetByBookingId(booking.Id);
                 invoice.DriverBooking = driverBooking;
                 invoice.Total += driverBooking.Total;
-                await _invoiceRepository.UpdateAsync(invoice);
+                _invoiceRepository.Update(invoice);
                 booking.HasDriver = true;
-                await _bookingService.UpdateAsync(booking.Id, booking);
+                _bookingService.Update(booking.Id, booking);
             }
             catch (DbUpdateException dbEx)
             {
@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateCancelDriverBookingAsync(Invoice invoice, decimal driverBookingTotal)
+        public void UpdateCancelDriverBooking(Invoice invoice, decimal driverBookingTotal)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace GoWheels_WebAPI.Service
                 invoice.Total -= driverBookingTotal;
                 invoice.DriverBookingId = null!;
                 invoice.DriverBooking = null!;
-                await _invoiceRepository.UpdateAsync(invoice);
+                _invoiceRepository.Update(invoice);
             }
             catch (NullReferenceException nullEx)
             {
@@ -137,17 +137,17 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(Invoice invoice)
+        public void Update(Invoice invoice)
         {
             try
             {
                 invoice.ModifiedById = _userId;
-                invoice.ModifiedOn = DateTime.Now;  
-                await _invoiceRepository.UpdateAsync(invoice);
+                invoice.ModifiedOn = DateTime.Now;
+                _invoiceRepository.Update(invoice);
             }
-            catch(NullReferenceException nullEx) 
+            catch (NullReferenceException nullEx)
             {
-                 throw new NullReferenceException(nullEx.InnerException!.Message);
+                throw new NullReferenceException(nullEx.InnerException!.Message);
             }
             catch (DbUpdateException dbEx)
             {
@@ -163,15 +163,15 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task RefundAsync(Booking booking, bool isAccept)
+        public void Refund(Booking booking, bool isAccept)
         {
             try
             {
                 if (isAccept)
                 {
-                    if(booking.IsPay)
+                    if (booking.IsPay)
                     {
-                        var invoice = await _invoiceRepository.GetByBookingIdAsync(booking.Id);
+                        var invoice = _invoiceRepository.GetByBookingId(booking.Id);
                         var refundValue = (double)invoice!.PrePayment;
                         var refundHours = (booking.RecieveOn - DateTime.Now).TotalHours;
                         var createHours = (booking.CreatedOn - DateTime.Now).TotalHours;
@@ -192,8 +192,8 @@ namespace GoWheels_WebAPI.Service
                         invoice.RefundInvoice = true;
                         invoice.ModifiedOn = DateTime.Now;
                         invoice.ModifiedById = _userId;
-                        await _invoiceRepository.UpdateAsync(invoice);
-                    }                  
+                        _invoiceRepository.Update(invoice);
+                    }
                 }
             }
             catch (DbUpdateException dbEx)
@@ -210,17 +210,17 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task RefundReportedBookingAsync(Booking booking)
+        public void RefundReportedBooking(Booking booking)
         {
             try
             {
-                var invoice = await _invoiceRepository.GetByBookingIdAsync(booking.Id);
+                var invoice = _invoiceRepository.GetByBookingId(booking.Id);
                 invoice.ModifiedById = _userId;
                 invoice.ModifiedOn = DateTime.Now;
                 invoice.DriverBookingId = null!;
                 invoice.DriverBooking = null!;
                 invoice.RefundInvoice = true!;
-                await _invoiceRepository.UpdateAsync(invoice);
+                _invoiceRepository.Update(invoice);
             }
             catch (DbUpdateException dbEx)
             {
@@ -236,7 +236,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<string> ProcessMomoPaymentAsync(Invoice  invoice)
+        public async Task<string> ProcessMomoPayment(Invoice  invoice)
         {
             double price = (double)invoice.PrePayment;
             string priceStr = price.ToString();
@@ -295,7 +295,7 @@ namespace GoWheels_WebAPI.Service
             return jsonResponse;
         }
 
-        public async Task ProcessReturnUrlAsync(IQueryCollection queryParams)
+        public void ProcessReturnUrl(IQueryCollection queryParams)
         {
             try
             {
@@ -321,7 +321,7 @@ namespace GoWheels_WebAPI.Service
                     throw new InvalidOperationException("Invalid invoice ID"); ;
                 }
 
-                var booking = await _bookingService.GetByIdAsync(bookingIdNum);
+                var booking = _bookingService.GetById(bookingIdNum);
                 MomoSecurity crypto = new();
                 string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? "";
                 string signature = crypto.signSHA256(param, serectkey);
@@ -337,12 +337,12 @@ namespace GoWheels_WebAPI.Service
                 }
                 booking.IsPay = true;
                 booking.Status = "Waiting";
-                await _bookingService.UpdateAsync(booking.Id, booking);
-                var invoice = await _invoiceRepository.GetByBookingIdAsync(bookingIdNum);
+                _bookingService.Update(booking.Id, booking);
+                var invoice = _invoiceRepository.GetByBookingId(bookingIdNum);
                 invoice.ModifiedById = _userId;
                 invoice.ModifiedOn = DateTime.Now;
                 invoice.IsPay = true;
-                await _invoiceRepository.UpdateAsync(invoice);
+                _invoiceRepository.Update(invoice);
                 bool isAvailable = booking.RecieveOn > DateTime.Now;
             }
             catch (DbUpdateException dbEx)

@@ -31,7 +31,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var invoices = await _invoiceService.GetPersonalInvoicesAsync();
+                var invoices = await _invoiceService.GetPersonalInvoices();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
@@ -52,7 +52,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var invoices = await _invoiceService.GetAllByDriverAsync();
+                var invoices = await _invoiceService.GetAllByDriver();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }
@@ -79,13 +79,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 {
                     isMB = true;
                 }
-                var booking = await _bookingService.GetByIdAsync(bookingId);
+                var booking = await _bookingService.GetById(bookingId);
                 if(!booking.OwnerConfirm)
                 {
                     return BadRequest("Owner confirm required");
                 }    
-                var invoice = await _invoiceService.GetByBookingIdAsync(bookingId);
-                var responseFromMomo = await _invoiceService.ProcessMomoPaymentAsync(invoice);
+                var invoice = await _invoiceService.GetByBookingId(bookingId);
+                var responseFromMomo = await _invoiceService.ProcessMomoPayment(invoice);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
                 if (payUrlToken != null)
@@ -112,7 +112,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _invoiceService.ProcessReturnUrlAsync(Request.Query);
+                await _invoiceService.ProcessReturnUrl(Request.Query);
                 if (isMB)
                 {
                     return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);

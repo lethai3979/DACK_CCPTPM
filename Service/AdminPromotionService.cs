@@ -29,66 +29,31 @@ namespace GoWheels_WebAPI.Service
             }
             return false;
         }
-        public async Task<List<Promotion>> GetAllAsync()
-            => await _salepromotionRepository.GetAllAsync();
+        public List<Promotion> GetAll()
+            => _salepromotionRepository.GetAll();
 
 
-        public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
-            => await _salepromotionRepository.GetAllAdminPromotionsAsync();
+        public List<Promotion> GetAllAdminPromotions()
+            => _salepromotionRepository.GetAllAdminPromotions();
 
-        public async Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync()
-            => await _salepromotionRepository.GetAllAdminPromotionsByUserIdAsync(_userId);
+        public List<Promotion> GetAllAdminPromotionsByUserId()
+            => _salepromotionRepository.GetAllAdminPromotionsByUserId(_userId);
 
-        public async Task<Promotion> GetByIdAsync(int id)
-            => await _salepromotionRepository.GetByIdAsync(id);
+        public Promotion GetById(int id)
+            => _salepromotionRepository.GetById(id);
 
 
 
-        public async Task AddAsync(Promotion promotion)
+        public void Add(Promotion promotion)
         {
             try
             {
-                var isAdmin = IsAdminRole(); 
+                var isAdmin = IsAdminRole();
                 promotion.IsAdminPromotion = true;
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
-                await _salepromotionRepository.AddAsync(promotion);
-            }
-            catch(NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);   
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task UpdateAsync(int id, Promotion promotion)
-        {
-            try
-            {
-
-                var existingPromotion = await _salepromotionRepository.GetByIdAsync(id);
-                promotion.CreatedOn = existingPromotion.CreatedOn;
-                promotion.CreatedById = existingPromotion.CreatedById;
-                promotion.ModifiedById = existingPromotion.ModifiedById;
-                promotion.ModifiedOn = existingPromotion.ModifiedOn;
-                promotion.PostPromotions = existingPromotion.PostPromotions;
-                promotion.IsDeleted = existingPromotion.IsDeleted;
-                promotion.IsAdminPromotion = existingPromotion.IsAdminPromotion;
-                var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
-                EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
-                await _salepromotionRepository.UpdateAsync(promotion);
+                _salepromotionRepository.Add(promotion);
             }
             catch (NullReferenceException nullEx)
             {
@@ -108,15 +73,50 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedByIdAsync(int id)
+        public void Update(int id, Promotion promotion)
         {
             try
             {
-                var promotion = await _salepromotionRepository.GetByIdAsync(id);
+
+                var existingPromotion = _salepromotionRepository.GetById(id);
+                promotion.CreatedOn = existingPromotion.CreatedOn;
+                promotion.CreatedById = existingPromotion.CreatedById;
+                promotion.ModifiedById = existingPromotion.ModifiedById;
+                promotion.ModifiedOn = existingPromotion.ModifiedOn;
+                promotion.PostPromotions = existingPromotion.PostPromotions;
+                promotion.IsDeleted = existingPromotion.IsDeleted;
+                promotion.IsAdminPromotion = existingPromotion.IsAdminPromotion;
+                var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
+                EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
+                _salepromotionRepository.Update(promotion);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                throw new NullReferenceException(nullEx.Message);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.InnerException!.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.InnerException!.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void DeletedById(int id)
+        {
+            try
+            {
+                var promotion = _salepromotionRepository.GetById(id);
                 promotion.ModifiedById = _userId;
                 promotion.ModifiedOn = DateTime.Now;
                 promotion.IsDeleted = true;
-                await _salepromotionRepository.UpdateAsync(promotion); 
+                _salepromotionRepository.Update(promotion);
             }
             catch (NullReferenceException nullEx)
             {

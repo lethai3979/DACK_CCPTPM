@@ -31,13 +31,13 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<ApplicationUser>> GetAllDriverSubmitAsync()
-            => await _autheticationRepository.GetAllSubmitDriversAsync();
+        public List<ApplicationUser> GetAllDriverSubmit()
+            => _autheticationRepository.GetAllSubmitDrivers();
 
-        public async Task<List<ApplicationUser>> GetAllUserAsync()
+        public List<ApplicationUser> GetAllUser()
         {
             var userRequest = _httpContextAccessor.HttpContext?.User;
-            var users = await _autheticationRepository.GetAllUserAsync();
+            var users = _autheticationRepository.GetAllUser();
             if (userRequest != null && userRequest.IsInRole("User"))
             {
                 foreach (var user in users)
@@ -50,10 +50,10 @@ namespace GoWheels_WebAPI.Service
         }
 
         public async Task<ApplicationUser> GetByUserIdAsync()
-            => await _autheticationRepository.FindByUserIdAsync(_userId);
+            => await _autheticationRepository.FindByUserId(_userId);
         public async Task<ApplicationUser> GetByUserIdAsync(string userId)
         {
-            var user = await _autheticationRepository.FindByUserIdAsync(userId);
+            var user = await _autheticationRepository.FindByUserId(userId);
             var userRequest = _httpContextAccessor.HttpContext?.User;
             if (userRequest != null && userRequest.IsInRole("User"))
             {
@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var existingUser = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var existingUser = await _autheticationRepository.FindByUserId(_userId);
                 existingUser.Name = user.Name == null ? existingUser.Name : user.Name;
                 existingUser.PhoneNumber = user.PhoneNumber == null ? existingUser.PhoneNumber : user.PhoneNumber;
                 existingUser.Birthday = user.Birthday == null ? existingUser.Birthday : user.Birthday;
@@ -139,7 +139,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                var user = await _autheticationRepository.FindByUserId(userId);
                 user.ReportPoint += reportPoint;
                 if (user.ReportPoint > 10)
                 {
@@ -174,7 +174,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                var user = await _autheticationRepository.FindByUserId(userId);
                 user.LockoutEnabled = !user.LockoutEnabled;
                 if(user.LockoutEnabled)
                 {
@@ -208,7 +208,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var user = await _autheticationRepository.FindByUserId(_userId);
                 var userVM = _mapper.Map<UserVM>(user);
                 userVM.Longitude = longitude;
                 userVM.Latitude = latitude;
@@ -235,7 +235,7 @@ namespace GoWheels_WebAPI.Service
 
             try
             {
-                var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var user = await _autheticationRepository.FindByUserId(_userId);
                 var userRole = _httpContextAccessor.HttpContext!.User.IsInRole("Driver");
                 if (userRole)
                 {
@@ -274,13 +274,13 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                var user = await _autheticationRepository.FindByUserId(userId);
                 user.IsSubmitDriver = false;  
                 user.isDriver = isAccept;             
                 await _autheticationRepository.UpdateAsync(user);
                 if (isAccept)
                 {
-                    await _driverService.AddAsync(user);
+                    _driverService.Add(user);
                     await _autheticationRepository.AddUserToRoleAsync(user, ApplicationRole.Driver);
                 }
             }

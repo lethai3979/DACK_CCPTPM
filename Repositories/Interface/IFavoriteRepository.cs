@@ -4,10 +4,10 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IFavoriteRepository
     {
-        Task AddAsync(Favorite post);
-        Task UpdateAsync(Favorite favorite);
-        Task<List<Favorite>> GetAllByUserIdAsync(string userId);
-        Task<Favorite?> GetByPostIdAsync(int postId, string userId);
-        Task<Favorite> GetByIdAsync(int id, string userId);
+        void Add(Favorite post);
+        void Update(Favorite favorite);
+        List<Favorite> GetAllByUserId(string userId);
+        Favorite? GetByPostId(int postId, string userId);
+        Favorite GetById(int id, string userId);
     }
 }

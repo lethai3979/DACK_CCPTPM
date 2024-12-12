@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
@@ -65,7 +64,7 @@ namespace GoWheels_WebAPI.Service
             {
                throw new InvalidOperationException("Wrong email or password");
             }
-            var isPasswordValid = await _autheticationRepository.ValidatePasswordAsync(user, loginViewModel.Password);
+            var isPasswordValid = await _autheticationRepository.CheckValidPasswordAsync(user, loginViewModel.Password);
             if (!isPasswordValid)
             {
                 throw new InvalidOperationException("Wrong email or password");
@@ -114,7 +113,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<bool> CheckLockoutStatus()
         {
-            var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+            var user = await _autheticationRepository.FindByUserId(_userId);
             return user.LockoutEnabled;
         }
 
@@ -140,7 +139,7 @@ namespace GoWheels_WebAPI.Service
                     return null;
                 }
 
-                var user = await _autheticationRepository.FindByUserIdAsync(userId);
+                var user = await _autheticationRepository.FindByUserId(userId);
                 if (user == null)
                 {
                     return null;

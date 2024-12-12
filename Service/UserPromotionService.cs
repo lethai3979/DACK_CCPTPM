@@ -28,20 +28,20 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Promotion>> GetAllByUserRoleAsync()
-            => await _promotionRepository.GetAllUserPromotionsAsync();
+        public List<Promotion> GetAllByUserRole()
+            => _promotionRepository.GetAllUserPromotions();
 
-        public async Task<List<Promotion>> GetAllByUserId()
-            => await _promotionRepository.GetPromotionsByUserIdAsync(_userId);
+        public List<Promotion> GetAllByUserId()
+            => _promotionRepository.GetPromotionsByUserId(_userId);
 
-        public async Task<Promotion> GetByIdAsync(int id)
-            => await _promotionRepository.GetUserPromotionByIdAsync(id, _userId);
+        public Promotion GetById(int id)
+            => _promotionRepository.GetUserPromotionById(id, _userId);
 
-        private async Task<bool> CheckValidatePost(List<int> postIds)
+        private bool CheckValidatePost(List<int> postIds)
         {
             foreach (var postId in postIds)
             {
-                var post = await _postService.GetByIdAsync(postId);
+                var post = _postService.GetById(postId);
                 if (_userId != post.CreatedById)
                 {
                     return false;
@@ -50,7 +50,7 @@ namespace GoWheels_WebAPI.Service
             return true;
         }
 
-        public async Task AddAsync(Promotion promotion, List<int> postIds)
+        public void Add(Promotion promotion, List<int> postIds)
         {
             try
             {
@@ -58,14 +58,14 @@ namespace GoWheels_WebAPI.Service
                 {
                     throw new InvalidOperationException("Invalid post Id");
                 }
-                var isValidatePosts = await CheckValidatePost(postIds);
-                if (!isValidatePosts) throw new UnauthorizedAccessException("Unauthorize");    
+                var isValidatePosts = CheckValidatePost(postIds);
+                if (!isValidatePosts) throw new UnauthorizedAccessException("Unauthorize");
                 promotion.IsAdminPromotion = false;
                 promotion.CreatedById = _userId;
                 promotion.CreatedOn = DateTime.Now;
                 promotion.IsDeleted = false;
-                await _promotionRepository.AddAsync(promotion);
-                await _postPromotionService.AddRangeAsync(promotion.Id, postIds);
+                _promotionRepository.Add(promotion);
+                _postPromotionService.AddRange(promotion.Id, postIds);
             }
             catch (NullReferenceException nullEx)
             {
@@ -85,10 +85,10 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private async Task<bool> IsPostIdsChange(List<int> postIds, int promotionId)
+        private bool IsPostIdsChange(List<int> postIds, int promotionId)
         {
-            var previousDetails = await _postPromotionService.GetAllByPromotionIdAsync(promotionId);
-            var posts = await _postService.GetAllAsync();
+            var previousDetails = _postPromotionService.GetAllByPromotionId(promotionId);
+            var posts = _postService.GetAll();
             foreach (var post in posts)
             {
                 bool previousChecked = previousDetails != null && previousDetails.Any(c => c.Post.Id.Equals(post.Id));
@@ -101,41 +101,41 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
-        private async Task UpdatePostPromotionsAsync(int promotionId, List<int> postIds)
+        private void UpdatePostPromotions(int promotionId, List<int> postIds)
         {
-            var postPromotions = await _postPromotionService.GetAllByPromotionIdAsync(promotionId);
-            await _postPromotionService.DeletedRangeAsync(postPromotions);
-            await _postPromotionService.AddRangeAsync(promotionId, postIds);
+            var postPromotions = _postPromotionService.GetAllByPromotionId(promotionId);
+            _postPromotionService.DeletedRange(postPromotions);
+            _postPromotionService.AddRange(promotionId, postIds);
         }
 
 
-        public async Task UpdateAsync(int id, Promotion promotion, List<int> postIds)
+        public void Update(int id, Promotion promotion, List<int> postIds)
         {
             try
             {
-                var existingPromotion = await _promotionRepository.GetByIdAsync(id);
+                var existingPromotion = _promotionRepository.GetById(id);
                 promotion.CreatedOn = existingPromotion.CreatedOn;
                 promotion.CreatedById = existingPromotion.CreatedById;
                 promotion.ModifiedById = existingPromotion.ModifiedById;
                 promotion.ModifiedOn = existingPromotion.ModifiedOn;
                 promotion.IsDeleted = existingPromotion.IsDeleted;
                 promotion.IsAdminPromotion = existingPromotion.IsAdminPromotion;
-                if(postIds.Contains(0))
+                if (postIds.Contains(0))
                 {
                     throw new InvalidOperationException("Invalid post Id");
                 }
-                var isPostIdsChange = await IsPostIdsChange(postIds, promotion.Id);
-                if(isPostIdsChange)
+                var isPostIdsChange = IsPostIdsChange(postIds, promotion.Id);
+                if (isPostIdsChange)
                 {
-                    await UpdatePostPromotionsAsync(promotion.Id, postIds);
+                    UpdatePostPromotions(promotion.Id, postIds);
                     EditHelper<Promotion>.SetModifiedIfNecessary(promotion, true, existingPromotion, _userId);
-                }   
+                }
                 else
                 {
                     var isValueChange = EditHelper<Promotion>.HasChanges(promotion, existingPromotion);
                     EditHelper<Promotion>.SetModifiedIfNecessary(promotion, isValueChange, existingPromotion, _userId);
-                }    
-                await _promotionRepository.UpdateAsync(promotion);
+                }
+                _promotionRepository.Update(promotion);
             }
             catch (NullReferenceException nullEx)
             {
@@ -156,15 +156,15 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        public async Task DeleteByIdAsync(int promotionId)
+        public void DeleteById(int promotionId)
         {
             try
             {
-                var promotion = await _promotionRepository.GetByIdAsync(promotionId);
+                var promotion = _promotionRepository.GetById(promotionId);
                 promotion.ModifiedById = _userId;
                 promotion.ModifiedOn = DateTime.Now;
                 promotion.IsDeleted = true;
-                await _promotionRepository.UpdateAsync(promotion);
+                _promotionRepository.Update(promotion);
             }
             catch (NullReferenceException nullEx)
             {

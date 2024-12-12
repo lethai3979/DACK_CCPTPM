@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace GoWheels_WebAPI.Repositories
 {
@@ -16,74 +17,74 @@ namespace GoWheels_WebAPI.Repositories
         }
 
 
-        public async Task<List<Promotion>> GetAllAsync()
-            => await _context.Promotions.AsNoTracking()
+        public List<Promotion> GetAll()
+            => _context.Promotions.AsNoTracking()
                                         .Include(p => p.PostPromotions)
                                         .ThenInclude(p => p.Post)
-                                        .ToListAsync();
+                                        .ToList();
 
 
 
-        public async Task<Promotion> GetByIdAsync(int id) 
-            => await _context.Promotions.AsNoTracking()
+        public Promotion GetById(int id)
+            => _context.Promotions.AsNoTracking()
                                         .Include(p => p.PostPromotions)
                                         .ThenInclude(p => p.Post)
-                                        .FirstOrDefaultAsync(p => p.Id == id)
+                                        .FirstOrDefault(p => p.Id == id)
                                         ?? throw new NullReferenceException("Promotion not found");
 
-        public async Task<Promotion> GetUserPromotionByIdAsync(int id, string userId)
-            => await _context.Promotions.AsNoTracking()
+        public Promotion GetUserPromotionById(int id, string userId)
+            => _context.Promotions.AsNoTracking()
                                         .Include(p => p.PostPromotions)
                                         .ThenInclude(p => p.Post)
-                                        .FirstOrDefaultAsync(p => p.Id == id && p.CreatedById == userId)
+                                        .FirstOrDefault(p => p.Id == id && p.CreatedById == userId)
                                         ?? throw new NullReferenceException("Promotion not found");
 
-        public async Task<List<Promotion>> GetPromotionsByUserIdAsync(string userId)
-                    => await _context.Promotions.AsNoTracking()
+        public List<Promotion> GetPromotionsByUserId(string userId)
+                    => _context.Promotions.AsNoTracking()
                                                 .Include(p => p.PostPromotions)
                                                 .ThenInclude(p => p.Post)
                                                 .Where(p => !p.IsDeleted && p.CreatedById == userId && !p.IsAdminPromotion)
-                                                .ToListAsync();
-        public async Task<List<Promotion>> GetAllAdminPromotionsAsync()
-                    => await _context.Promotions.AsNoTracking()
+                                                .ToList();
+        public List<Promotion> GetAllAdminPromotions()
+                    => _context.Promotions.AsNoTracking()
                                                 .Include(p => p.PostPromotions)
                                                 .ThenInclude(p => p.Post)
                                                 .Where(p => !p.IsDeleted && p.IsAdminPromotion)
-                                                .ToListAsync();
-        public async Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync(string userId)
-            => await _context.Promotions.AsNoTracking()
+                                                .ToList();
+        public List<Promotion> GetAllAdminPromotionsByUserId(string userId)
+            => _context.Promotions.AsNoTracking()
                                         .Include(p => p.PostPromotions)
                                         .ThenInclude(p => p.Post)
-                                        .Where(p => !p.IsDeleted 
-                                                    && p.IsAdminPromotion 
+                                        .Where(p => !p.IsDeleted
+                                                    && p.IsAdminPromotion
                                                     && !p.Bookings.Any(b => b.UserId == userId))
-                                        .ToListAsync();
+                                        .ToList();
 
 
-        public async Task<List<Promotion>> GetAllUserPromotionsAsync()
-            => await _context.Promotions.AsNoTracking()
-                                        .Include(p => p.PostPromotions)
-                                        .ThenInclude(p => p.Post)
-                                        .Where(p => !p.IsAdminPromotion)
-                                        .ToListAsync();
+        public List<Promotion> GetAllUserPromotions()
+            => _context.Promotions.AsNoTracking()
+                                    .Include(p => p.PostPromotions)
+                                    .ThenInclude(p => p.Post)
+                                    .Where(p => !p.IsAdminPromotion)
+                                    .ToList();
 
-        public async Task AddAsync(Promotion promotion)
+        public void Add(Promotion promotion)
         {
-            await _context.Promotions.AddAsync(promotion);
-            await _context.SaveChangesAsync();
+            _context.Promotions.Add(promotion);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Promotion promotion)
+        public void Delete(Promotion promotion)
         {
             _context.Entry(promotion).State = EntityState.Modified;
             promotion.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(Promotion promotion)
+        public void Update(Promotion promotion)
         {
-            var existingPromotion = await _context.Promotions.AsNoTracking()
-                                      .FirstOrDefaultAsync(p => p.Id == promotion.Id);
+            var existingPromotion = _context.ChangeTracker.Entries<Promotion>()
+                                                            .FirstOrDefault(e => e.Entity.Id == promotion.Id);
 
             if (existingPromotion != null)
             {
@@ -92,7 +93,7 @@ namespace GoWheels_WebAPI.Repositories
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(promotion).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
     }
 }

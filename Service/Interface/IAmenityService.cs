@@ -4,11 +4,11 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IAmenityService
     {
-        Task<List<Amenity>> GetAllAsync();
-        Task<Amenity> GetByIdAsync(int id);
-        Task AddAsync(Amenity amenity, IFormFile formFile);
-        Task DeletedByIdAsync(int id);
-        Task UpdateAsync(int id, Amenity amenity, IFormFile formFile);
+        List<Amenity> GetAll();
+        Amenity GetById(int id);
+        void Add(Amenity amenity, IFormFile formFile);
+        void DeletedById(int id);
+        void Update(int id, Amenity amenity, IFormFile formFile);
 
     }
 }

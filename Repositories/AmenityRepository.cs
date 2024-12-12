@@ -16,28 +16,24 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
             _mapper = mapper;
         }
-        public async Task AddAsync(Amenity entity)
+        public void Add(Amenity entity)
         {
-            await _context.Amentities.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            _context.Amentities.Add(entity);
+            _context.SaveChanges();
         }
-        public async Task DeleteAsync(Amenity entity)
+        public void Delete(Amenity entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
             entity.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Amenity>> GetAllAsync()
-        {
-            return await _context.Amentities.ToListAsync();
-        }
-        public async Task<Amenity> GetByIdAsync(int id)
-        {
-            return await _context.Amentities.FirstOrDefaultAsync(a => a.Id == id) 
+        public List<Amenity> GetAll()
+            => _context.Amentities.ToList();
+        public Amenity GetById(int id)
+            => _context.Amentities.FirstOrDefault(a => a.Id == id)
                                                 ?? throw new NullReferenceException("Amenity not found");
-        }
-        public async Task UpdateAsync(Amenity amenity)
+        public void Update(Amenity amenity)
         {
             var existingAmenity = _context.ChangeTracker.Entries<Amenity>()
                                                  .FirstOrDefault(e => e.Entity.Id == amenity.Id);
@@ -49,7 +45,7 @@ namespace GoWheels_WebAPI.Repositories
             }
 
             _context.Entry(amenity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(amenity).State = EntityState.Detached;

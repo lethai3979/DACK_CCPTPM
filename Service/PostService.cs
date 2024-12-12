@@ -29,17 +29,17 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Post>> GetAllAsync()
-            => await _postRepository.GetAllAsync();
+        public List<Post> GetAll()
+            => _postRepository.GetAll();
 
-        public async Task<Post> GetByIdAsync(int id)
-            => await _postRepository.GetByIdAsync(id);
+        public Post GetById(int id)
+            => _postRepository.GetById(id);
 
-        public async Task<List<Post>> GetAllByUserId()
-            => await _postRepository.GetPostsByUserIdAsync(_userId);
+        public List<Post> GetAllByUserId()
+            => _postRepository.GetPostsByUserId(_userId);
 
-        public async Task<List<Post>> GetAllByUserId(string userId)
-            => await _postRepository.GetPostsByUserIdAsync(userId);
+        public List<Post> GetAllByUserId(string userId)
+            => _postRepository.GetPostsByUserId(userId);
         public List<Post> ApplyFilters(List<Post> query, SearchFilterModel filterModel)
         {
             if (!string.IsNullOrWhiteSpace(filterModel.Company))
@@ -79,14 +79,14 @@ namespace GoWheels_WebAPI.Service
             return query;
         }
 
-        public async Task AddAsync(Post post, IFormFile formFile,List<IFormFile> formFiles, List<int> amenitiesIds)
+        public void Add(Post post, IFormFile formFile, List<IFormFile> formFiles, List<int> amenitiesIds)
         {
             try
             {
                 List<string> imgUrls = new List<string>();
                 if (formFile != null && formFile.Length > 0)
                 {
-                    post.Image = await SaveImage(formFile);
+                    post.Image = SaveImage(formFile);
                 }
                 post.CreatedById = _userId;
                 post.CreatedOn = DateTime.Now;
@@ -94,21 +94,21 @@ namespace GoWheels_WebAPI.Service
                 post.AvgRating = 0;
                 post.IsDeleted = false;
                 post.IsDisabled = false;
-                post.IsHidden = false;  
-                await _postRepository.AddAsync(post);
-                if(formFiles.Count != 0)
+                post.IsHidden = false;
+                _postRepository.Add(post);
+                if (formFiles.Count != 0)
                 {
                     foreach (var file in formFiles)
                     {
-                        var img = await SaveImage(file);
+                        var img = SaveImage(file);
                         imgUrls.Add(img);
                     }
 
-                    await _postRepository.AddPostImagesAsync(imgUrls, post.Id);
+                    _postRepository.AddPostImages(imgUrls, post.Id);
                 }
-                if(amenitiesIds.Count != 0)
+                if (amenitiesIds.Count != 0)
                 {
-                    await _postAmenityRepository.AddRangeAsync(amenitiesIds, post.Id);
+                    _postAmenityRepository.AddRange(amenitiesIds, post.Id);
                 }
             }
             catch (DbUpdateException dbEx)
@@ -124,7 +124,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        private async Task<string> SaveImage(IFormFile file)
+        private string SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -147,7 +147,7 @@ namespace GoWheels_WebAPI.Service
                 // Lưu ảnh vào thư mục
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(fileStream);
+                    file.CopyTo(fileStream);
                 }
 
                 // Trả về URL để lưu vào database
@@ -162,10 +162,10 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        private async Task<bool> IsPostAmenityChange(List<int> selectedAmenities, int existingPostId)
+        private bool IsPostAmenityChange(List<int> selectedAmenities, int existingPostId)
         {
-            var previousDetails = await _postAmenityRepository.GetAmenityByPostIdAsync(existingPostId);
-            var amenities = await _amenityService.GetAllAsync();
+            var previousDetails = _postAmenityRepository.GetAmenityByPostId(existingPostId);
+            var amenities = _amenityService.GetAll();
             foreach (var amenity in amenities)
             {
                 bool previousChecked = previousDetails != null && previousDetails.Any(c => c.AmenityId.Equals(amenity.Id));
@@ -178,29 +178,29 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
-        private async Task UpdatePostAmenitiesAsync(int postId, List<int> amenitiesIds)
+        private void UpdatePostAmenities(int postId, List<int> amenitiesIds)
         {
-            await _postAmenityRepository.RemoveRangeAsync(postId);
-            await _postAmenityRepository.AddRangeAsync(amenitiesIds, postId);
+            _postAmenityRepository.RemoveRange(postId);
+            _postAmenityRepository.AddRange(amenitiesIds, postId);
         }
 
-        public async Task UpdateAsync(int id, Post post,IFormFile image ,List<int> amenitiesIds)
+        public void Update(int id, Post post, IFormFile image, List<int> amenitiesIds)
         {
             try
             {
-                var existingPost = await _postRepository.GetByIdAsync(id);
+                var existingPost = _postRepository.GetById(id);
                 var imageUrl = "./wwwroot/images/posts/" + Path.GetFileName(image.FileName);
-                if(_userId != existingPost.UserId)
+                if (_userId != existingPost.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
                 }
-                if(post.Image == null)
+                if (post.Image == null)
                 {
                     post.Image = existingPost.Image;
                 }
                 else
                 {
-                    post.Image = await SaveImage(image);
+                    post.Image = SaveImage(image);
                 }
                 post.CreatedOn = existingPost.CreatedOn;
                 post.CreatedById = existingPost.CreatedById;
@@ -209,14 +209,14 @@ namespace GoWheels_WebAPI.Service
                 post.AvgRating = existingPost.AvgRating;
                 post.IsDeleted = existingPost.IsDeleted;
                 post.Favorites = existingPost.Favorites;
-                if(image != null && imageUrl != existingPost.Image)
+                if (image != null && imageUrl != existingPost.Image)
                 {
-                    post.Image = await SaveImage(image);                  
-                }    
+                    post.Image = SaveImage(image);
+                }
                 else
                 {
                     post.Image = existingPost.Image;
-                }    
+                }
                 post.Images = existingPost.Images;
                 post.UserId = existingPost.UserId;
                 post.User = existingPost.User;
@@ -228,10 +228,10 @@ namespace GoWheels_WebAPI.Service
                 {
                     amenitiesIds.Clear();
                 }
-                var isPostAmenitiesChange = await IsPostAmenityChange(amenitiesIds, existingPost.Id);
+                var isPostAmenitiesChange = IsPostAmenityChange(amenitiesIds, existingPost.Id);
                 if (isPostAmenitiesChange)
                 {
-                    await UpdatePostAmenitiesAsync(existingPost.Id, amenitiesIds);
+                    UpdatePostAmenities(existingPost.Id, amenitiesIds);
                     EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
                 }
                 else
@@ -239,7 +239,7 @@ namespace GoWheels_WebAPI.Service
                     var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);
                     EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, _userId);
                 }
-                await _postRepository.UpdateAsync(post);
+                _postRepository.Update(post);
             }
             catch (DbUpdateException dbEx)
             {
@@ -268,11 +268,11 @@ namespace GoWheels_WebAPI.Service
             }
             return false;
         }
-        public async Task UpdatePostImagesAsync(List<IFormFile> imageFiles, int postId)
+        public void UpdatePostImages(List<IFormFile> imageFiles, int postId)
         {
             try
             {
-                var post = await _postRepository.GetByIdAsync(postId);
+                var post = _postRepository.GetById(postId);
                 if (_userId != post.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
@@ -287,14 +287,14 @@ namespace GoWheels_WebAPI.Service
                     }
                     post.ModifiedById = _userId;
                     post.ModifiedOn = DateTime.Now;
-                    await _postRepository.UpdateAsync(post);
-                    await _postRepository.DeletePostImagesAsync(post.Id);
+                    _postRepository.Update(post);
+                    _postRepository.DeletePostImages(post.Id);
                     foreach (var file in imageFiles)
                     {
-                        var img = await SaveImage(file);
+                        var img = SaveImage(file);
                         imageUrls.Add(img);
                     }
-                    await _postRepository.AddPostImagesAsync(imageUrls, postId);
+                    _postRepository.AddPostImages(imageUrls, postId);
                 }
             }
             catch (DbUpdateException dbEx)
@@ -311,14 +311,14 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdatePostAverageRatingAsync(int postId, float avgRating)
+        public void UpdatePostAverageRating(int postId, float avgRating)
         {
             try
             {
-                var post = await _postRepository.GetByIdAsync(postId);
+                var post = _postRepository.GetById(postId);
                 if (post == null) throw new InvalidOperationException("Post not found");
                 post.AvgRating = avgRating;
-                await _postRepository.UpdateAsync(post);
+                _postRepository.Update(post);
             }
             catch (DbUpdateException dbEx)
             {
@@ -332,15 +332,15 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateRideNumberAsync(int postId, int rideNumber)
+        public void UpdateRideNumber(int postId, int rideNumber)
         {
             try
             {
-                var post = await _postRepository.GetByIdAsync(postId);
+                var post = _postRepository.GetById(postId);
                 post.RideNumber += rideNumber;
-                await _postRepository.UpdateAsync(post);
+                _postRepository.Update(post);
             }
-            catch(NullReferenceException nullEx)
+            catch (NullReferenceException nullEx)
             {
                 throw new NullReferenceException(nullEx.Message);
             }
@@ -357,19 +357,19 @@ namespace GoWheels_WebAPI.Service
 
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public void DeleteById(int id)
         {
             try
             {
-                var post = await _postRepository.GetByIdAsync(id);
+                var post = _postRepository.GetById(id);
                 if (_userId != post.UserId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
                 }
                 post.IsDeleted = true;
                 post.ModifiedById = _userId;
-                post.ModifiedOn = DateTime.Now; 
-                await _postRepository.UpdateAsync(post);
+                post.ModifiedOn = DateTime.Now;
+                _postRepository.Update(post);
             }
             catch (DbUpdateException dbEx)
             {
@@ -385,15 +385,15 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DisablePostByIdAsync(int id)
+        public void DisablePostById(int id)
         {
             try
             {
-                var post = await _postRepository.GetByIdAsync(id);
+                var post = _postRepository.GetById(id);
                 post.IsDisabled = true;
                 post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now;
-                await _postRepository.UpdateAsync(post);
+                _postRepository.Update(post);
             }
             catch (DbUpdateException dbEx)
             {

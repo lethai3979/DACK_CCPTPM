@@ -13,20 +13,20 @@ namespace GoWheels_WebAPI.Repositories
         public InvoiceRepository(ApplicationDbContext context)
         {
             _context = context;
-        }   
+        }
 
-        public async Task<List<Invoice>> GetAllAsync()
-            => await _context.Invoices.AsNoTracking()
+        public List<Invoice> GetAll()
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
                                         .ThenInclude(i => i.Driver)
                                         .ThenInclude(i => i.User)
                                         .OrderByDescending(i => i.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Invoice>> GetAllByUserIdAsync(string userId)
-            => await _context.Invoices.AsNoTracking()
+        public List<Invoice> GetAllByUserId(string userId)
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
@@ -34,10 +34,10 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(i => i.User)
                                         .Where(i => i.Booking.UserId == userId)
                                         .OrderByDescending(i => i.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Invoice>> GetAllByDriverAsync(string userId)
-            => await _context.Invoices.AsNoTracking()
+        public List<Invoice> GetAllByDriver(string userId)
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
@@ -45,54 +45,54 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(i => i.User)
                                         .Where(i => i.DriverBooking.Driver.UserId == userId)
                                         .OrderByDescending(i => i.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Invoice>> GetAllRefundInvoicesAsync()
-            => await _context.Invoices.AsNoTracking()
+        public List<Invoice> GetAllRefundInvoices()
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .Include(i => i.DriverBooking)
                                         .ThenInclude(i => i.Driver)
                                         .ThenInclude(i => i.User)
                                         .Where(i => i.RefundInvoice)
                                         .OrderByDescending(i => i.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<Invoice> GetByIdAsync(int id)
-            => await _context.Invoices.AsNoTracking()
+        public Invoice GetById(int id)
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
                                         .ThenInclude(d => d.Driver)
                                         .ThenInclude(d => d.User)
-                                        .FirstOrDefaultAsync(i => i.Id == id)
+                                        .FirstOrDefault(i => i.Id == id)
                                         ?? throw new NullReferenceException("Invoice not found");
 
 
-        public async Task<Invoice> GetByBookingIdAsync(int bookingId)
-            => await _context.Invoices.AsNoTracking()
+        public Invoice GetByBookingId(int bookingId)
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
                                         .ThenInclude(d => d.Driver)
                                         .ThenInclude(d => d.User)
-                                        .FirstOrDefaultAsync(i => i.BookingId == bookingId)
+                                        .FirstOrDefault(i => i.BookingId == bookingId)
                                         ?? throw new NullReferenceException("Invoice not found");
 
-        public async Task<Invoice> GetByDriverBookingIdAsync(int driverBooking)
-            => await _context.Invoices.AsNoTracking()
+        public Invoice GetByDriverBookingId(int driverBooking)
+            => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
-                                        .FirstOrDefaultAsync(i => i.DriverBookingId == driverBooking)
+                                        .FirstOrDefault(i => i.DriverBookingId == driverBooking)
                                         ?? throw new NullReferenceException("Invoice not found");
 
-        public async Task AddAsync(Invoice invoice)
+        public void Add(Invoice invoice)
         {
-            await _context.Invoices.AddAsync(invoice);
-            await _context.SaveChangesAsync();
+            _context.Invoices.Add(invoice);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(Invoice invoice)
+        public void Update(Invoice invoice)
         {
             var existingInvoice = _context.Invoices.Local.FirstOrDefault(b => b.Id == invoice.Id);
 
@@ -103,16 +103,16 @@ namespace GoWheels_WebAPI.Repositories
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(invoice).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Invoice invoice)
+        public void Delete(Invoice invoice)
         {
             _context.Entry(invoice).State = EntityState.Modified;
             invoice.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        
+
 
     }
 }

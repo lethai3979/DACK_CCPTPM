@@ -14,32 +14,32 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task<List<PostAmenity>> GetAmenityByPostIdAsync(int id)
-            => await _context.PostAmenities.Include(p => p.Post)
+        public List<PostAmenity> GetAmenityByPostId(int id)
+            => _context.PostAmenities.Include(p => p.Post)
                                             .Include(p => p.Amenity)
                                             .Where(p => p.PostId == id)
-                                            .ToListAsync();  
+                                            .ToList();
 
 
-        public async Task RemoveRangeAsync(int postId)
+        public void RemoveRange(int postId)
         {
-            var amenitiesList = await _context.PostAmenities
-                                                .Where(p => p.PostId ==  postId)
-                                                .ToListAsync();
+            var amenitiesList = _context.PostAmenities
+                                            .Where(p => p.PostId == postId)
+                                            .ToList();
             _context.PostAmenities.RemoveRange(amenitiesList);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task AddRangeAsync(List<int> amenitiesIDs, int postId)
+        public void AddRange(List<int> amenitiesIDs, int postId)
         {
             foreach (int id in amenitiesIDs)
             {
                 var postAmenity = new PostAmenity();
                 postAmenity.AmenityId = id;
                 postAmenity.PostId = postId;
-                await _context.AddAsync(postAmenity);
+                _context.Add(postAmenity);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
     }
 }

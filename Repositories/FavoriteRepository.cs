@@ -14,20 +14,20 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Favorite post)
+        public void Add(Favorite post)
         {
-            await _context.Favorites.AddAsync(post);
-            await _context.SaveChangesAsync();
+            _context.Favorites.AddAsync(post);
+            _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Favorite favorite)
+        public void Update(Favorite favorite)
         {
             _context.Entry(favorite).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Favorite>> GetAllByUserIdAsync(string userId)
-            => await _context.Favorites.AsNoTracking()
+        public List<Favorite> GetAllByUserId(string userId)
+            => _context.Favorites.AsNoTracking()
                                         .Where(p => p.UserId == userId && !p.IsDeleted)
                                         .Include(p => p.Post)
                                         .ThenInclude(post => post.PostAmenities)
@@ -37,10 +37,10 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(post => post.CarType)
                                         .Include(p => p.Post)
                                         .ThenInclude(post => post.Company)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<Favorite?> GetByPostIdAsync(int postId, string userId)
-            => await _context.Favorites.AsNoTracking()
+        public Favorite? GetByPostId(int postId, string userId)
+            => _context.Favorites.AsNoTracking()
                                         .Where(p => p.UserId == userId)
                                         .Include(p => p.Post)
                                         .ThenInclude(post => post.PostAmenities)
@@ -50,12 +50,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(post => post.CarType)
                                         .Include(p => p.Post)
                                         .ThenInclude(post => post.Company)
-                                        .FirstOrDefaultAsync(p => p.PostId == postId);
-        
-        public async Task<Favorite> GetByIdAsync(int id, string userId)
-            => await _context.Favorites.AsNoTracking()
+                                        .FirstOrDefault(p => p.PostId == postId);
+
+        public Favorite GetById(int id, string userId)
+            => _context.Favorites.AsNoTracking()
                                         .Where(p => p.UserId == userId)
-                                        .FirstOrDefaultAsync(p => p.Id == id)
+                                        .FirstOrDefault(p => p.Id == id)
                                         ?? throw new NullReferenceException("Favorite not found");
     }
 }

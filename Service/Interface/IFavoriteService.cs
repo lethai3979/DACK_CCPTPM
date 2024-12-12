@@ -4,9 +4,9 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IFavoriteService
     {
-        Task<List<Favorite>> GetAllAsync();
-        Task AddAsync(Favorite favorite);
-        Task DeletedAsync(int id);
+        List<Favorite> GetAll();
+        void Add(Favorite favorite);
+        void Deleted(int id);
 
     }
 }

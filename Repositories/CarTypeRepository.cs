@@ -19,53 +19,53 @@ namespace GoWheels_WebAPI.Repositories
         }
 
 
-        public async Task AddAsync(CarType carType)
+        public void Add(CarType carType)
         {
-            await _context.CarTypes.AddAsync(carType);
-            await _context.SaveChangesAsync();
+            _context.CarTypes.Add(carType);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(CarType carType)
+        public void Delete(CarType carType)
         {
             _context.Entry(carType).State = EntityState.Modified;
             carType.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
 
-        public async Task UpdateAsync(CarType carType)
-    {
-        //Check if there's any obj with same id being tracked
-        var existingCarType = _context.ChangeTracker.Entries<CarType>()
-                                     .FirstOrDefault(e => e.Entity.Id == carType.Id);
-
-        //detached same id obj
-        if (existingCarType != null)
+        public void Update(CarType carType)
         {
-            _context.Entry(existingCarType.Entity).State = EntityState.Detached;
+            //Check if there's any obj with same id being tracked
+            var existingCarType = _context.ChangeTracker.Entries<CarType>()
+                                         .FirstOrDefault(e => e.Entity.Id == carType.Id);
+
+            //detached same id obj
+            if (existingCarType != null)
+            {
+                _context.Entry(existingCarType.Entity).State = EntityState.Detached;
+            }
+
+            _context.CarTypes.Attach(carType);  // Attach target modified obj to context 
+            _context.Entry(carType).State = EntityState.Modified;
+
+            _context.SaveChanges();
+
+            //detached tracking obj after modified
+            _context.Entry(carType).State = EntityState.Detached;
         }
 
-        _context.CarTypes.Attach(carType);  // Attach target modified obj to context 
-        _context.Entry(carType).State = EntityState.Modified;
-
-        await _context.SaveChangesAsync();
-
-        //detached tracking obj after modified
-        _context.Entry(carType).State = EntityState.Detached;
-    }
-
-        public async Task<List<CarType>> GetAllAsync()
-            => await _context.CarTypes.AsNoTracking()
+        public List<CarType> GetAll()
+            => _context.CarTypes.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.Company)
-                                        .ToListAsync();
-        
+                                        .ToList();
 
-        public async Task<CarType> GetByIdAsync(int id)
-            => await _context.CarTypes.AsNoTracking()
+
+        public CarType GetById(int id)
+            => _context.CarTypes.AsNoTracking()
                                         .Include(c => c.CarTypeDetail.Where(ctd => !ctd.CarType.IsDeleted))
                                         .ThenInclude(c => c.Company)
-                                        .FirstOrDefaultAsync(c => c.Id == id) 
+                                        .FirstOrDefault(c => c.Id == id)
                                         ?? throw new NullReferenceException("Car type not found");
 
     }

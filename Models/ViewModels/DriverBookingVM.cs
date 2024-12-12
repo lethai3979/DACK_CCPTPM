@@ -8,6 +8,6 @@
         public bool IsCancel { get; set; }
         public DriverVM Driver { get; set; } = null!;
 
-        public List<InvoiceVM> Invoices { get; set; } = new List<InvoiceVM>();
+        //public List<InvoiceVM> Invoices { get; set; } = new List<InvoiceVM>();
     }
 }

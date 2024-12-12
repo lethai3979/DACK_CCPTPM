@@ -29,22 +29,22 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Company>> GetAllAsync()
-            => await _companyRepository.GetAllAsync();
+        public List<Company> GetAll()
+            => _companyRepository.GetAll();
 
 
-        public async Task<Company> GetByIdAsync(int id)
-            => await _companyRepository.GetByIdAsync(id);
+        public Company GetById(int id)
+            => _companyRepository.GetById(id);
 
 
-        public async Task AddAsync(Company company, List<int> carTypeIds, IFormFile formFile)
+        public void Add(Company company, List<int> carTypeIds, IFormFile formFile)
         {
 
             try
             {
                 if (formFile != null && formFile.Length > 0)
                 {
-                    company.IconImage = await SaveImage(formFile);
+                    company.IconImage = SaveImage(formFile);
                 }
                 if (carTypeIds.Contains(0))
                 {
@@ -53,8 +53,8 @@ namespace GoWheels_WebAPI.Service
                 company.CreatedById = _userId;
                 company.CreatedOn = DateTime.Now;
                 company.IsDeleted = false;
-                await _companyRepository.AddAsync(company);
-                await _carTypeDetailRepository.AddCarTypesListAsync(company.Id, carTypeIds);
+                _companyRepository.Add(company);
+                _carTypeDetailRepository.AddCarTypesList(company.Id, carTypeIds);
             }
             catch (DbUpdateException dbEx)
             {
@@ -69,7 +69,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        private async Task<string> SaveImage(IFormFile file)
+        private string SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -92,7 +92,7 @@ namespace GoWheels_WebAPI.Service
                 // Lưu ảnh vào thư mục
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(fileStream);
+                    file.CopyTo(fileStream);
                 }
 
                 // Trả về URL để lưu vào database
@@ -104,15 +104,15 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception("Could not save file", ex);
             }
         }
-        public async Task DeleteByIdAsync(int id)
+        public void DeleteById(int id)
         {
             try
             {
-                var company = await _companyRepository.GetByIdAsync(id);
+                var company = _companyRepository.GetById(id);
                 company.ModifiedById = _userId;
                 company.ModifiedOn = DateTime.Now;
                 company.IsDeleted = !company.IsDeleted;
-                await _companyRepository.UpdateAsync(company);
+                _companyRepository.Update(company);
             }
             catch (DbUpdateException dbEx)
             {
@@ -128,7 +128,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(int id, Company company, List<int> carTypeIds, IFormFile formFile)
+        public void Update(int id, Company company, List<int> carTypeIds, IFormFile formFile)
         {
             try
             {
@@ -137,11 +137,11 @@ namespace GoWheels_WebAPI.Service
                 {
                     imageUrl = "./wwwroot/images/companies/" + Path.GetFileName(formFile.FileName);
                 }
-                var existingCompany = await _companyRepository.GetByIdAsync(id);
+                var existingCompany = _companyRepository.GetById(id);
 
                 if (formFile != null && formFile.Length > 0 && imageUrl != existingCompany.IconImage)
                 {
-                    company.IconImage = await SaveImage(formFile);
+                    company.IconImage = SaveImage(formFile);
                 }
                 else
                 {
@@ -157,11 +157,11 @@ namespace GoWheels_WebAPI.Service
                 {
                     throw new InvalidOperationException("Invalid car type Id");
                 }
-                var isDetailsChange = await IsCompanyDetailChange(carTypeIds, existingCompany.Id);
+                var isDetailsChange = IsCompanyDetailChange(carTypeIds, existingCompany.Id);
 
                 if (isDetailsChange)
                 {
-                    await UpdateCompanyDetails(existingCompany.Id, carTypeIds);
+                    UpdateCompanyDetails(existingCompany.Id, carTypeIds);
                     EditHelper<Company>.SetModifiedIfNecessary(company, true, existingCompany, _userId);
                 }
                 else
@@ -170,7 +170,7 @@ namespace GoWheels_WebAPI.Service
                                             .HasChanges(company, existingCompany);//Check if Company data changed
                     EditHelper<Company>.SetModifiedIfNecessary(company, isValueChange, existingCompany, _userId);
                 }
-                await _companyRepository.UpdateAsync(company);
+                _companyRepository.Update(company);
             }
             catch (DbUpdateException dbEx)
             {
@@ -186,16 +186,16 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private async Task UpdateCompanyDetails(int companyId, List<int> carTypeIds)
+        private void UpdateCompanyDetails(int companyId, List<int> carTypeIds)
         {
-            await _carTypeDetailRepository.ClearCompanyDetailsAsync(companyId);
-            await _carTypeDetailRepository.AddCarTypesListAsync(companyId, carTypeIds);
+            _carTypeDetailRepository.ClearCompanyDetails(companyId);
+            _carTypeDetailRepository.AddCarTypesList(companyId, carTypeIds);
         }
 
-        private async Task<bool> IsCompanyDetailChange(List<int> selectedCarTypes, int existingCompanyId)
+        private bool IsCompanyDetailChange(List<int> selectedCarTypes, int existingCompanyId)
         {
-            var previousDetails = await _carTypeDetailRepository.GetCompanyDetails(existingCompanyId);
-            var carTypes = await _carTypeRepository.GetAllAsync();
+            var previousDetails = _carTypeDetailRepository.GetCompanyDetails(existingCompanyId);
+            var carTypes = _carTypeRepository.GetAll();
             foreach (var carType in carTypes)
             {
                 bool previousChecked = previousDetails != null && previousDetails.Any(c => c.CarType.Id.Equals(carType.Id));

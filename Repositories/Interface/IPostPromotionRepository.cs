@@ -4,10 +4,10 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IPostPromotionRepository : IGenericRepository<PostPromotion>
     {
-        Task DeleteRangeAsync(List<PostPromotion> postPromotions);
-        Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId);
-        Task<List<PostPromotion>> GetAllByPostIdAsync(int promotionId);
-        Task<PostPromotion> GetByPromotionIdAsync(int id);
+        void DeleteRange(List<PostPromotion> postPromotions);
+        List<PostPromotion> GetAllByPromotionId(int promotionId);
+        List<PostPromotion> GetAllByPostId(int promotionId);
+        PostPromotion GetByPromotionId(int id);
 
     }
 }

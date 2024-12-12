@@ -16,30 +16,30 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Booking booking)
+        public void Add(Booking booking)
         {
-            await _context.AddAsync(booking);
-            await _context.SaveChangesAsync();
+            _context.Add(booking);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Booking booking)
+        public void Delete(Booking booking)
         {
             _context.Entry(booking).State = EntityState.Modified;
             booking.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Booking>> GetAllAsync()
-            => await _context.Bookings.AsNoTracking().Include(b => b.Post)
+        public List<Booking> GetAll()
+            => _context.Bookings.AsNoTracking().Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllDriverRequireBookingsAsync()
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllDriverRequireBookings()
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
@@ -49,98 +49,97 @@ namespace GoWheels_WebAPI.Repositories
                                                     && b.IsRequireDriver
                                                     && !b.HasDriver)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllByDriverAsync(string userId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllByDriver(string userId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted
                                                     && b.OwnerConfirm
                                                     && b.HasDriver
-                                                    && b.Invoices.Any(i => i.DriverBooking.CreatedById == userId)
-                                        )
+                                                    && b.Invoices.Any(i => i.DriverBooking.CreatedById == userId))
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
 
-        public async Task<List<Booking>> GetAllByPostIdAsync(int postId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllByPostId(int postId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted 
-                                                        && b.PostId == postId  
-                                                        && b.OwnerConfirm 
+                                        .Where(b => !b.IsDeleted
+                                                        && b.PostId == postId
+                                                        && b.OwnerConfirm
                                                         && b.RecieveOn > DateTime.Now)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllPersonalBookingsAsync(string userId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllPersonalBookings(string userId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .ThenInclude(b => b.User)
                                         .Include(b => b.Promotion)
                                         .Include(b => b.User)
                                         .Where(b => b.UserId == userId)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllCancelRequestAsync()
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllCancelRequest()
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.Promotion)
                                         .Include(b => b.User)
                                         .Where(b => b.IsRequest && !b.IsResponse)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllUnRecieveBookingByPostIdAsync(int postId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllUnRecieveBookingByPostId(int postId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Promotion)
                                         .Where(b => b.PostId == postId && b.RecieveOn > DateTime.Now && !b.IsResponse)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllWaitingBookingByPostIdAsync(int postId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllWaitingBookingByPostId(int postId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Where(b => b.PostId == postId && b.Status == "Waiting")
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllPendingBookingByUserIdAsync(string userId)
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllPendingBookingByUserId(string userId)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Promotion)
                                         .Where(b => b.Post.UserId == userId && b.Status == "Pending" && !b.IsPay)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<List<Booking>> GetAllCompleteBookingsAsync()
-            => await _context.Bookings.AsNoTracking()
+        public List<Booking> GetAllCompleteBookings()
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Where(b => b.RecieveOn <= DateTime.Now && b.IsPay && !b.Post.IsDisabled)
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToListAsync();
-                                        
+                                        .ToList();
 
-        public async Task<Booking> GetByIdAsync(int id)
-            => await _context.Bookings.AsNoTracking()
+
+        public Booking GetById(int id)
+            => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .ThenInclude(b => b.User)
                                         .Include(b => b.Promotion)
                                         .Include(b => b.User)
-                                        .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted)
+                                        .FirstOrDefault(b => b.Id == id && !b.IsDeleted)
                                         ?? throw new NullReferenceException("Booking not found");
 
-        public async Task UpdateAsync(Booking booking)
+        public void Update(Booking booking)
         {
             var trackedBooking = _context.Bookings.Local.FirstOrDefault(b => b.Id == booking.Id);
 
@@ -151,7 +150,7 @@ namespace GoWheels_WebAPI.Repositories
 
             _context.Entry(booking).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
 

@@ -15,25 +15,25 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(PostPromotion postPromotion)
+        public void Add(PostPromotion postPromotion)
         {
-            await _context.AddAsync(postPromotion);
-            await _context.SaveChangesAsync();
+            _context.Add(postPromotion);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(PostPromotion postPromotion)
+        public void Delete(PostPromotion postPromotion)
         {
             _context.Remove(postPromotion);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteRangeAsync(List<PostPromotion> postPromotions)
+        public void DeleteRange(List<PostPromotion> postPromotions)
         {
             _context.PostPromotions.RemoveRange(postPromotions);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(PostPromotion postPromotion)
+        public void Update(PostPromotion postPromotion)
         {
             var existingPostPromotion = _context.ChangeTracker.Entries<Amenity>()
                                                  .FirstOrDefault(e => e.Entity.Id == postPromotion.Id);
@@ -45,37 +45,37 @@ namespace GoWheels_WebAPI.Repositories
             }
 
             _context.Entry(postPromotion).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(postPromotion).State = EntityState.Detached;
         }
 
-        public async Task<List<PostPromotion>> GetAllAsync()
-            => await _context.PostPromotions.ToListAsync();
+        public List<PostPromotion> GetAll()
+            => _context.PostPromotions.ToList();
 
 
 
-        public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
-                => await _context.PostPromotions.Include(p => p.Post)
+        public List<PostPromotion> GetAllByPromotionId(int promotionId)
+                => _context.PostPromotions.Include(p => p.Post)
                                                 .Where(p => p.PromotionId == promotionId)
-                                                .ToListAsync();
+                                                .ToList();
 
-        public async Task<List<PostPromotion>> GetAllByPostIdAsync(int promotionId)
-                => await _context.PostPromotions.Include(p => p.Post)
+        public List<PostPromotion> GetAllByPostId(int promotionId)
+                => _context.PostPromotions.Include(p => p.Post)
                                                 .Where(p => p.PostId == promotionId)
-                                                .ToListAsync();
+                                                .ToList();
 
-        public async Task<PostPromotion> GetByIdAsync(int id)
-            => await _context.PostPromotions
-                        .FirstOrDefaultAsync(p => p.Id == id)
+        public PostPromotion GetById(int id)
+            => _context.PostPromotions
+                        .FirstOrDefault(p => p.Id == id)
                         ?? throw new NullReferenceException("Post promotionId not found");
 
-        public async Task<PostPromotion> GetByPromotionIdAsync(int id)
-            => await _context.PostPromotions
-                        .FirstOrDefaultAsync(p => p.PromotionId == id)
+        public PostPromotion GetByPromotionId(int id)
+            => _context.PostPromotions
+                        .FirstOrDefault(p => p.PromotionId == id)
                         ?? throw new NullReferenceException("Post promotionId not found");
 
-        
+
     }
 }

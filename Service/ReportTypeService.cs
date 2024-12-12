@@ -20,21 +20,21 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<ReportType>> GetAllAsync()
-            => await _reportTypeRepository.GetAllAsync();
+        public List<ReportType> GetAll()
+            => _reportTypeRepository.GetAll();
 
 
-        public async Task<ReportType> GetByIdAsync(int id)
-            => await _reportTypeRepository.GetByIdAsync(id);
+        public ReportType GetById(int id)
+            => _reportTypeRepository.GetById(id);
 
-        public async Task AddAsync(ReportType reportType)
+        public void Add(ReportType reportType)
         {
             try
             {
                 reportType.CreatedById = _userId;
                 reportType.CreatedOn = DateTime.Now;
                 reportType.IsDeleted = false;
-                await _reportTypeRepository.AddAsync(reportType);
+                _reportTypeRepository.Add(reportType);
             }
             catch (DbUpdateException dbEx)
             {
@@ -50,11 +50,11 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(int id, ReportType reportType)
+        public void Update(int id, ReportType reportType)
         {
             try
             {
-                var existingReportType = await _reportTypeRepository.GetByIdAsync(id);
+                var existingReportType = _reportTypeRepository.GetById(id);
                 reportType.CreatedOn = existingReportType.CreatedOn;
                 reportType.CreatedById = existingReportType.CreatedById;
                 reportType.ModifiedById = existingReportType.ModifiedById;
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Service
                 reportType.IsDeleted = existingReportType.IsDeleted;
                 var isNameChange = reportType.Name != existingReportType.Name;
                 EditHelper<ReportType>.SetModifiedIfNecessary(reportType, isNameChange, existingReportType, _userId);
-                await _reportTypeRepository.UpdateAsync(reportType);
+                _reportTypeRepository.Update(reportType);
             }
             catch (DbUpdateException dbEx)
             {
@@ -79,15 +79,15 @@ namespace GoWheels_WebAPI.Service
         }
 
 
-        public async Task DeletedByIdAsync(int id)
+        public void DeletedById(int id)
         {
             try
             {
-                var reportType = await _reportTypeRepository.GetByIdAsync(id);
+                var reportType = _reportTypeRepository.GetById(id);
                 reportType.ModifiedById = _userId;
                 reportType.ModifiedOn = DateTime.Now;
                 reportType.IsDeleted = !reportType.IsDeleted;
-                await _reportTypeRepository.UpdateAsync(reportType);
+                _reportTypeRepository.Update(reportType);
             }
             catch (DbUpdateException dbEx)
             {

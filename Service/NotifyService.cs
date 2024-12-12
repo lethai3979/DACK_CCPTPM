@@ -21,17 +21,17 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Notify>> GetAllByUserIdAsync()
-            => await _notifyRepository.GetAllByUserIdAsync(_userId);
-        
-        public async Task<Notify> GetByIdAsync(int id)
-            => await _notifyRepository.GetByIdAsync(id);
+        public List<Notify> GetAllByUserId()
+            => _notifyRepository.GetAllByUserId(_userId);
 
-        public async Task AddAsync(Notify notify)
+        public Notify GetById(int id)
+            => _notifyRepository.GetById(id);
+
+        public void Add(Notify notify)
         {
             try
             {
-                await _notifyRepository.AddAsync(notify);
+                _notifyRepository.Add(notify);
             }
             catch (DbUpdateException dbEx)
             {
@@ -47,13 +47,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task MarkAsReadAsync(int id)
+        public void MarkAsRead(int id)
         {
             try
             {
-                var notify = await _notifyRepository.GetByIdAsync(id);
+                var notify = _notifyRepository.GetById(id);
                 notify.IsRead = true;
-                await _notifyRepository.UpdateAsync(notify);
+                _notifyRepository.Update(notify);
             }
             catch (DbUpdateException dbEx)
             {
@@ -69,16 +69,16 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeleteAsync(int id)
+        public void Delete(int id)
         {
             try
             {
-                var notify = await _notifyRepository.GetByIdAsync(id);
-                if(notify.UserId != _userId)
+                var notify = _notifyRepository.GetById(id);
+                if (notify.UserId != _userId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
-                }    
-                await _notifyRepository.DeleteAsync(notify);
+                }
+                _notifyRepository.Delete(notify);
             }
             catch (DbUpdateException dbEx)
             {

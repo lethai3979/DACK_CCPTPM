@@ -56,7 +56,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var promotion = await _promotionService.GetByIdAsync(id);
+                var promotion = await _promotionService.GetById(id);
                 var promotionVM = _mapper.Map<PromotionVM>(promotion);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVM);
             }
@@ -90,7 +90,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                     if(promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.AddAsync(promotion, promotionDTO.PostIds);
+                        await _promotionService.Add(promotion, promotionDTO.PostIds);
                         return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -130,7 +130,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                     if(promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.UpdateAsync(id, promotion, promotionDTO.PostIds);
+                        await _promotionService.Update(id, promotion, promotionDTO.PostIds);
                         return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -157,7 +157,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _promotionService.DeleteByIdAsync(id);
+                await _promotionService.DeleteById(id);
                 return new OperationResult(true, "Promotion deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

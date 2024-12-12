@@ -35,7 +35,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var requests = await _bookingService.GetAllCancelRequestAsync();
+                var requests = await _bookingService.GetAllCancelRequest();
                 var requestVMs = _mapper.Map<List<BookingVM>>(requests);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: requestVMs);
             }
@@ -60,10 +60,10 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var booking = await _bookingService.GetByIdAsync(bookingId);
-                await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
+                var booking = await _bookingService.GetById(bookingId);
+                await _bookingService.ExamineCancelBookingRequest(booking, isAccept);
                 await _invoiceService.RefundAsync(booking, isAccept);
-                var driverBooking = await _driverBookingService.GetByBookingIdAsync(bookingId);
+                var driverBooking = await _driverBookingService.GetByBookingId(bookingId);
                 driverBooking.IsCancel = isAccept;
                 await _driverBookingService.UpdateAsync(driverBooking);
                 return new OperationResult(true, "Cancellation request processed successfully", StatusCodes.Status200OK);
@@ -91,7 +91,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var invoices = await _invoiceService.GetAllRefundInvoicesAsync();
+                var invoices = await _invoiceService.GetAllRefundInvoices();
                 var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
             }

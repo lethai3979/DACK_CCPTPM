@@ -41,7 +41,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
         {
             try
             {
-                var driverBookings = await _driverBookingService.GetAllByUserIdAsync();
+                var driverBookings = await _driverBookingService.GetAllByUserId();
                 var driverBookingsVMs = _mapper.Map<List<DriverBookingVM>>(driverBookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: driverBookingsVMs);
             }
@@ -66,7 +66,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
         {
             try
             {
-                var booking = await _bookingService.GetByIdAsync(bookingId);
+                var booking = await _bookingService.GetById(bookingId);
                 if (booking.HasDriver)
                 {
                     return new OperationResult(false, "Driver already assigned", StatusCodes.Status409Conflict);
@@ -98,19 +98,19 @@ namespace GoWheels_WebAPI.Controllers.Driver
         {
             try
             {
-                var driverBooking = await _driverBookingService.GetByIdAsync(driverBookingId);
+                var driverBooking = await _driverBookingService.GetById(driverBookingId);
                 if (driverBooking.Driver.UserId != _userId)
                 {
                     return new OperationResult(false, "Unauthorized", StatusCodes.Status401Unauthorized);
                 }
                 driverBooking.IsCancel = true;
                 await _driverBookingService.UpdateAsync(driverBooking);
-                var invoice = await _invoiceService.GetByDriverBookingIdAsync(driverBookingId);
+                var invoice = await _invoiceService.GetByDriverBookingId(driverBookingId);
                 await _invoiceService.UpdateCancelDriverBookingAsync(invoice, driverBooking.Total);
-                var booking = await _bookingService.GetByIdAsync(invoice.BookingId);
+                var booking = await _bookingService.GetById(invoice.BookingId);
                 booking.HasDriver = false;
                 booking.IsRequireDriver = true;
-                await _bookingService.UpdateAsync(booking.Id, booking);
+                await _bookingService.Update(booking.Id, booking);
                 return new OperationResult(true, "Cancel driver booking succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

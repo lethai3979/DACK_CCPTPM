@@ -4,11 +4,11 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface INotifyService
     {
-        Task<List<Notify>> GetAllByUserIdAsync();
-        Task<Notify> GetByIdAsync(int id);
-        Task AddAsync(Notify notify);
-        Task MarkAsReadAsync(int id);
-        Task DeleteAsync(int id);
+        List<Notify> GetAllByUserId();
+        Notify GetById(int id);
+        void Add(Notify notify);
+        void MarkAsRead(int id);
+        void Delete(int id);
 
     }
 }

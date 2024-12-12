@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var report = _mapper.Map<Report>(reportDTO);
-                    await _reportService.CreateReportAsync(report);
+                    await _reportService.CreateReport(report);
                     return new OperationResult(true, "Report created succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Report data invalid");

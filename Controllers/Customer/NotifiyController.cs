@@ -27,7 +27,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var notifications = await _notifyService.GetAllByUserIdAsync();
+                var notifications = await _notifyService.GetAllByUserId();
                 var notificationVMs = _mapper.Map<List<NotifyVM>>(notifications);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: notificationVMs);
             }
@@ -47,7 +47,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var notification = await _notifyService.GetByIdAsync(id);
+                var notification = await _notifyService.GetById(id);
                 var notificationVM = _mapper.Map<NotifyVM>(notification);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: notificationVM);
             }
@@ -67,7 +67,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _notifyService.MarkAsReadAsync(id);
+                await _notifyService.MarkAsRead(id);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -97,7 +97,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _notifyService.DeleteAsync(id);
+                await _notifyService.Delete(id);
                 return new OperationResult(true, "Deleted notify succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

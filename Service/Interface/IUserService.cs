@@ -1,12 +1,11 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.ViewModels;
 
 namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IUserService
     {
-        Task<List<ApplicationUser>> GetAllDriverSubmitAsync();
-        Task<List<ApplicationUser>> GetAllUserAsync();
+        List<ApplicationUser> GetAllDriverSubmit();
+        List<ApplicationUser> GetAllUser();
         Task<ApplicationUser> GetByUserIdAsync();
         Task<ApplicationUser> GetByUserIdAsync(string userId);
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);

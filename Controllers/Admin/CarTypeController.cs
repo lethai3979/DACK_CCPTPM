@@ -31,7 +31,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                var carTypesList = await _carTypeService.GetAllAsync();
+                var carTypesList = await _carTypeService.GetAll();
                 var carTypeVMs = _mapper.Map<List<CarTypeVM>>(carTypesList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVMs);
             }
@@ -50,12 +50,12 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             try
             {
-                var carType = await _carTypeService.GetByIdAsync(id);
+                var carType = await _carTypeService.GetById(id);
                 var carTypeVM = _mapper.Map<CarTypeVM>(carType);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: carTypeVM);
             }
@@ -86,7 +86,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var carType = _mapper.Map<CarType>(carTypeDTO);
-                    await _carTypeService.AddAsync(carType, carTypeDTO.CompanyIds);
+                    await _carTypeService.Add(carType, carTypeDTO.CompanyIds);
                     return new OperationResult(true, "Car type add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Car type data invalid");
@@ -111,7 +111,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                await _carTypeService.DeleteByIdAsync(id);
+                await _carTypeService.DeleteById(id);
                 return new OperationResult(true, "Car type deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
@@ -141,7 +141,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var carType = _mapper.Map<CarType>(carTypeDTO);
-                    await _carTypeService.UpdateAsync(id, carType, carTypeDTO.CompanyIds);
+                    await _carTypeService.Update(id, carType, carTypeDTO.CompanyIds);
                     return new OperationResult(true, "Car type update succesfully", StatusCodes.Status200OK);
 
                 }

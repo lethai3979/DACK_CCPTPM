@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var users = await _userService.GetAllUserAsync();
+                var users = await _userService.GetAllUser();
                 var userVMs = new List<UserVM>();
                 foreach(var user in users) 
                 {
@@ -87,7 +87,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var users = await _userService.GetAllDriverSubmitAsync();
+                var users = await _userService.GetAllDriverSubmit();
                 var userVMs = _mapper.Map<List<UserVM>>(users);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK,data: userVMs);
             }

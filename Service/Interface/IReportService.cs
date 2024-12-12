@@ -4,9 +4,9 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IReportService
     {
-        Task<List<Report>> GetAllAsync();
-        Task<Report> GetByIdAsync(int id);
-        Task CreateReportAsync(Report report);
-        Task ConfirmReportAsync(int id, bool isAccept);
+        List<Report> GetAll();
+        Report GetById(int id);
+        void CreateReport(Report report);
+        Task ConfirmReport(int id, bool isAccept);
     }
 }

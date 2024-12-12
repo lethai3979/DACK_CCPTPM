@@ -22,11 +22,11 @@ namespace GoWheels_WebAPI.Service
             _userPromotionService = userPromotionService;
         }
 
-        public async Task UpdateBookingsOnStartup()
+        public void UpdateBookingsOnStartup()
         {
             try
             {
-                await _bookingService.UpdateBookingStatus();
+                _bookingService.UpdateBookingStatus();
             }
             catch (InvalidOperationException operationEx)
             {
@@ -50,40 +50,40 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private async Task UpdatePostRideNumberAsync()
+        private void UpdatePostRideNumber()
         {
-            var bookings = await _bookingService.GetAllCompleteBookingAsync();
+            var bookings = _bookingService.GetAllCompleteBooking();
             foreach (var booking in bookings)
             {
 
                 if (!booking.IsRideCounted)
                 {
-                    await _postService.UpdateRideNumberAsync(booking.PostId, 1);
+                    _postService.UpdateRideNumber(booking.PostId, 1);
                     booking.IsRideCounted = true;
-                    await _bookingService.UpdateAsync(booking.Id, booking);
+                    _bookingService.Update(booking.Id, booking);
                 }
             }
         }
 
-        private async Task UpdatePostPromotionAsync()
+        private void UpdatePostPromotion()
         {
-            var promotions = await _userPromotionService.GetAllByUserRoleAsync();
+            var promotions = _userPromotionService.GetAllByUserRole();
             foreach (var promotion in promotions)
             {
-                if(promotion.IsDeleted || promotion.ExpiredDate < DateTime.Now)
+                if (promotion.IsDeleted || promotion.ExpiredDate < DateTime.Now)
                 {
-                    var postPromotions = await _postPromotionService.GetAllByPromotionIdAsync(promotion.Id);   
-                    await _postPromotionService.DeletedRangeAsync(postPromotions);
-                }    
+                    var postPromotions = _postPromotionService.GetAllByPromotionId(promotion.Id);
+                    _postPromotionService.DeletedRange(postPromotions);
+                }
             }
         }
 
-        public async Task UpdatePostOnStartup()
+        public void UpdatePostOnStartup()
         {
             try
             {
-                await UpdatePostRideNumberAsync();
-                await UpdatePostPromotionAsync();
+                UpdatePostRideNumber();
+                UpdatePostPromotion();
 
             }
             catch (InvalidOperationException operationEx)

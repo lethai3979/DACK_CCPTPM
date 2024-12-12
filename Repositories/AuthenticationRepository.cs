@@ -24,11 +24,11 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task<List<ApplicationUser>> GetAllSubmitDriversAsync()
-            => await _userManager.Users.Where(u => u.IsSubmitDriver).ToListAsync(); 
+        public List<ApplicationUser> GetAllSubmitDrivers()
+            => _userManager.Users.Where(u => u.IsSubmitDriver).ToList();
 
-        public async Task<List<ApplicationUser>> GetAllUserAsync()
-            => await _userManager.Users.ToListAsync();
+        public List<ApplicationUser> GetAllUser()
+            => _userManager.Users.ToList();
 
         public async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
         {
@@ -57,11 +57,11 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<bool> CheckValidPasswordAsync(ApplicationUser user, string password)
             => await _userManager.CheckPasswordAsync(user, password);
         
-        public async Task ChangePasswordAsyncAsync(ApplicationUser user, string currentPassword, string newPassword)
+        public async Task ChangePasswordAsync(ApplicationUser user, string currentPassword, string newPassword)
             => await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
 
 
-        public async Task<ApplicationUser> FindByUserIdAsync(string userId)
+        public async Task<ApplicationUser> FindByUserId(string userId)
             => await _userManager.Users.Include(u => u.Driver).FirstOrDefaultAsync(u => u.Id == userId) ?? throw new NullReferenceException("User not found");
 
         public async Task<ApplicationUser> FindByUserNameAsync(string userName) 
@@ -83,10 +83,7 @@ namespace GoWheels_WebAPI.Repositories
             _context.Entry(user).State = EntityState.Detached;
         }
 
-        public async Task<bool> ValidatePasswordAsync(ApplicationUser user, string password)
-            => await _userManager.CheckPasswordAsync(user, password);
-
-        public async Task<bool> IsInRoleAsync(ApplicationUser user, string roleName)
+        public async Task<bool> IsInRole(ApplicationUser user, string roleName)
             => await _userManager.IsInRoleAsync(user, roleName);
     }
 }

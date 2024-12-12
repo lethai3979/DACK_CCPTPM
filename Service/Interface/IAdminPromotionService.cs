@@ -4,13 +4,13 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IAdminPromotionService
     {
-        Task<List<Promotion>> GetAllAsync();
-        Task<List<Promotion>> GetAllAdminPromotionsAsync();
-        Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync();
-        Task<Promotion> GetByIdAsync(int id);
-        Task AddAsync(Promotion promotion);
-        Task UpdateAsync(int id, Promotion promotion);
-        Task DeletedByIdAsync(int id);
+        List<Promotion> GetAll();
+        List<Promotion> GetAllAdminPromotions();
+        List<Promotion> GetAllAdminPromotionsByUserId();
+        Promotion GetById(int id);
+        void Add(Promotion promotion);
+        void Update(int id, Promotion promotion);
+        void DeletedById(int id);
 
     }
 }

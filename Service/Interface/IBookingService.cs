@@ -5,27 +5,27 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IBookingService
     {
-        Task<List<Booking>> GetAllUnRecieveBookingsByPostIdAsync(int postId);
-        Task<List<DateTime>> GetBookedDateByPostIdsAsync(int postId);
-        Task<List<Booking>> GetAllWaitingBookingsByPostIdAsync(int postId);
-        Task<List<Booking>> GetAllDriverRequireBookingsAsync();
-        Task<List<Booking>> GetAllPendingBookingsByUserIdAsync();
-        Task<List<Booking>> GetAllAsync();
-        Task<List<Booking>> GetAllCompleteBookingAsync();
-        Task<List<Booking>> GetAllCancelRequestAsync();
-        Task<List<Booking>> GetPersonalBookingsAsync();
-        Task<List<Booking>> GetAllByDriverAsync();
+        List<Booking> GetAllUnRecieveBookingsByPostId(int postId);
+        List<DateTime> GetBookedDateByPostId(int postId);
+        List<Booking> GetAllWaitingBookingsByPostId(int postId);
+        List<Booking> GetAllDriverRequireBookings();
+        List<Booking> GetAllPendingBookingsByUserId();
+        List<Booking> GetAll();
+        List<Booking> GetAllCompleteBooking();
+        List<Booking> GetAllCancelRequest();
+        List<Booking> GetPersonalBookings();
+        List<Booking> GetAllByDriver();
         Task<List<Booking>> GetAllByLocation(string latitude, string longitude);
-        Task<Booking> GetByIdAsync(int id);
-        Task<bool> CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
-        Task AddAsync(Booking booking);
-        Task UpdateAsync(int id, Booking booking);
-        Task UpdateOwnerConfirmAsync(int id, bool isAccept);
-        Task UpdateBookingStatus();
-        Task DeleteAsync(int id);
-        Task RequestCancelBookingAsync(int id);
-        Task ExamineCancelBookingRequestAsync(Booking booking, bool isAccept);
-        Task CancelReportedBookingsAsync(Booking booking);
+        Booking GetById(int id);
+        bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
+        Task Add(Booking booking);
+        void Update(int id, Booking booking);
+        Task UpdateOwnerConfirm(int id, bool isAccept);
+        void UpdateBookingStatus();
+        void Delete(int id);
+        void RequestCancelBooking(int id);
+        void ExamineCancelBookingRequest(Booking booking, bool isAccept);
+        void CancelReportedBookings(Booking booking);
 
     }
 }

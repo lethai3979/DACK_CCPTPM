@@ -36,16 +36,16 @@ namespace GoWheels_WebAPI.Service
             _googleApiService = googleApiService;
         }
 
-        public async Task<List<Driver>> GetAllAsync()
-            => await _driverRepository.GetAllAsync();
+        public List<Driver> GetAll()
+            => _driverRepository.GetAll();
 
-        public async Task<Driver> GetByIdAsync(int id)
-            => await _driverRepository.GetByIdAsync(id);
+        public Driver GetById(int id)
+            => _driverRepository.GetById(id);
 
-        public async Task<Driver> GetByUserIdAsync(string userId)
-            => await _driverRepository.GetByUserIdAsync(userId);
+        public Driver GetByUserId(string userId)
+            => _driverRepository.GetByUserId(userId);
 
-        public async Task AddAsync(ApplicationUser user)
+        public void Add(ApplicationUser user)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace GoWheels_WebAPI.Service
                     PricePerHour = 70000,
                     RatingPoint = 0
                 };
-                await _driverRepository.AddAsync(driver);
+                _driverRepository.Add(driver);
             }
             catch (DbUpdateException dbEx)
             {
@@ -73,13 +73,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(int id, Driver driver)
+        public void Update(int id, Driver driver)
         {
             try
             {
                 driver.ModifiedById = _userId;
                 driver.ModifiedOn = DateTime.Now;
-                await _driverRepository.UpdateAsync(driver);
+                _driverRepository.Update(driver);
             }
             catch (DbUpdateException dbEx)
             {
@@ -95,15 +95,15 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public void DeleteById(int id)
         {
             try
             {
-                var driver = await _driverRepository.GetByIdAsync(id);
+                var driver = _driverRepository.GetById(id);
                 driver.ModifiedById = _userId;
                 driver.ModifiedOn = DateTime.Now;
                 driver.IsDeleted = true;
-                await _driverRepository.UpdateAsync(driver);
+                _driverRepository.Update(driver);
             }
             catch (DbUpdateException dbEx)
             {
@@ -150,7 +150,7 @@ namespace GoWheels_WebAPI.Service
                         UserId = userId,
                         BookingId = booking.Id,
                     };
-                    await _notifyService.AddAsync(notify);
+                    _notifyService.Add(notify);
                     if (NotifyHub.userConnectionsDic.TryGetValue(userId, out var connectionId))
                     {
                         await _hubcontext.Groups.AddToGroupAsync(connectionId, booking.Id.ToString());

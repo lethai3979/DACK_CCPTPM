@@ -46,19 +46,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
     };
     options.SaveToken = true;
-    //options.Events = new JwtBearerEvents
-    //    {
-    //        OnMessageReceived = context =>
-    //        {
-    //            // Đọc token từ query string khi dùng SignalR
-    //            var accessToken = context.Request.Query["access_token"];
-    //            if (!string.IsNullOrEmpty(accessToken))
-    //            {
-    //                context.Token = accessToken;
-    //            }
-    //            return Task.CompletedTask;
-    //        }
-    //    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Đọc token từ query string khi dùng SignalR
+            var accessToken = context.Request.Query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.AddHttpContextAccessor();
 //cho vuejs

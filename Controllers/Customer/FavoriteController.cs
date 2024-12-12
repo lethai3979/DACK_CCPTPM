@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var favorites = await _favoriteService.GetAllAsync();
+                var favorites = await _favoriteService.GetAll();
                 var favoriteVMs = _mapper.Map<List<FavoriteVM>>(favorites);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: favoriteVMs);
             }
@@ -62,7 +62,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var favorite = _mapper.Map<Favorite>(favoriteDTO);
-                    await _favoriteService.AddAsync(favorite);
+                    await _favoriteService.Add(favorite);
                     return new OperationResult(true, "Favorite add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Favorite data invalid");
@@ -86,7 +86,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _favoriteService.DeletedAsync(id);
+                await _favoriteService.Deleted(id);
                 return new OperationResult(true, "Favorite deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

@@ -28,7 +28,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var reports = await _reportService.GetAllAsync();
+                var reports = await _reportService.GetAll();
                 var reportVMs = _mapper.Map<List<ReportVM>>(reports);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVMs);
             }
@@ -52,7 +52,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                var report = await _reportService.GetByIdAsync(id);
+                var report = await _reportService.GetById(id);
                 var reportVM = _mapper.Map<ReportVM>(report);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: reportVM);
             }
@@ -76,7 +76,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
         {
             try
             {
-                await _reportService.ConfirmReportAsync(id, isAccept);
+                await _reportService.ConfirmReport(id, isAccept);
                 return new OperationResult(true, "Report handled succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         {
             try
             {
-                var promotions = await _promotionService.GetAllAsync();
+                var promotions = await _promotionService.GetAll();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -54,7 +54,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         {
             try
             {
-                var promotions = await _promotionService.GetAllAdminPromotionsAsync();
+                var promotions = await _promotionService.GetAllAdminPromotions();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -78,7 +78,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         {
             try
             {
-                var promotions = await _promotionService.GetAllAdminPromotionsByUserIdAsync();
+                var promotions = await _promotionService.GetAllAdminPromotionsByUserId();
                 var promotionVMs = _mapper.Map<List<PromotionVM>>(promotions);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVMs);
             }
@@ -102,7 +102,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         {
             try
             {
-                var promotion = await _promotionService.GetByIdAsync(id);
+                var promotion = await _promotionService.GetById(id);
                 var promotionVM = _mapper.Map<PromotionVM>(promotion);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: promotionVM);
             }
@@ -136,7 +136,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
                     if (promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.AddAsync(promotion);
+                        _promotionService.Add(promotion);
                         return new OperationResult(true, "Promotion add succesfully", StatusCodes.Status200OK);
                     }
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -176,7 +176,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
                     if(promotionDTO.ExpiredDate > DateTime.Now)
                     {
                         var promotion = _mapper.Map<Promotion>(promotionDTO);
-                        await _promotionService.UpdateAsync(id, promotion);
+                        _promotionService.Update(id, promotion);
                         return new OperationResult(true, "Promotion update succesfully", StatusCodes.Status200OK);
                     }   
                     return new OperationResult(false, "Expire date invalid", StatusCodes.Status400BadRequest);
@@ -204,7 +204,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         {
             try
             {
-                await _promotionService.DeletedByIdAsync(id);
+                _promotionService.DeletedById(id);
                 return new OperationResult(true, "Promotion deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)

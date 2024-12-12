@@ -35,7 +35,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
         {
             try
             {
-                var drivers = await _driverService.GetAllAsync();
+                var drivers = await _driverService.GetAll();
                 var driverVMs = _mapper.Map<List<DriverVM>>(drivers);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: driverVMs);
             }

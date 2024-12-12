@@ -14,57 +14,57 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task<List<CarTypeDetail>> GetCarTypeDetails(int id)
-            => await _context.CarTypeDetails.Include(c => c.Company).Where(c => c.CarTypeId == id).ToListAsync();
+        public List<CarTypeDetail> GetCarTypeDetails(int id)
+            => _context.CarTypeDetails.Include(c => c.Company).Where(c => c.CarTypeId == id).ToList();
 
-        public async Task<List<CarTypeDetail>> GetCompanyDetails(int id)
-            => await _context.CarTypeDetails.Include(c => c.CarType).Where(c => c.CompanyId == id).ToListAsync();
+        public List<CarTypeDetail> GetCompanyDetails(int id)
+            => _context.CarTypeDetails.Include(c => c.CarType).Where(c => c.CompanyId == id).ToList();
 
-        public async Task AddCompaniesListAsync(int carTypeId, List<int> companyIds)
+        public void AddCompaniesList(int carTypeId, List<int> companyIds)
         {
             foreach (var companyId in companyIds)
             {
                 var carTypeDetail = new CarTypeDetail();
                 carTypeDetail.CarTypeId = carTypeId;
                 carTypeDetail.CompanyId = companyId;
-                await _context.CarTypeDetails.AddAsync(carTypeDetail);
+                _context.CarTypeDetails.Add(carTypeDetail);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task AddCarTypesListAsync(int companyId, List<int> carTypeIds)
+        public void AddCarTypesList(int companyId, List<int> carTypeIds)
         {
             foreach (var carTypeId in carTypeIds)
             {
                 var carTypeDetail = new CarTypeDetail();
                 carTypeDetail.CarTypeId = carTypeId;
                 carTypeDetail.CompanyId = companyId;
-                await _context.CarTypeDetails.AddAsync(carTypeDetail);
+                _context.CarTypeDetails.Add(carTypeDetail);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async Task ClearCarTypeDetailsAsync(int carTypeId)
+        public void ClearCarTypeDetails(int carTypeId)
         {
-            var carTypeDetailsToRemove = await _context.CarTypeDetails
+            var carTypeDetailsToRemove = _context.CarTypeDetails
                                                 .Where(p => p.CarTypeId == carTypeId)
-                                                .ToListAsync();
-            foreach(var carTypeDetail in carTypeDetailsToRemove)
-            {
-                _context.CarTypeDetails.Remove(carTypeDetail);
-            }    
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task ClearCompanyDetailsAsync(int companyId)
-        {
-            var carTypeDetailsToRemove = await _context.CarTypeDetails
-                                                .Where(p => p.CompanyId == companyId)
-                                                .ToListAsync();
+                                                .ToList();
             foreach (var carTypeDetail in carTypeDetailsToRemove)
             {
                 _context.CarTypeDetails.Remove(carTypeDetail);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+        }
+
+        public void ClearCompanyDetails(int companyId)
+        {
+            var carTypeDetailsToRemove = _context.CarTypeDetails
+                                                .Where(p => p.CompanyId == companyId)
+                                                .ToList();
+            foreach (var carTypeDetail in carTypeDetailsToRemove)
+            {
+                _context.CarTypeDetails.Remove(carTypeDetail);
+            }
+            _context.SaveChanges();
         }
     }
 }

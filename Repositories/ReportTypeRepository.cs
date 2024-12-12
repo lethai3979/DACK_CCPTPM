@@ -14,16 +14,16 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(ReportType reportType)
+        public void Add(ReportType reportType)
         {
-            await _context.ReportTypes.AddAsync(reportType);
-            await _context.SaveChangesAsync();
+            _context.ReportTypes.Add(reportType);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(ReportType reportType)
+        public void Update(ReportType reportType)
         {
-            var existingReportType = await _context.ReportTypes.AsNoTracking()
-                                     .FirstOrDefaultAsync(p => p.Id == reportType.Id);
+            var existingReportType = _context.ReportTypes.AsNoTracking()
+                                     .FirstOrDefault(p => p.Id == reportType.Id);
 
             if (existingReportType == null)
             {
@@ -32,26 +32,24 @@ namespace GoWheels_WebAPI.Repositories
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(reportType).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(ReportType reportType)
+        public void Delete(ReportType reportType)
         {
-            var existingReport = await _context.Reports.Where(r => r.ReportTypeId == reportType.Id).ToListAsync();
+            var existingReport = _context.Reports.Where(r => r.ReportTypeId == reportType.Id).ToList();
             _context.Reports.RemoveRange(existingReport);
             _context.ReportTypes.Remove(reportType);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<ReportType>> GetAllAsync()
-            => await _context.ReportTypes.AsNoTracking().ToListAsync();
+        public List<ReportType> GetAll()
+            => _context.ReportTypes.AsNoTracking().ToList();
 
-        public async Task<ReportType> GetByIdAsync(int id)
-            => await _context.ReportTypes.AsNoTracking()
+        public ReportType GetById(int id)
+            => _context.ReportTypes.AsNoTracking()
                                             .Include(r => r.Reports)
-                                            .FirstOrDefaultAsync(r => r.Id == id) 
+                                            .FirstOrDefault(r => r.Id == id)
                                             ?? throw new NullReferenceException("Report type not found");
-
-
     }
 }

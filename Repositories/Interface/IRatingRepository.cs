@@ -4,7 +4,7 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IRatingRepository : IGenericRepository<Rating>
     {
-        Task<List<Rating>> GetAllByPostId(int postId);
-        Task<float> GetAveragePostRatingAsync(int postId);
+        List<Rating> GetAllByPostId(int postId);
+        float GetAveragePostRating(int postId);
     }
 }

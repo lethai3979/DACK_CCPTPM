@@ -30,7 +30,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                var result = await _amenityService.GetAllAsync();
+                var result = await _amenityService.GetAll();
                 var amenityVMs = _mapper.Map<List<AmenityVM>>(result);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityVMs);
             }
@@ -50,12 +50,12 @@ namespace GoWheels_WebAPI.Controllers
 
         }
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetById(int id)
         {
             try
             {
-                var result = await _amenityService.GetByIdAsync(id);
+                var result = await _amenityService.GetById(id);
                 var amenityVM = _mapper.Map<AmenityVM>(result);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: amenityVM);
             }
@@ -82,7 +82,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.AddAsync(amenity, amenityDTO.IconImage!);
+                    _amenityService.Add(amenity, amenityDTO.IconImage!);
                     return new OperationResult(true, "Amenity add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");
@@ -106,7 +106,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                await _amenityService.DeletedByIdAsync(id);
+                await _amenityService.DeletedById(id);
                 return new OperationResult(true, "Amenity deleted succesfully", StatusCodes.Status200OK);
             }
             catch (DbUpdateException dbEx)
@@ -135,7 +135,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var amenity = _mapper.Map<Amenity>(amenityDTO);
-                    await _amenityService.UpdateAsync(id, amenity, amenityDTO.IconImage!);
+                    await _amenityService.Update(id, amenity, amenityDTO.IconImage!);
                     return new OperationResult(true, "Amenity update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Amenity data invalid");

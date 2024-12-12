@@ -31,7 +31,7 @@ namespace GoWheels_WebAPI.Controllers
         {
             try
             {
-                var companies = await _companyService.GetAllAsync();
+                var companies = await _companyService.GetAll();
                 var companiesVMs = _mapper.Map<List<CompanyVM>>(companies);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: companiesVMs);
             }
@@ -51,12 +51,12 @@ namespace GoWheels_WebAPI.Controllers
         }
 
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetById(int id)
         {
             try
             {
-                var company = await _companyService.GetByIdAsync(id);
+                var company = await _companyService.GetById(id);
                 var companyVM = _mapper.Map<CompanyVM>(company);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: companyVM);
             }
@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.AddAsync(company, companyDTO.CarTypeIds,companyDTO.IconImage!);
+                    await _companyService.Add(company, companyDTO.CarTypeIds,companyDTO.IconImage!);
                     return new OperationResult(true, "Company add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");
@@ -107,13 +107,13 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-        [HttpPost("DeleteByIdAsync/{id}")]
+        [HttpPost("DeleteById/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> DeleteAsync(int id)
         {
             try
             {
-                await _companyService.DeleteByIdAsync(id);
+                await _companyService.DeleteById(id);
                 return new OperationResult(true, "Company deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)
@@ -148,7 +148,7 @@ namespace GoWheels_WebAPI.Controllers
                 if (ModelState.IsValid)
                 {
                     var company = _mapper.Map<Company>(companyDTO);
-                    await _companyService.UpdateAsync(id, company, companyDTO.CarTypeIds, companyDTO.IconImage!);
+                    await _companyService.Update(id, company, companyDTO.CarTypeIds, companyDTO.IconImage!);
                     return new OperationResult(true, "Company update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Company value invalid");

@@ -4,9 +4,9 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IPostAmenityRepository
     {
-        Task<List<PostAmenity>> GetAmenityByPostIdAsync(int id);
-        Task RemoveRangeAsync(int postId);
-        Task AddRangeAsync(List<int> amenitiesIDs, int postId);
+        List<PostAmenity> GetAmenityByPostId(int id);
+        void RemoveRange(int postId);
+        void AddRange(List<int> amenitiesIDs, int postId);
 
     }
 }

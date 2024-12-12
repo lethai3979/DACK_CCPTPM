@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 int currentPageIndex = pageIndex ?? 1;
-                var posts = await _postService.GetAllAsync();
+                var posts = await _postService.GetAll();
                 posts = _postService.ApplyFilters(posts, filterModel);
                 var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 2);
                 var postVMs = _mapper.Map<List<PostVM>>(paginateList);
@@ -103,12 +103,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             try
             {
-                var post = await _postService.GetByIdAsync(id);
+                var post = await _postService.GetById(id);
                 var postVM = _mapper.Map<PostVM>(post);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVM);
             }
@@ -140,7 +140,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.AddAsync(post, postDTO.Image!, postDTO.ImagesList!, postDTO.AmenitiesIds);
+                    await _postService.Add(post, postDTO.Image!, postDTO.ImagesList!, postDTO.AmenitiesIds);
                     return new OperationResult(true, "Post add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -172,8 +172,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var post = _mapper.Map<Post>(postDTO);
-                    await _postService.UpdateAsync(id, post, postDTO.Image!,postDTO.AmenitiesIds);
-                    await _postService.UpdatePostImagesAsync(postDTO.ImagesList!, id);
+                    await _postService.Update(id, post, postDTO.Image!,postDTO.AmenitiesIds);
+                    await _postService.UpdatePostImages(postDTO.ImagesList!, id);
                     return new OperationResult(true, "Post update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Post data invalid");
@@ -206,7 +206,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _postService.DeleteByIdAsync(id);
+                await _postService.DeleteById(id);
                 return new OperationResult(true, "Post deleted succesfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

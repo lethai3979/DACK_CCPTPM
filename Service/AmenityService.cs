@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Repositories;
+﻿using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
@@ -21,14 +19,14 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Amenity>> GetAllAsync()
-            => await _amenityRepository.GetAllAsync();
+        public List<Amenity> GetAll()
+            => _amenityRepository.GetAll();
 
 
-        public async Task<Amenity> GetByIdAsync(int id)
-            => await _amenityRepository.GetByIdAsync(id);
+        public Amenity GetById(int id)
+            => _amenityRepository.GetById(id);
 
-        public async Task AddAsync(Amenity amenity, IFormFile formFile)
+        public void Add(Amenity amenity, IFormFile formFile)
         {
             try
             {
@@ -37,9 +35,9 @@ namespace GoWheels_WebAPI.Service
                 amenity.IsDeleted = false;
                 if (formFile != null && formFile.Length > 0)
                 {
-                    amenity.IconImage = await SaveImage(formFile);
+                    amenity.IconImage = SaveImage(formFile);
                 }
-                await _amenityRepository.AddAsync(amenity);
+                _amenityRepository.Add(amenity);
             }
             catch (DbUpdateException dbEx)
             {
@@ -54,8 +52,8 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        
-        private async Task<string> SaveImage(IFormFile file)
+
+        private string SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -78,7 +76,7 @@ namespace GoWheels_WebAPI.Service
                 // Lưu ảnh vào thư mục
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(fileStream);
+                    file.CopyTo(fileStream);
                 }
 
                 // Trả về URL để lưu vào database
@@ -91,15 +89,15 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedByIdAsync(int id)
+        public void DeletedById(int id)
         {
             try
             {
-                var amenity = await _amenityRepository.GetByIdAsync(id);
+                var amenity = _amenityRepository.GetById(id);
                 amenity.ModifiedById = _userId;
                 amenity.ModifiedOn = DateTime.Now;
                 amenity.IsDeleted = true;
-                await _amenityRepository.UpdateAsync(amenity);
+                _amenityRepository.Update(amenity);
             }
             catch (DbUpdateException dbEx)
             {
@@ -114,21 +112,21 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public async Task UpdateAsync(int id, Amenity amenity, IFormFile formFile)
+        public void Update(int id, Amenity amenity, IFormFile formFile)
         {
 
             try
             {
-                string imageUrl = ""; 
-                if(amenity.IconImage != null)
+                string imageUrl = "";
+                if (amenity.IconImage != null)
                 {
                     imageUrl = "./wwwroot/images/amenities/" + Path.GetFileName(formFile.FileName);
                 }
-                var existingAmenity = await _amenityRepository.GetByIdAsync(id);
+                var existingAmenity = _amenityRepository.GetById(id);
 
                 if (formFile != null && formFile.Length > 0 && imageUrl != existingAmenity.IconImage)
                 {
-                    amenity.IconImage = await SaveImage(formFile);
+                    amenity.IconImage = SaveImage(formFile);
                 }
                 else
                 {
@@ -140,7 +138,7 @@ namespace GoWheels_WebAPI.Service
                 amenity.ModifiedOn = existingAmenity.ModifiedOn;
                 var isValueChange = EditHelper<Amenity>.HasChanges(amenity, existingAmenity);
                 EditHelper<Amenity>.SetModifiedIfNecessary(amenity, isValueChange, existingAmenity, _userId);
-                await _amenityRepository.UpdateAsync(amenity);
+                _amenityRepository.Update(amenity);
             }
             catch (DbUpdateException dbEx)
             {

@@ -4,21 +4,21 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IInvoiceService
     {
-        Task<List<Invoice>> GetAllAsync();
-        Task<List<Invoice>> GetPersonalInvoicesAsync();
-        Task<List<Invoice>> GetAllByDriverAsync();
-        Task<Invoice> GetByIdAsync(int id);
-        Task<Invoice> GetByBookingIdAsync(int bookingId);
-        Task<Invoice> GetByDriverBookingIdAsync(int driverBookingId);
-        Task<List<Invoice>> GetAllRefundInvoicesAsync();
-        Task CreateInvoiceAsync(int bookingId);
-        Task AddDriverToInvocieAsync(Booking booking, DriverBooking driverBooking);
-        Task UpdateCancelDriverBookingAsync(Invoice invoice, decimal driverBookingTotal);
-        Task UpdateAsync(Invoice invoice);
-        Task RefundAsync(Booking booking, bool isAccept);
-        Task RefundReportedBookingAsync(Booking booking);
-        Task<string> ProcessMomoPaymentAsync(Invoice invoice);
-        Task ProcessReturnUrlAsync(IQueryCollection queryParams);
+        List<Invoice> GetAll();
+        List<Invoice> GetPersonalInvoices();
+        List<Invoice> GetAllByDriver();
+        Invoice GetById(int id);
+        Invoice GetByBookingId(int bookingId);
+        Invoice GetByDriverBookingId(int driverBookingId);
+        List<Invoice> GetAllRefundInvoices();
+        void CreateInvoice(int bookingId);
+        void AddDriverToInvocie(Booking booking, DriverBooking driverBooking);
+        void UpdateCancelDriverBooking(Invoice invoice, decimal driverBookingTotal);
+        void Update(Invoice invoice);
+        void Refund(Booking booking, bool isAccept);
+        void RefundReportedBooking(Booking booking);
+        Task<string> ProcessMomoPayment(Invoice invoice);
+        void ProcessReturnUrl(IQueryCollection queryParams);
         //Task CalculateRevenuesByYears
     }
 }

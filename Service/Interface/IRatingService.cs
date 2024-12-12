@@ -4,12 +4,12 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IRatingService
     {
-        Task<List<Rating>> GetAllByPostId(int postId);
-        Task<List<Rating>> GetAllAsync();
-        Task<Rating> GetByIdAsync(int id);
-        Task AddAsync(Rating rating);
-        Task DeleteByIdAsync(int id);
-        Task UpdateAsync(int id, Rating rating);
+        List<Rating> GetAllByPostId(int postId);
+        List<Rating> GetAll();
+        Rating GetById(int id);
+        void Add(Rating rating);
+        void DeleteById(int id);
+        void Update(int id, Rating rating);
 
     }
 }

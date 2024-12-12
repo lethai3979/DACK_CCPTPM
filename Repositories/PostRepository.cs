@@ -15,7 +15,7 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddPostImagesAsync(List<string> postImageUrls, int postId)
+        public void AddPostImages(List<string> postImageUrls, int postId)
         {
             foreach (var url in postImageUrls)
             {
@@ -24,26 +24,25 @@ namespace GoWheels_WebAPI.Repositories
                     PostId = postId,
                     Url = url
                 };
-                await _context.PostImages.AddAsync(postImage);
+                _context.PostImages.Add(postImage);
             }
-            await _context.SaveChangesAsync();
-
+            _context.SaveChanges();
         }
 
-        public async Task DeletePostImagesAsync(int postId)
+        public void DeletePostImages(int postId)
         {
-            var imagesList = await _context.PostImages.Where(p => p.PostId == postId).ToListAsync();
+            var imagesList = _context.PostImages.Where(p => p.PostId == postId).ToList();
             _context.PostImages.RemoveRange(imagesList);
         }
 
-        public async Task AddAsync(Post post)
+        public void Add(Post post)
         {
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
+            _context.Posts.Add(post);
+            _context.SaveChanges();
 
         }
 
-        public async Task UpdateAsync(Post post)
+        public void Update(Post post)
         {
             var existingPost = _context.ChangeTracker.Entries<Post>().FirstOrDefault(e => e.Entity.Id == post.Id);
             if (existingPost != null)
@@ -51,21 +50,21 @@ namespace GoWheels_WebAPI.Repositories
                 _context.Entry(existingPost.Entity).State = EntityState.Detached;
             }
             _context.Entry(post).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(post).State = EntityState.Detached;
         }
 
-        public async Task DeleteAsync(Post post)
+        public void Delete(Post post)
         {
             _context.Entry(post).State = EntityState.Modified;
             post.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Post>> GetAllAsync()
-            => await _context.Posts.AsNoTracking()
+        public List<Post> GetAll()
+            => _context.Posts.AsNoTracking()
                                     .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
@@ -77,11 +76,11 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.PostPromotions)
                                     .ThenInclude(p => p.Promotion)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
-                                    .ToListAsync();
+                                    .ToList();
 
 
-        public async Task<Post> GetByIdAsync(int id)
-            => await _context.Posts.AsNoTracking()
+        public Post GetById(int id)
+            => _context.Posts.AsNoTracking()
                                     .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
@@ -92,13 +91,13 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.PostPromotions)
                                     .ThenInclude(p => p.Promotion)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
-                                    .FirstOrDefaultAsync(p => p.Id == id)
+                                    .FirstOrDefault(p => p.Id == id)
                                     ?? throw new NullReferenceException("Post not found");
 
 
 
-        public async Task<List<Post>> GetPostsByUserIdAsync(string userId)
-            => await _context.Posts.Include(p => p.CarType)
+        public List<Post> GetPostsByUserId(string userId)
+            => _context.Posts.Include(p => p.CarType)
                             .Include(p => p.Company)
                             .Include(p => p.Images)
                             .Include(p => p.Ratings.Where(r => !r.IsDeleted))
@@ -108,6 +107,6 @@ namespace GoWheels_WebAPI.Repositories
                             .Include(p => p.PostPromotions)
                             .ThenInclude(p => p.Promotion)
                             .Where(p => !p.IsDeleted && p.UserId == userId)
-                            .ToListAsync();
+                            .ToList();
     }
 }

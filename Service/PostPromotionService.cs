@@ -14,10 +14,10 @@ namespace GoWheels_WebAPI.Service
             _postPromotionRepository = postPromotionRepository;
         }
 
-        public async Task<List<PostPromotion>> GetAllByPromotionIdAsync(int promotionId)
-            => await _postPromotionRepository.GetAllByPromotionIdAsync(promotionId);
+        public List<PostPromotion> GetAllByPromotionId(int promotionId)
+            => _postPromotionRepository.GetAllByPromotionId(promotionId);
 
-        public async Task AddRangeAsync(int promotionId, List<int> postIds)
+        public void AddRange(int promotionId, List<int> postIds)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace GoWheels_WebAPI.Service
                         PostId = id,
                         PromotionId = promotionId
                     };
-                    await _postPromotionRepository.AddAsync(postPromotion);
+                    _postPromotionRepository.Add(postPromotion);
                 }
             }
             catch (DbUpdateException dbEx)
@@ -45,11 +45,11 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedRangeAsync(List<PostPromotion> postPromotions)
+        public void DeletedRange(List<PostPromotion> postPromotions)
         {
             try
             {
-                await _postPromotionRepository.DeleteRangeAsync(postPromotions);
+                _postPromotionRepository.DeleteRange(postPromotions);
             }
             catch (NullReferenceException nullEx)
             {

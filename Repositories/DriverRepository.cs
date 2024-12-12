@@ -14,23 +14,23 @@ namespace GoWheels_WebAPI.Repositories
         {
             _context = context;
         }
-        public async Task<List<Driver>> GetAllAsync()
-            => await _context.Drivers.Include(d => d.User).Where(d => !d.IsDeleted).ToListAsync();
+        public List<Driver> GetAll()
+            => _context.Drivers.Include(d => d.User).Where(d => !d.IsDeleted).ToList();
 
-        public async Task<Driver> GetByIdAsync(int id)
-            => await _context.Drivers.FirstOrDefaultAsync(d => !d.IsDeleted && d.Id == id) 
+        public Driver GetById(int id)
+            => _context.Drivers.FirstOrDefault(d => !d.IsDeleted && d.Id == id)
                                                         ?? throw new NullReferenceException("Driver not found");
-        public async Task<Driver> GetByUserIdAsync(string userId)
-            => await _context.Drivers.FirstOrDefaultAsync(d => !d.IsDeleted && d.UserId == userId) 
+        public Driver GetByUserId(string userId)
+            => _context.Drivers.FirstOrDefault(d => !d.IsDeleted && d.UserId == userId)
                                                         ?? throw new NullReferenceException("Driver not found");
 
-        public async Task AddAsync(Driver driver)
+        public void Add(Driver driver)
         {
-            await _context.AddAsync(driver);
-            await _context.SaveChangesAsync();
+            _context.Add(driver);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(Driver driver)
+        public void Update(Driver driver)
         {
             var existingDriver = _context.ChangeTracker.Entries<Driver>()
                                                  .FirstOrDefault(e => e.Entity.Id == driver.Id);
@@ -42,22 +42,17 @@ namespace GoWheels_WebAPI.Repositories
             }
 
             _context.Entry(driver).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(driver).State = EntityState.Detached;
         }
 
-        public async Task DeleteAsync(Driver driver)
+        public void Delete(Driver driver)
         {
             _context.Entry(driver).State = EntityState.Modified;
             driver.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-
-
-
-
-
     }
 }

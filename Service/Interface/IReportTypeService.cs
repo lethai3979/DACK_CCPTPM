@@ -4,10 +4,10 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IReportTypeService
     {
-        Task<List<ReportType>> GetAllAsync();
-        Task<ReportType> GetByIdAsync(int id);
-        Task AddAsync(ReportType reportType);
-        Task UpdateAsync(int id, ReportType reportType);
-        Task DeletedByIdAsync(int id);
+        List<ReportType> GetAll();
+        ReportType GetById(int id);
+        void Add(ReportType reportType);
+        void Update(int id, ReportType reportType);
+        void DeletedById(int id);
     }
 }

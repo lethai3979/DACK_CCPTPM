@@ -21,26 +21,26 @@ namespace GoWheels_WebAPI.Service
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<Favorite>> GetAllAsync()
-            => await _favoriteRepository.GetAllByUserIdAsync(_userId);
+        public List<Favorite> GetAll()
+            => _favoriteRepository.GetAllByUserId(_userId);
 
 
-        public async Task AddAsync(Favorite favorite)
+        public void Add(Favorite favorite)
         {
             try
             {
-                var existingFavorite = await _favoriteRepository.GetByPostIdAsync(favorite.PostId, _userId);
+                var existingFavorite = _favoriteRepository.GetByPostId(favorite.PostId, _userId);
                 if (existingFavorite == null)
                 {
                     favorite.UserId = _userId;
                     favorite.IsDeleted = false;
-                    await _favoriteRepository.AddAsync(favorite);
+                    _favoriteRepository.Add(favorite);
                 }
                 else
                 {
                     existingFavorite.IsDeleted = false;
-                    await _favoriteRepository.UpdateAsync(existingFavorite);
-                }    
+                    _favoriteRepository.Update(existingFavorite);
+                }
             }
             catch (DbUpdateException dbEx)
             {
@@ -56,13 +56,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task DeletedAsync(int id)
+        public void Deleted(int id)
         {
             try
             {
-                var favorite = await _favoriteRepository.GetByIdAsync(id, _userId);
+                var favorite = _favoriteRepository.GetById(id, _userId);
                 favorite.IsDeleted = true;
-                await _favoriteRepository.UpdateAsync(favorite);
+                _favoriteRepository.Update(favorite);
             }
             catch (DbUpdateException dbEx)
             {

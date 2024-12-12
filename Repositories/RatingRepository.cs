@@ -1,68 +1,66 @@
 ﻿using AutoMapper;
 using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace GoWheels_WebAPI.Repositories
 {
     public class RatingRepository : IRatingRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-        public RatingRepository(ApplicationDbContext context, IMapper mapper)
+        public RatingRepository(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
-        public async Task AddAsync(Rating rating)
+        public void Add(Rating rating)
         {
-            await _context.Ratings.AddAsync(rating);
-            await _context.SaveChangesAsync();
+            _context.Ratings.Add(rating);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(Rating rating)
+        public void Update(Rating rating)
         {
-            var existingPromotion = await _context.Ratings.AsNoTracking()
-                                       .FirstOrDefaultAsync(p => p.Id == rating.Id);
+            var existingRating = _context.ChangeTracker.Entries<Promotion>()
+                                                            .FirstOrDefault(e => e.Entity.Id == rating.Id);
 
-            if (existingPromotion == null)
+            if (existingRating == null)
             {
                 throw new KeyNotFoundException($"Rating with ID {rating.Id} not found.");
             }
 
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(rating).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Rating rating)
+        public void Delete(Rating rating)
         {
             _context.Entry(rating).State = EntityState.Modified;
             rating.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Rating>> GetAllAsync()
-            => await _context.Ratings.AsNoTracking()
+        public List<Rating> GetAll()
+            => _context.Ratings.AsNoTracking()
                                         .Include(r => r.User)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<Rating> GetByIdAsync(int id)
-            => await _context.Ratings.AsNoTracking()
+        public Rating GetById(int id)
+            => _context.Ratings.AsNoTracking()
                                         .Include(r => r.User)
-                                        .FirstOrDefaultAsync(p => p.Id == id)
+                                        .FirstOrDefault(p => p.Id == id)
                                                 ?? throw new NullReferenceException("Rating not found");
-        public async Task<List<Rating>> GetAllByPostId(int postId)
-            => await _context.Ratings.AsNoTracking()
-                                        .Include(r => r.User)   
+        public List<Rating> GetAllByPostId(int postId)
+            => _context.Ratings.AsNoTracking()
+                                        .Include(r => r.User)
                                         .Where(p => !p.IsDeleted && p.PostId == postId)
-                                        .ToListAsync();
-        public async Task<float> GetAveragePostRatingAsync(int postId)
-            => await _context.Ratings.AsNoTracking()
+                                        .ToList();
+        public float GetAveragePostRating(int postId)
+            => _context.Ratings.AsNoTracking()
                                         .Where(p => !p.IsDeleted && p.PostId == postId)
                                         .Select(r => r.Point)
-                                        .AverageAsync();
+                                        .Average();
     }
 }

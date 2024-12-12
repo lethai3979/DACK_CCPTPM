@@ -4,9 +4,9 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IPostRepository : IGenericRepository<Post>
     {
-        Task AddPostImagesAsync(List<string> postImageUrls, int postId);
-        Task DeletePostImagesAsync(int postId);
-        Task<List<Post>> GetPostsByUserIdAsync(string userId);
+        void AddPostImages(List<string> postImageUrls, int postId);
+        void DeletePostImages(int postId);
+        List<Post> GetPostsByUserId(string userId);
 
     }
 }

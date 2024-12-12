@@ -28,7 +28,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var ratings = await _ratingAndCommentService.GetAllAsync();
+                var ratings = await _ratingAndCommentService.GetAll();
                 var ratingVMs = _mapper.Map<List<RatingVM>>(ratings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVMs);
             }
@@ -71,12 +71,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetByIdAsync/{id}")]
+        [HttpGet("GetById/{id}")]
         public async Task<ActionResult<OperationResult>> GetByIdAsync(int id)
         {
             try
             {
-                var rating = await _ratingAndCommentService.GetByIdAsync(id);
+                var rating = await _ratingAndCommentService.GetById(id);
                 var ratingVM = _mapper.Map<RatingVM>(rating);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: ratingVM);
             }
@@ -108,7 +108,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var rating = _mapper.Map<Rating>(ratingDTO);
-                    await _ratingAndCommentService.AddAsync(rating);
+                    await _ratingAndCommentService.Add(rating);
                     return new OperationResult(true, "Comment add succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Comment data invalid");
@@ -133,7 +133,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                await _ratingAndCommentService.DeleteByIdAsync(id);
+                await _ratingAndCommentService.DeleteById(id);
                 return new OperationResult(true, "Comment deleted succesfully", StatusCodes.Status200OK);
 
             }
@@ -164,7 +164,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if (ModelState.IsValid)
                 {
                     var rating = _mapper.Map<Rating>(ratingDTO);
-                    await _ratingAndCommentService.UpdateAsync(id, rating);
+                    await _ratingAndCommentService.Update(id, rating);
                     return new OperationResult(true, "Comment update succesfully", StatusCodes.Status200OK);
                 }
                 return BadRequest("Comment data invalid");

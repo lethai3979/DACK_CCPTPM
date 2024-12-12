@@ -14,38 +14,38 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Report report)
+        public void Add(Report report)
         {
-            await _context.Reports.AddAsync(report);
-            await _context.SaveChangesAsync();
+            _context.Reports.Add(report);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(Report report)
+        public void Update(Report report)
         {
             // Gán lại trạng thái cho đối tượng là modified và lưu các thay đổi
             _context.Entry(report).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Report report)
+        public void Delete(Report report)
         {
             _context.Entry(report).State = EntityState.Modified;
             report.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<List<Report>> GetAllAsync()
-            => await _context.Reports.AsNoTracking()
+        public List<Report> GetAll()
+            => _context.Reports.AsNoTracking()
                                         .Include(r => r.Post)
                                         .Include(r => r.ReportType)
                                         .Where(r => !r.IsDeleted)
-                                        .ToListAsync();
+                                        .ToList();
 
-        public async Task<Report> GetByIdAsync(int id)
-            => await _context.Reports.AsNoTracking()
+        public Report GetById(int id)
+            => _context.Reports.AsNoTracking()
                                         .Include(r => r.Post)
                                         .Include(r => r.ReportType)
-                                        .FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == id)
+                                        .FirstOrDefault(r => !r.IsDeleted && r.Id == id)
                                         ?? throw new NullReferenceException("Report not found");
 
 

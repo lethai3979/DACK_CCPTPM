@@ -14,22 +14,22 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public async Task<List<Notify>> GetAllAsync()
-        => await _context.Notifications.Where(n => !n.IsDeleted).ToListAsync();
+        public List<Notify> GetAll()
+        => _context.Notifications.Where(n => !n.IsDeleted).ToList();
 
-        public async Task<List<Notify>> GetAllByUserIdAsync(string userId)
-            => await _context.Notifications.Where(n => n.UserId == userId && !n.IsDeleted).ToListAsync();
+        public List<Notify> GetAllByUserId(string userId)
+            => _context.Notifications.Where(n => n.UserId == userId && !n.IsDeleted).ToList();
 
-        public async Task<Notify> GetByIdAsync(int id)
-            => await _context.Notifications.FindAsync(id) ?? throw new NullReferenceException("Notify not found");
+        public Notify GetById(int id)
+            => _context.Notifications.Find(id) ?? throw new NullReferenceException("Notify not found");
 
-        public async Task AddAsync(Notify notify)
+        public void Add(Notify notify)
         {
-            await _context.AddAsync(notify);
-            await _context.SaveChangesAsync();
+            _context.Add(notify);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(Notify notify)
+        public void Delete(Notify notify)
         {
             var trackedNotiy = _context.ChangeTracker.Entries<Notify>()
                                                  .FirstOrDefault(e => e.Entity.Id == notify.Id);
@@ -42,14 +42,14 @@ namespace GoWheels_WebAPI.Repositories
 
             _context.Entry(notify).State = EntityState.Modified;
             notify.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(notify).State = EntityState.Detached;
         }
 
 
-        public async Task UpdateAsync(Notify notify)
+        public void Update(Notify notify)
         {
             var trackedNotiy = _context.ChangeTracker.Entries<Notify>()
                                      .FirstOrDefault(e => e.Entity.Id == notify.Id);
@@ -61,7 +61,7 @@ namespace GoWheels_WebAPI.Repositories
             }
 
             _context.Entry(notify).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             //detached tracking obj after modified
             _context.Entry(notify).State = EntityState.Detached;

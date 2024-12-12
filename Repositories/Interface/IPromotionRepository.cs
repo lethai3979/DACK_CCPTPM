@@ -4,11 +4,11 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IPromotionRepository : IGenericRepository<Promotion>
     {
-        Task<Promotion> GetUserPromotionByIdAsync(int id, string userId);
-        Task<List<Promotion>> GetAllAdminPromotionsAsync();
-        Task<List<Promotion>> GetPromotionsByUserIdAsync(string userId);
-        Task<List<Promotion>> GetAllAdminPromotionsByUserIdAsync(string userId);
-        Task<List<Promotion>> GetAllUserPromotionsAsync();
+        Promotion GetUserPromotionById(int id, string userId);
+        List<Promotion> GetAllAdminPromotions();
+        List<Promotion> GetPromotionsByUserId(string userId);
+        List<Promotion> GetAllAdminPromotionsByUserId(string userId);
+        List<Promotion> GetAllUserPromotions();
 
     }
 }

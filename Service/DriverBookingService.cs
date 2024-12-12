@@ -27,20 +27,20 @@ namespace GoWheels_WebAPI.Service
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
 
-        public async Task<List<DriverBooking>> GetAllByUserIdAsync()
-            => await _driverBookingRepository.GetAllByUserIdAsync(_userId);
+        public List<DriverBooking> GetAllByUserId()
+            => _driverBookingRepository.GetAllByUserId(_userId);
 
-        public async Task<DriverBooking> GetByIdAsync(int id)
-            => await _driverBookingRepository.GetByIdAsync(id);
+        public DriverBooking GetById(int id)
+            => _driverBookingRepository.GetById(id);
 
-        public async Task<DriverBooking> GetByBookingIdAsync(int id)
-            => await _driverBookingRepository.GetByBookingIdAsync(id);
+        public DriverBooking GetByBookingId(int id)
+            => _driverBookingRepository.GetByBookingId(id);
 
-        public async Task AddDriverBookingAsync(Booking booking)
+        public void AddDriverBooking(Booking booking)
         {
             try
             {
-                var driver = await _driverService.GetByUserIdAsync(_userId);
+                var driver = _driverService.GetByUserId(_userId);
                 var driverBooking = new DriverBooking()
                 {
                     CreatedById = _userId,
@@ -50,8 +50,8 @@ namespace GoWheels_WebAPI.Service
                     DropOffDate = booking.ReturnOn,
                     Total = driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours,
                 };
-                await _driverBookingRepository.AddAsync(driverBooking);
-                await _invoiceService.AddDriverToInvocieAsync(booking, driverBooking);
+                _driverBookingRepository.Add(driverBooking);
+                _invoiceService.AddDriverToInvocie(booking, driverBooking);
             }
             catch (NullReferenceException nullEx)
             {
@@ -71,13 +71,13 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateAsync(DriverBooking driverBooking)
+        public void Update(DriverBooking driverBooking)
         {
             try
             {
                 driverBooking.ModifiedOn = DateTime.UtcNow;
                 driverBooking.ModifiedById = _userId;
-                await _driverBookingRepository.UpdateAsync(driverBooking);
+                _driverBookingRepository.Update(driverBooking);
             }
             catch (NullReferenceException nullEx)
             {

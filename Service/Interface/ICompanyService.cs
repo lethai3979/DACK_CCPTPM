@@ -4,10 +4,10 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface ICompanyService
     {
-        Task<List<Company>> GetAllAsync();
-        Task<Company> GetByIdAsync(int id);
-        Task AddAsync(Company company, List<int> carTypeIds, IFormFile formFile);
-        Task DeleteByIdAsync(int id);
-        Task UpdateAsync(int id, Company company, List<int> carTypeIds, IFormFile formFile);
+        List<Company> GetAll();
+        Company GetById(int id);
+        void Add(Company company, List<int> carTypeIds, IFormFile formFile);
+        void DeleteById(int id);
+        void Update(int id, Company company, List<int> carTypeIds, IFormFile formFile);
     }
 }

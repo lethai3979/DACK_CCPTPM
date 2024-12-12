@@ -4,11 +4,11 @@ namespace GoWheels_WebAPI.Service.Interface
 {
     public interface IDriverBookingService
     {
-        Task<List<DriverBooking>> GetAllByUserIdAsync();
-        Task<DriverBooking> GetByIdAsync(int id);
-        Task<DriverBooking> GetByBookingIdAsync(int id);
-        Task AddDriverBookingAsync(Booking booking);
-        Task UpdateAsync(DriverBooking driverBooking);
+        List<DriverBooking> GetAllByUserId();
+        DriverBooking GetById(int id);
+        DriverBooking GetByBookingId(int id);
+        void AddDriverBooking(Booking booking);
+        void Update(DriverBooking driverBooking);
 
     }
 }

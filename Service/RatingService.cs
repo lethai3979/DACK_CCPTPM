@@ -23,26 +23,26 @@ namespace GoWheels_WebAPI.Service
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-        public async Task<List<Rating>> GetAllByPostId(int postId)
-            => await _ratingRepository.GetAllByPostId(postId);
+        public List<Rating> GetAllByPostId(int postId)
+            => _ratingRepository.GetAllByPostId(postId);
 
 
-        public async Task<List<Rating>> GetAllAsync()
-            => await _ratingRepository.GetAllAsync();
+        public List<Rating> GetAll()
+            => _ratingRepository.GetAll();
 
-        public async Task<Rating> GetByIdAsync(int id)
-            => await _ratingRepository.GetByIdAsync(id);
+        public Rating GetById(int id)
+            => _ratingRepository.GetById(id);
 
-        public async Task AddAsync(Rating rating)
+        public void Add(Rating rating)
         {
             try
             {
                 rating.UserId = _userId;
                 rating.CreatedById = _userId;
                 rating.CreatedOn = DateTime.Now;
-                await _ratingRepository.AddAsync(rating);
-                var avgRating = await _ratingRepository.GetAveragePostRatingAsync(rating.PostId);
-                await _postService.UpdatePostAverageRatingAsync(rating.PostId, avgRating);
+                _ratingRepository.Add(rating);
+                var avgRating = _ratingRepository.GetAveragePostRating(rating.PostId);
+                _postService.UpdatePostAverageRating(rating.PostId, avgRating);
             }
             catch (DbUpdateException dbEx)
             {
@@ -57,18 +57,18 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-    
-        public async Task DeleteByIdAsync(int id)
+
+        public void DeleteById(int id)
         {
             try
             {
-                var comment = await _ratingRepository.GetByIdAsync(id);
+                var comment = _ratingRepository.GetById(id);
                 comment.IsDeleted = true;
                 comment.ModifiedById = _userId;
                 comment.ModifiedOn = DateTime.Now;
-                await _ratingRepository.UpdateAsync(comment);
-                var avgRating = await _ratingRepository.GetAveragePostRatingAsync(comment.PostId);
-                await _postService.UpdatePostAverageRatingAsync(comment.PostId, avgRating);
+                _ratingRepository.Update(comment);
+                var avgRating = _ratingRepository.GetAveragePostRating(comment.PostId);
+                _postService.UpdatePostAverageRating(comment.PostId, avgRating);
             }
             catch (DbUpdateException dbEx)
             {
@@ -83,12 +83,12 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        
-        public async Task UpdateAsync(int id, Rating rating)
+
+        public void Update(int id, Rating rating)
         {
             try
             {
-                var existingRating = await _ratingRepository.GetByIdAsync(id);
+                var existingRating = _ratingRepository.GetById(id);
                 rating.CreatedOn = existingRating.CreatedOn;
                 rating.CreatedById = existingRating.CreatedById;
                 rating.ModifiedById = existingRating.ModifiedById;
@@ -100,11 +100,11 @@ namespace GoWheels_WebAPI.Service
                 rating.IsDeleted = existingRating.IsDeleted;
                 var isValueChange = EditHelper<Rating>.HasChanges(rating, existingRating);
                 EditHelper<Rating>.SetModifiedIfNecessary(rating, isValueChange, existingRating, _userId);
-                await _ratingRepository.UpdateAsync(rating);
-                if (rating.Point != existingRating.Point) 
+                _ratingRepository.Update(rating);
+                if (rating.Point != existingRating.Point)
                 {
-                    var avgRating = await _ratingRepository.GetAveragePostRatingAsync(rating.PostId);
-                    await _postService.UpdatePostAverageRatingAsync(rating.PostId, avgRating);
+                    var avgRating = _ratingRepository.GetAveragePostRating(rating.PostId);
+                    _postService.UpdatePostAverageRating(rating.PostId, avgRating);
                 }
             }
             catch (DbUpdateException dbEx)
