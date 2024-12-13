@@ -22,7 +22,7 @@ namespace GoWheels_WebAPI.Service
         public async Task<DistanceMatrixRespone> GetDistanceAsync(List<(string userId, string location)> userLocations, string  destination)
         {
             var startLocation = string.Join("|", userLocations.Select(loc => loc.location));
-            var url = $"https://maps.googleapis.com/maps/api/distancematrix/json?origins={startLocation}&destinations={destination}&key={_apiKey}";
+            var url = $"json?origins={startLocation}&destinations={destination}&key={_apiKey}";
             var response = await _httpClient.GetAsync(url);
             var responeContent = await response.Content.ReadAsStringAsync();
             if(responeContent.IsNullOrEmpty())
@@ -40,7 +40,7 @@ namespace GoWheels_WebAPI.Service
         public async Task<DistanceMatrixRespone> GetDistanceAsync(List<(int bookingId, string location)> bookingLocations, string destination)
         {
             var startLocation = string.Join("|", bookingLocations.Select(loc => loc.location));
-            var url = $"https://maps.googleapis.com/maps/api/distancematrix/json?origins={startLocation}&destinations={destination}&key={_apiKey}";
+            var url = $"json?origins={startLocation}&destinations={destination}&key={_apiKey}";
             var response = await _httpClient.GetAsync(url);
             var responeContent = await response.Content.ReadAsStringAsync();
             if (responeContent.IsNullOrEmpty())

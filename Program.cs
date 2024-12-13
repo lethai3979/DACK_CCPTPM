@@ -73,8 +73,8 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<GoogleApiService>(client =>
+//builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<ILocatorService,GoogleApiService>(client =>
 {
     client.BaseAddress = new Uri("https://maps.googleapis.com/maps/api/distancematrix/");
 });
@@ -124,7 +124,7 @@ builder.Services.AddScoped<IReportTypeService, ReportTypeService>();
 builder.Services.AddScoped<IStartupService, StartupService>();
 builder.Services.AddScoped<IUserPromotionService, UserPromotionService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ILocatorService, GoogleApiService>();
+//builder.Services.AddScoped<ILocatorService, GoogleApiService>();
 builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

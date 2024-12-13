@@ -160,7 +160,7 @@ namespace GoWheels_WebAPI.Service
                         await _hubcontext.Groups.AddToGroupAsync(connectionId, booking.Id.ToString());
                     }
                 }
-                await _hubcontext.Clients.Group(booking.Id.ToString()).SendAsync("ReceiveMessage", "System", "New booking nearby");
+                await _hubcontext.Clients.Group(booking.Id.ToString()).SendAsync("ReceiveMessage", "New booking nearby");
             }
             catch (DbUpdateException dbEx)
             {
