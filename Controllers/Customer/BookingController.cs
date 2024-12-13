@@ -107,11 +107,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllBookingsInRange/{latitude}&&{longitude}")]
         [Authorize(Roles = "Driver")]// getall cho tài xế
-        public ActionResult<OperationResult> GetAllBookingsInRange(string latitude, string longitude)
+        public async Task<ActionResult<OperationResult>> GetAllBookingsInRangeAsync(string latitude, string longitude)
         {
             try
             {
-                var bookings = _bookingService.GetAllByLocation(latitude, longitude);
+                var bookings = await _bookingService.GetAllByLocation(latitude, longitude);
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
