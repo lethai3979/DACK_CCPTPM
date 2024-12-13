@@ -201,13 +201,15 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseCors("AllowAllOrigins");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowAllOrigins");
+
 // Map SignalR Hub
 app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
 app.MapControllers();
