@@ -54,6 +54,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
+        [HttpGet("GetTotalPost")]
+        public IActionResult GetTotalPost()
+            => Ok(_postService.GetTotalPost());
+
         [HttpGet("GetPersonalPosts")]
         [Authorize(Roles = "User")]
         public ActionResult<OperationResult> GetAllByUserId()

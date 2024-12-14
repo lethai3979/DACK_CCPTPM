@@ -32,6 +32,9 @@ namespace GoWheels_WebAPI.Service
         public List<Post> GetAll()
             => _postRepository.GetAll();
 
+        public int GetTotalPost()
+            => _postRepository.GetAll().Count();
+
         public Post GetById(int id)
             => _postRepository.GetById(id);
 
