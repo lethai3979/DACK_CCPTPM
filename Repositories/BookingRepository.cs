@@ -134,6 +134,8 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .ThenInclude(b => b.User)
+                                        .Include(b => b.Post)
+                                        .ThenInclude(b => b.Images)
                                         .Include(b => b.Promotion)
                                         .Include(b => b.User)
                                         .FirstOrDefault(b => b.Id == id && !b.IsDeleted)

@@ -6,7 +6,7 @@ namespace GoWheels_WebAPI.Models.Entities
     {
         public string? Name { get; set; }
         public string? License { get; set; }
-        //public DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
         public string? CIC { get; set; }
         public string? Image { get; set; }
         public DateTime? Birthday { get; set; }
