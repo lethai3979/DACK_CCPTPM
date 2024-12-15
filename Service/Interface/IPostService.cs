@@ -7,7 +7,6 @@ namespace GoWheels_WebAPI.Service.Interface
     {
 
         List<Post> GetAll();
-        int GetTotalPost();
         List<Post> ApplyFilters(List<Post> posts,SearchFilterModel filterModel);
         Post GetById(int id);
         List<Post> GetAllByUserId();

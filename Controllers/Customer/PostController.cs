@@ -37,7 +37,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 posts = _postService.ApplyFilters(posts, filterModel);
                 var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 8);
                 var postVMs = _mapper.Map<List<PostVM>>(paginateList);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
+                var responeData = new
+                {
+                    totalByFilter = posts.Count,
+                    listPost = postVMs
+                };
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: responeData);
             }
             catch (NullReferenceException nullEx)
             {
@@ -53,10 +58,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
         }
-
-        [HttpGet("GetTotalPost")]
-        public IActionResult GetTotalPost()
-            => Ok(_postService.GetTotalPost());
 
         [HttpGet("GetPersonalPosts")]
         [Authorize(Roles = "User")]
