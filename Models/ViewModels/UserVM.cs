@@ -6,6 +6,7 @@
         public string? Name { get; set; }
         public string? License { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? Email { get; set; }
         public string? CIC { get; set; }
         public string? Image { get; set; }
         public string? Longitude { get; set; }

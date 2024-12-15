@@ -119,7 +119,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 }
                 else
                 {
-                    return Redirect("http://192.168.1.5:5173/Information/User/HistoryBooking");
+                    return Redirect("http://localhost:5173/Information/User/HistoryInvoice");
                 }
             }
             catch (NullReferenceException nullEx)

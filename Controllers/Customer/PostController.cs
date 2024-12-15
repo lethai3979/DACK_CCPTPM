@@ -35,7 +35,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 int currentPageIndex = pageIndex ?? 1;
                 var posts = _postService.GetAll();
                 posts = _postService.ApplyFilters(posts, filterModel);
-                var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 2);
+                var paginateList = PaginatedList<Post>.Create(posts, currentPageIndex, 8);
                 var postVMs = _mapper.Map<List<PostVM>>(paginateList);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: postVMs);
             }
