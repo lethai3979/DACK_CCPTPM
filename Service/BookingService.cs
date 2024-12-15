@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Hubs;
+﻿using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
@@ -64,8 +63,35 @@ namespace GoWheels_WebAPI.Service
         public List<Booking> GetAllWaitingBookingsByPostId(int postId)
             => _bookingRepository.GetAllWaitingBookingByPostId(postId);
 
-        public List<Booking> GetAllDriverRequireBookings()
-            => _bookingRepository.GetAllDriverRequireBookings();
+        public async Task<List<Booking>> GetAllDriverRequireBookingsAsync(string latitude, string longitude)
+        {
+            var driverLocationString = $"{latitude},{longitude}";
+            var bookings = _bookingRepository.GetAllDriverRequireBookings();
+            var bookingLocations = new List<(int bookingId, string location)>();
+            foreach (var booking in bookings)
+            {
+                var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
+                bookingLocations.Add((booking.Id, bookingLocationString));
+            }
+            var respone = await _googleApiService.GetDistanceAsync(bookingLocations, driverLocationString);
+            var orderBookingsId = OrderByDistance(respone, bookingLocations);
+            var bookingsDictionary = bookings.ToDictionary(b => b.Id, b => b);
+            bookings = orderBookingsId.Where(id => bookingsDictionary.ContainsKey(id)).Select(id => bookingsDictionary[id]).ToList();
+            return bookings;
+        }
+
+        private List<int> OrderByDistance(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
+        {
+            return bookingLocations.Select((item, index) => new
+                                            {
+                                                BookingId = item.bookingId,
+                                                Distance = distanceMatrixRespone.Rows[index].Elements[0].Distance?.Value ?? int.MaxValue
+                                            })
+                                            .OrderBy(x => x.Distance) // Sắp xếp theo khoảng cách tăng dần
+                                            .Select(x => x.BookingId)
+                                            .ToList();
+        }
+
         public List<Booking> GetAllPendingBookingsByUserId()
             => _bookingRepository.GetAllPendingBookingByUserId(_userId);
 
@@ -85,7 +111,7 @@ namespace GoWheels_WebAPI.Service
         public List<Booking> GetAllByDriver()
             => _bookingRepository.GetAllByDriver(_userId);
 
-        public async Task<List<Booking>> GetAllByLocation(string latitude, string longitude)
+        public async Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude)
         {
             try
             {
@@ -98,7 +124,7 @@ namespace GoWheels_WebAPI.Service
                     bookingLocations.Add((booking.Id, bookingLocationString));
                 }
                 var respone = await _googleApiService.GetDistanceAsync(bookingLocations, driverLocationString);
-                var bookingsWithinRange = GetBookingsWithinRange(respone, bookingLocations);
+                var bookingsWithinRange = FilterBookingsWithinRange(respone, bookingLocations);
                 var bookingInRange = bookings.Where(b => bookingsWithinRange.Any(id => id == b.Id)).ToList();
                 return bookingInRange;
             }
@@ -108,7 +134,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private List<int> GetBookingsWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
+        private List<int> FilterBookingsWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
         {
             var bookingsWithinRange = new List<int>();
             for (var i = 0; i < distanceMatrixRespone.Rows.Count; i++)

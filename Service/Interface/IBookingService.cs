@@ -8,14 +8,14 @@ namespace GoWheels_WebAPI.Service.Interface
         List<Booking> GetAllUnRecieveBookingsByPostId(int postId);
         List<DateTime> GetBookedDateByPostId(int postId);
         List<Booking> GetAllWaitingBookingsByPostId(int postId);
-        List<Booking> GetAllDriverRequireBookings();
+        Task<List<Booking>> GetAllDriverRequireBookingsAsync(string latitude, string longitude);
         List<Booking> GetAllPendingBookingsByUserId();
         List<Booking> GetAll();
         List<Booking> GetAllCompleteBooking();
         List<Booking> GetAllCancelRequest();
         List<Booking> GetPersonalBookings();
         List<Booking> GetAllByDriver();
-        Task<List<Booking>> GetAllByLocation(string latitude, string longitude);
+        Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude);
         Booking GetById(int id);
         bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
         Task Add(Booking booking);

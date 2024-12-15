@@ -37,7 +37,7 @@ namespace GoWheels_WebAPI.Service
                 UserName = signUpViewModel.Email,
                 Image = "images/ImageUser/user.png",
                 LockoutEnabled = false,
-                CreateDate = DateTime.Now,
+                //CreateDate = DateTime.Now,
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
             if (!result.Succeeded)

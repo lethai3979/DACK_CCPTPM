@@ -80,13 +80,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
 
-        [HttpGet("GetAllDriverRequireBookings")]
+        [HttpGet("GetAllDriverRequireBookings/{latitude}&&{longitude}")]
         [Authorize(Roles = "Driver")]// getall cho tài xế
-        public ActionResult<OperationResult> GetAllDriverRequireBookings()
+        public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookings(string latitude, string longitude)
         {
             try
             {
-                var bookings = _bookingService.GetAllDriverRequireBookings();
+                var bookings = await _bookingService.GetAllDriverRequireBookingsAsync(latitude, longitude);
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -111,7 +111,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var bookings = await _bookingService.GetAllByLocation(latitude, longitude);
+                var bookings = await _bookingService.GetAllBookingsInRange(latitude, longitude);
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
