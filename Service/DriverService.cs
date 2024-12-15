@@ -55,7 +55,8 @@ namespace GoWheels_WebAPI.Service
                     CreatedById = _userId,
                     UserId = user.Id,
                     PricePerHour = 70000,
-                    RatingPoint = 0
+                    TrustLevel = 100,
+                    IsDeleted = false
                 };
                 _driverRepository.Add(driver);
             }
@@ -73,7 +74,25 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public void Update(int id, Driver driver)
+        public void UpdateTrustLevel(int point)
+        {
+            try
+            {
+                var driver = _driverRepository.GetByUserId(_userId);
+                driver.TrustLevel += point;
+                _driverRepository.Update(driver);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void Update(Driver driver)
         {
             try
             {
@@ -84,10 +103,6 @@ namespace GoWheels_WebAPI.Service
             catch (DbUpdateException dbEx)
             {
                 throw new DbUpdateException(dbEx.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
             }
             catch (Exception ex)
             {

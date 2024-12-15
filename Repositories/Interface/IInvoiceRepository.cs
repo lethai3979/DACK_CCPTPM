@@ -8,6 +8,5 @@ namespace GoWheels_WebAPI.Repositories.Interface
         List<Invoice> GetAllByDriver(string userId);
         List<Invoice> GetAllRefundInvoices();
         Invoice GetByBookingId(int bookingId);
-        Invoice GetByDriverBookingId(int driverBooking);
     }
 }

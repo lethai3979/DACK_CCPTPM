@@ -15,17 +15,14 @@ namespace GoWheels_WebAPI.Controllers.Employee
     {
         private readonly IBookingService _bookingService;
         private readonly IInvoiceService _invoiceService;
-        private readonly IDriverBookingService _driverBookingService;
         private readonly IMapper _mapper;
 
         public BookingRequestController(IBookingService bookingService,
-                                        IInvoiceService invoiceService, 
-                                        IDriverBookingService driverBookingService,
+                                        IInvoiceService invoiceService,
                                         IMapper mapper)
         {
             _bookingService = bookingService;
             _invoiceService = invoiceService;
-            _driverBookingService = driverBookingService;
             _mapper = mapper;
         }
 
@@ -56,16 +53,13 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
-        public ActionResult<OperationResult> ExamineCancelBooking(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
+        public async Task<ActionResult<OperationResult>> ExamineCancelBooking(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
         {
             try
             {
                 var booking = _bookingService.GetById(bookingId);
-                _bookingService.ExamineCancelBookingRequest(booking, isAccept);
+                await _bookingService.ExamineCancelBookingRequestAsync(booking, isAccept);
                 _invoiceService.Refund(booking, isAccept);
-                var driverBooking = _driverBookingService.GetByBookingId(bookingId);
-                driverBooking.IsCancel = isAccept;
-                _driverBookingService.Update(driverBooking);
                 return new OperationResult(true, "Cancellation request processed successfully", StatusCodes.Status200OK);
             }
             catch (NullReferenceException nullEx)

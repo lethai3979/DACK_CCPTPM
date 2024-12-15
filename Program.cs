@@ -100,8 +100,6 @@ builder.Services.AddScoped<IGenericRepository<Company>, CompanyRepository>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<IDriverService, DriverService>();
-builder.Services.AddScoped<IDriverBookingRepository, DriverBookingRepository>();
-builder.Services.AddScoped<IDriverBookingService, DriverBookingService>();
 builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();

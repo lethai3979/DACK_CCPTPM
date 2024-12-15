@@ -6,28 +6,27 @@ namespace GoWheels_WebAPI.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
         }
-        public DbSet<Amenity> Amentities { get; set; }
-        public DbSet<CarType> CarTypes { get; set; }
-        public DbSet<CarTypeDetail> CarTypeDetails { get; set; }
-        public DbSet<Company> Companies { get; set; }
-        public DbSet<Promotion> Promotions { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<PostPromotion> PostPromotions { get; set; }
-        public DbSet<PostAmenity> PostAmenities { get; set; }
-        public DbSet<Favorite> Favorites { get; set; }
-        public DbSet<Invoice> Invoices { get; set; }
-        public DbSet<PostImage> PostImages { get; set; }
-        public DbSet<Rating> Ratings { get; set; }
-        public DbSet<Report> Reports { get; set; }
-        public DbSet<ReportType> ReportTypes { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Driver> Drivers { get; set; }
-        public DbSet<DriverBooking> DriverBookings { get; set; }
-        public DbSet<Notify> Notifications { get; set; }
+        public DbSet<Amenity> Amentities { get; set; } = null!;
+        public DbSet<CarType> CarTypes { get; set; } = null!;
+        public DbSet<CarTypeDetail> CarTypeDetails { get; set; } = null!;
+        public DbSet<Company> Companies { get; set; } = null!;
+        public DbSet<Promotion> Promotions { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<PostPromotion> PostPromotions { get; set; } = null!;
+        public DbSet<PostAmenity> PostAmenities { get; set; } = null!;
+        public DbSet<Favorite> Favorites { get; set; } = null!;
+        public DbSet<Invoice> Invoices { get; set; } = null!;
+        public DbSet<PostImage> PostImages { get; set; } = null!;
+        public DbSet<Rating> Ratings { get; set; } = null!;
+        public DbSet<Report> Reports { get; set; } = null!;
+        public DbSet<ReportType> ReportTypes { get; set; } = null!;
+        public DbSet<Booking> Bookings { get; set; } = null!;
+        public DbSet<Driver> Drivers { get; set; } = null!;
+        public DbSet<Notify> Notifications { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ApplicationUser>()

@@ -1,11 +1,24 @@
-﻿namespace GoWheels_WebAPI.Models.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GoWheels_WebAPI.Models.Entities
 {
-    public class Driver : BaseModel
+    public class Driver
     {
-        public double RatingPoint { get; set; }
-        public required decimal PricePerHour { get; set; }
+        [Key]
         public required string UserId { get; set; }
         public ApplicationUser User { get; set; } = null!;
-        public ICollection<DriverBooking> DriverBookings { get; set; } = new List<DriverBooking>();
+        [Required]
+        public string? CreatedById { get; set; }
+        [Required]
+        public required DateTime CreatedOn { get; set; } = DateTime.Now;
+
+        public string? ModifiedById { get; set; }
+
+        public DateTime? ModifiedOn { get; set; }
+        public int TrustLevel { get; set; }
+        public required decimal PricePerHour { get; set; }
+
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public bool IsDeleted { get; set; }
     }
 }

@@ -108,8 +108,8 @@ namespace GoWheels_WebAPI.Service
         public List<Booking> GetPersonalBookings()
             => _bookingRepository.GetAllPersonalBookings(_userId);
 
-        public List<Booking> GetAllByDriver()
-            => _bookingRepository.GetAllByDriver(_userId);
+/*        public List<Booking> GetAllByDriver()
+            => _bookingRepository.GetAllByDriver(_userId);*/
 
         public async Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude)
         {
@@ -446,7 +446,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public void ExamineCancelBookingRequest(Booking booking, bool isAccept)
+        public async Task ExamineCancelBookingRequestAsync(Booking booking, bool isAccept)
         {
             try
             {
@@ -480,6 +480,14 @@ namespace GoWheels_WebAPI.Service
                 booking.ModifiedOn = DateTime.Now;
                 _bookingRepository.Update(booking);
                 _notifyService.Add(notify);
+                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                }
+                if(NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId!, out var driverConnectionId))
+                {
+                    await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", "Your selected booking is canceled");
+                }    
             }
             catch (DbUpdateException dbEx)
             {
@@ -494,6 +502,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+
         public void CancelReportedBookings(Booking booking)
         {
             try
@@ -515,6 +524,51 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
 
+        }
+
+        public void AddDriverToBooking(int bookingId)
+        {
+            try
+            {
+                var booking = _bookingRepository.GetById(bookingId);
+                booking.HasDriver = true;
+                booking.DriverId = _userId;
+                _bookingRepository.Update(booking);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public void RemoveDriverFromBooking(int bookingId)
+        {
+            try
+            {
+                var booking = _bookingRepository.GetById(bookingId);
+                booking.HasDriver = false;
+                booking.DriverId = null;
+                _bookingRepository.Update(booking);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new DbUpdateException(dbEx.Message);
+            }
+            catch (InvalidOperationException operationEx)
+            {
+                throw new InvalidOperationException(operationEx.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

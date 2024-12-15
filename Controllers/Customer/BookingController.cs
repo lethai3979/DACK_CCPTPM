@@ -2,7 +2,6 @@
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
-using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -81,7 +80,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
 
         [HttpGet("GetAllDriverRequireBookings/{latitude}&&{longitude}")]
-        [Authorize(Roles = "Driver")]// getall cho tài xế
+        [Authorize(Roles = "Driver")]// getall booking đã sắp xếp cho tài xế theo vị trí 
         public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookings(string latitude, string longitude)
         {
             try
@@ -106,7 +105,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllBookingsInRange/{latitude}&&{longitude}")]
-        [Authorize(Roles = "Driver")]// getall cho tài xế
+        [Authorize(Roles = "Driver")]// Lấy booking theo vị trí chỉ định trong map
         public async Task<ActionResult<OperationResult>> GetAllBookingsInRangeAsync(string latitude, string longitude)
         {
             try
@@ -130,7 +129,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetAllByDriver")]
+        /*[HttpGet("GetAllByDriver")]
         public ActionResult<OperationResult> GetAllByDriver()
         {
             try
@@ -152,7 +151,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        }
+        }*/
 
         [HttpGet("GetAllPendingBookingsByUserId")] // chủ xe
         [Authorize(Roles = "User")]
@@ -205,7 +204,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("SendCancelRequest/{id}")]
         [Authorize(Roles = "User")]
-        public ActionResult<OperationResult> SendCancelRequestBooking(int id)  //Hủy đơn đjăt xe từ User
+        public ActionResult<OperationResult> SendCancelRequestBooking(int id)  //Hủy đơn đặt xe từ Khách hàng
         {
             try
             {
@@ -279,11 +278,11 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 await _bookingService.UpdateOwnerConfirm(id, isAccept);
-                
+/*                
                 if(isAccept)
                 {
                     _invoiceService.CreateInvoice(id);
-                }    
+                }   */ 
                 return new OperationResult(true, "Booking confirmed", StatusCodes.Status200OK);
             }
             catch(UnauthorizedAccessException authEx) 

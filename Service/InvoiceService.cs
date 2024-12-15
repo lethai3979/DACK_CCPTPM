@@ -45,8 +45,6 @@ namespace GoWheels_WebAPI.Service
         public Invoice GetByBookingId(int bookingId)
             => _invoiceRepository.GetByBookingId(bookingId);
 
-        public Invoice GetByDriverBookingId(int driverBookingId)
-            => _invoiceRepository.GetByDriverBookingId(driverBookingId);
 
         public List<Invoice> GetAllRefundInvoices()
             => _invoiceRepository.GetAllRefundInvoices();
@@ -68,60 +66,6 @@ namespace GoWheels_WebAPI.Service
                     RefundInvoice = false,
                 };
                 _invoiceRepository.Add(invoice);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public void AddDriverToInvocie(Booking booking, DriverBooking driverBooking)
-        {
-            try
-            {
-                var invoice = _invoiceRepository.GetByBookingId(booking.Id);
-                invoice.DriverBooking = driverBooking;
-                invoice.Total += driverBooking.Total;
-                _invoiceRepository.Update(invoice);
-                booking.HasDriver = true;
-                _bookingService.Update(booking.Id, booking);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public void UpdateCancelDriverBooking(Invoice invoice, decimal driverBookingTotal)
-        {
-            try
-            {
-                invoice.ModifiedById = _userId;
-                invoice.ModifiedOn = DateTime.Now;
-                invoice.Total -= driverBookingTotal;
-                invoice.DriverBookingId = null!;
-                invoice.DriverBooking = null!;
-                _invoiceRepository.Update(invoice);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.InnerException!.Message);
             }
             catch (DbUpdateException dbEx)
             {
@@ -217,8 +161,6 @@ namespace GoWheels_WebAPI.Service
                 var invoice = _invoiceRepository.GetByBookingId(booking.Id);
                 invoice.ModifiedById = _userId;
                 invoice.ModifiedOn = DateTime.Now;
-                invoice.DriverBookingId = null!;
-                invoice.DriverBooking = null!;
                 invoice.RefundInvoice = true!;
                 _invoiceRepository.Update(invoice);
             }
@@ -236,11 +178,12 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<string> ProcessMomoPayment(Invoice  invoice)
+        public async Task<string> ProcessMomoPayment(Booking  booking)
         {
-            double price = (double)invoice.PrePayment;
+            decimal driverFee = booking.Driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
+            decimal price = booking.PrePayment + driverFee;
             string priceStr = price.ToString();
-            string bookingIdStr = invoice.BookingId.ToString();
+            string bookingIdStr = booking.Id.ToString();
 
             string endpoint = _configuration.GetValue<string>("MomoAPI:MomoApiUrl") ?? string.Empty;
             string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? string.Empty;
@@ -338,12 +281,21 @@ namespace GoWheels_WebAPI.Service
                 booking.IsPay = true;
                 booking.Status = "Waiting";
                 _bookingService.Update(booking.Id, booking);
-                var invoice = _invoiceRepository.GetByBookingId(bookingIdNum);
-                invoice.ModifiedById = _userId;
-                invoice.ModifiedOn = DateTime.Now;
-                invoice.IsPay = true;
-                _invoiceRepository.Update(invoice);
-                bool isAvailable = booking.RecieveOn > DateTime.Now;
+
+                string amountStr = queryParams["amount"].ToString();
+                if (!decimal.TryParse(amountStr, out decimal amount))
+                {
+                    throw new InvalidOperationException("Invalid invoice ID"); ;
+                }
+                var invoice = new Invoice() 
+                { 
+                    CreatedById = _userId,
+                    CreatedOn = DateTime.Now,
+                    PrePayment = amount,
+                    Total = amount,
+                    ReturnOn = booking.ReturnOn.AddDays(1),
+                };
+                _invoiceRepository.Add(invoice);
             }
             catch (DbUpdateException dbEx)
             {

@@ -46,7 +46,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
+/*        [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
         [Authorize(Roles = "Driver")]
         public ActionResult<OperationResult> GetAllByDriver()
         {
@@ -65,7 +65,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        }
+        }*/
 
 
 
@@ -83,9 +83,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 if(!booking.OwnerConfirm)
                 {
                     return BadRequest("Owner confirm required");
-                }    
-                var invoice = _invoiceService.GetByBookingId(bookingId);
-                var responseFromMomo = await _invoiceService.ProcessMomoPayment(invoice);
+                }   
+                var responseFromMomo = await _invoiceService.ProcessMomoPayment(booking);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
                 if (payUrlToken != null)

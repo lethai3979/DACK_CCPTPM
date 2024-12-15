@@ -20,5 +20,6 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public UserVM User { get; set; } = null!;
         public PostVM Post { get; set; } = null!;
         public PromotionVM Promotion { get; set; } = null!;
+        public DriverVM Driver { get; set; } = null!;
     }
 }

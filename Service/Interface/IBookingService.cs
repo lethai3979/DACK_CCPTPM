@@ -14,17 +14,19 @@ namespace GoWheels_WebAPI.Service.Interface
         List<Booking> GetAllCompleteBooking();
         List<Booking> GetAllCancelRequest();
         List<Booking> GetPersonalBookings();
-        List<Booking> GetAllByDriver();
+        //List<Booking> GetAllByDriver();
         Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude);
         Booking GetById(int id);
         bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
         Task Add(Booking booking);
         void Update(int id, Booking booking);
+        void AddDriverToBooking(int bookingId);
+        void RemoveDriverFromBooking(int bookingId);
         Task UpdateOwnerConfirm(int id, bool isAccept);
         void UpdateBookingStatus();
         void Delete(int id);
         void RequestCancelBooking(int id);
-        void ExamineCancelBookingRequest(Booking booking, bool isAccept);
+        Task ExamineCancelBookingRequestAsync(Booking booking, bool isAccept);
         void CancelReportedBookings(Booking booking);
 
     }

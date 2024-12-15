@@ -110,7 +110,7 @@ namespace GoWheels_WebAPI.Controllers
             }
         }
 
-        [HttpPost("Update/{id}")]
+        [HttpPost("UpdateTrustLevel/{id}")]
         [Authorize(Roles = "Admin")]
         public ActionResult<OperationResult> Update(int id, [FromForm] ReportTypeDTO reportTypeDTO)
         {

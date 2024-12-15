@@ -51,7 +51,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 
-        public List<Booking> GetAllByDriver(string userId)
+/*        public List<Booking> GetAllByDriver(string userId)
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
@@ -59,9 +59,9 @@ namespace GoWheels_WebAPI.Repositories
                                         .Where(b => !b.IsDeleted
                                                     && b.OwnerConfirm
                                                     && b.HasDriver
-                                                    && b.Invoices.Any(i => i.DriverBooking.CreatedById == userId))
+                                                    && b.Bookings.Any(i => i.DriverBooking.CreatedById == userId))
                                         .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
+                                        .ToList();*/
 
 
         public List<Booking> GetAllByPostId(int postId)

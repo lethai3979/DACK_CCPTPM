@@ -17,8 +17,8 @@ namespace GoWheels_WebAPI.Repositories
         public List<Driver> GetAll()
             => _context.Drivers.Include(d => d.User).Where(d => !d.IsDeleted).ToList();
 
-        public Driver GetById(int id)
-            => _context.Drivers.FirstOrDefault(d => !d.IsDeleted && d.Id == id)
+        public Driver GetById(string userId)
+            => _context.Drivers.FirstOrDefault(d => !d.IsDeleted && d.UserId == userId)
                                                         ?? throw new NullReferenceException("Driver not found");
         public Driver GetByUserId(string userId)
             => _context.Drivers.FirstOrDefault(d => !d.IsDeleted && d.UserId == userId)
@@ -33,9 +33,9 @@ namespace GoWheels_WebAPI.Repositories
         public void Update(Driver driver)
         {
             var existingDriver = _context.ChangeTracker.Entries<Driver>()
-                                                 .FirstOrDefault(e => e.Entity.Id == driver.Id);
+                                                 .FirstOrDefault(e => e.Entity.UserId == driver.UserId);
 
-            //detached same id obj
+            //detached same userId obj
             if (existingDriver != null)
             {
                 _context.Entry(existingDriver.Entity).State = EntityState.Detached;
@@ -53,6 +53,11 @@ namespace GoWheels_WebAPI.Repositories
             _context.Entry(driver).State = EntityState.Modified;
             driver.IsDeleted = true;
             _context.SaveChanges();
+        }
+
+        public Driver GetById(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

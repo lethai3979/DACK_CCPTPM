@@ -164,7 +164,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPut("Update/{id}")]
+        [HttpPut("UpdateTrustLevel/{id}")]
         [Authorize(Roles = "User")]
         public ActionResult<OperationResult> Update(int id, [FromForm] PostDTO postDTO)
         {

@@ -13,6 +13,5 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public DateTime ReturnOn { get; set; }
         [JsonPropertyOrder(-100)]
         public BookingVM Booking { get; set; } = null!;
-        public DriverBookingVM DriverBooking { get; set; } = null!;
     }
 }

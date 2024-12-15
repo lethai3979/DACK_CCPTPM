@@ -15,18 +15,21 @@ namespace GoWheels_WebAPI.Controllers.Driver
     public class DriverController : ControllerBase
     {
         private readonly IDriverService _driverService;
+        private readonly IBookingService _bookingService;
+        private readonly IInvoiceService _invoiceService;
         private readonly IUserService _userService;
-        private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IMapper _mapper;
 
-        public DriverController(IDriverService driverService, 
+        public DriverController(IDriverService driverService,
+                                IBookingService bookingService,
+                                IInvoiceService invoiceService,
                                 IUserService userService, 
-                                IHubContext<NotifyHub> hubContext,
                                 IMapper mapper)
         {
             _driverService = driverService;
+            _bookingService = bookingService;
+            _invoiceService = invoiceService;
             _userService = userService;
-            _hubContext = hubContext;
             _mapper = mapper;
         }
 
@@ -84,7 +87,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
             try
             {
                 await _userService.UpdateDriverLocationAsync(longitude, latitude);
-                return new OperationResult(true, "Update location succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "UpdateTrustLevel location succesfully", StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {
@@ -92,7 +95,36 @@ namespace GoWheels_WebAPI.Controllers.Driver
             }
         }
 
+        [HttpPut("AddDriverToBooking/{bookingId}")]
+        [Authorize]
+        public ActionResult<OperationResult> AddDriverToBooking(int bookingId)
+        {
+            try
+            {
+                _bookingService.AddDriverToBooking(bookingId);
+                return new OperationResult(true, "Select booking succesfully", StatusCodes.Status200OK);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
 
+        [HttpPut("RemoveDriverFromBooking/{bookingId}")]
+        [Authorize]
+        public ActionResult<OperationResult> RemoveDriverFromBooking(int bookingId)
+        {
+            try
+            {
+                _bookingService.RemoveDriverFromBooking(bookingId);
+                _driverService.UpdateTrustLevel(-1);
+                return new OperationResult(true, "Select booking succesfully", StatusCodes.Status200OK);
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
 
     }
 }

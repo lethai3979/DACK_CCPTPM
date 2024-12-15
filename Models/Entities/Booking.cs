@@ -30,6 +30,8 @@ namespace GoWheels_WebAPI.Models.Entities
         public int? PromotionId { get; set; }
         [ValidateNever]
         public Promotion Promotion { get; set; } = null!;
+        public string? DriverId { get; set; }
+        public Driver Driver { get; set; } = null!;
 
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
