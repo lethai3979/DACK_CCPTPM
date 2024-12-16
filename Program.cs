@@ -174,7 +174,7 @@ using (var scope = app.Services.CreateScope())
 
     //Startup Service
     var startupService = scope.ServiceProvider.GetRequiredService<IStartupService>();
-    startupService.UpdateBookingsOnStartup();
+    //startupService.UpdateBookingsOnStartup();
     startupService.UpdatePostOnStartup();
 }
 

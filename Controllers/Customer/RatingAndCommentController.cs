@@ -151,7 +151,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPost("UpdateTrustLevel/{id}")]
+        [HttpPost("Update/{id}")]
         [Authorize]
         public ActionResult<OperationResult> Update(int id, [FromBody] RatingDTO ratingDTO)
         {

@@ -108,8 +108,8 @@ namespace GoWheels_WebAPI.Service
         public List<Booking> GetPersonalBookings()
             => _bookingRepository.GetAllPersonalBookings(_userId);
 
-/*        public List<Booking> GetAllByDriver()
-            => _bookingRepository.GetAllByDriver(_userId);*/
+        public List<Booking> GetAllByDriver()
+            => _bookingRepository.GetAllByDriver(_userId);
 
         public async Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude)
         {
@@ -318,7 +318,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     notify.Content = "Your booking has been denied";
                 }
-                _notifyService.Add(notify);
+                    _notifyService.Add(notify);
                 if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
                 {
                     await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
@@ -526,7 +526,7 @@ namespace GoWheels_WebAPI.Service
 
         }
 
-        public void AddDriverToBooking(int bookingId)
+        public async Task AddDriverToBookingAsync(int bookingId)
         {
             try
             {
@@ -534,6 +534,20 @@ namespace GoWheels_WebAPI.Service
                 booking.HasDriver = true;
                 booking.DriverId = _userId;
                 _bookingRepository.Update(booking);
+                var notify = new Notify()
+                {
+                    BookingId = booking.Id,
+                    UserId = booking.UserId,
+                    CreateOn = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false,
+                    Content = "The driver has accepted your booking"
+                };
+                _notifyService.Add(notify);
+                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                }
             }
             catch (DbUpdateException dbEx)
             {
@@ -548,7 +562,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-        public void RemoveDriverFromBooking(int bookingId)
+        public async Task RemoveDriverFromBookingAsync(int bookingId)
         {
             try
             {
@@ -556,6 +570,20 @@ namespace GoWheels_WebAPI.Service
                 booking.HasDriver = false;
                 booking.DriverId = null;
                 _bookingRepository.Update(booking);
+                var notify = new Notify()
+                {
+                    BookingId = booking.Id,
+                    UserId = booking.UserId,
+                    CreateOn = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false,
+                    Content = "Your booking driver has cancel"
+                };
+                _notifyService.Add(notify);
+                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                }
             }
             catch (DbUpdateException dbEx)
             {

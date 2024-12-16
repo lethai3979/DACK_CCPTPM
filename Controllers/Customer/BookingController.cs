@@ -129,7 +129,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        /*[HttpGet("GetAllByDriver")]
+        [HttpGet("GetAllByDriver")]
         public ActionResult<OperationResult> GetAllByDriver()
         {
             try
@@ -151,7 +151,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        }*/
+        }
 
         [HttpGet("GetAllPendingBookingsByUserId")] // chủ xe
         [Authorize(Roles = "User")]

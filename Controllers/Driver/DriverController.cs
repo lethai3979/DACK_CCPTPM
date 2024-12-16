@@ -57,29 +57,6 @@ namespace GoWheels_WebAPI.Controllers.Driver
             }
         }
 
-/*        [HttpGet("TestConvert")]
-        public async Task<ActionResult<OperationResult>> TestConvert()
-        {
-            try
-            {
-                await _hubContext.Clients.Group("group1").SendAsync("RecieveMessage", "hi");
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }*/
-
         [HttpGet("UpdateUserLocation/{latitude}&&{longitude}")]
         [Authorize]
         public async Task<ActionResult<OperationResult>> UpdateDriverLocation(string latitude, string longitude)
@@ -87,7 +64,7 @@ namespace GoWheels_WebAPI.Controllers.Driver
             try
             {
                 await _userService.UpdateDriverLocationAsync(longitude, latitude);
-                return new OperationResult(true, "UpdateTrustLevel location succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Update location succesfully", StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {
@@ -97,11 +74,11 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpPut("AddDriverToBooking/{bookingId}")]
         [Authorize]
-        public ActionResult<OperationResult> AddDriverToBooking(int bookingId)
+        public async Task<ActionResult<OperationResult>> AddDriverToBooking(int bookingId)
         {
             try
             {
-                _bookingService.AddDriverToBooking(bookingId);
+                await _bookingService.AddDriverToBookingAsync(bookingId);
                 return new OperationResult(true, "Select booking succesfully", StatusCodes.Status200OK);
             }
             catch (Exception ex)
@@ -112,13 +89,13 @@ namespace GoWheels_WebAPI.Controllers.Driver
 
         [HttpPut("RemoveDriverFromBooking/{bookingId}")]
         [Authorize]
-        public ActionResult<OperationResult> RemoveDriverFromBooking(int bookingId)
+        public async Task<ActionResult<OperationResult>> RemoveDriverFromBooking(int bookingId)
         {
             try
             {
-                _bookingService.RemoveDriverFromBooking(bookingId);
+                await _bookingService.RemoveDriverFromBookingAsync(bookingId);
                 _driverService.UpdateTrustLevel(-1);
-                return new OperationResult(true, "Select booking succesfully", StatusCodes.Status200OK);
+                return new OperationResult(true, "Cancel booking succesfully", StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {

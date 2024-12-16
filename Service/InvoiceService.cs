@@ -62,7 +62,6 @@ namespace GoWheels_WebAPI.Service
                     BookingId = booking.Id,
                     CreatedById = booking.UserId,
                     CreatedOn = DateTime.Now,
-                    IsPay = false,
                     RefundInvoice = false,
                 };
                 _invoiceRepository.Add(invoice);

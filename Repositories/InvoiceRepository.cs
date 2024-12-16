@@ -29,11 +29,6 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(i => i.Booking)
                                         .ThenInclude(i => i.Post)
                                         .ThenInclude(i => i.Images)
-                                        .Include(i => i.Booking)
-                                        .ThenInclude(i => i.Post)
-                                        .ThenInclude(b => b.User)
-                                        .ThenInclude(i => i.Driver)
-                                        .ThenInclude(i => i.User)
                                         .Where(i => i.Booking.UserId == userId)
                                         .OrderByDescending(i => i.CreatedOn)
                                         .ToList();
@@ -43,7 +38,6 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .ThenInclude(i => i.Driver)
-                                        .ThenInclude(i => i.User)
                                         .Where(i => i.Booking.DriverId == userId)
                                         .OrderByDescending(i => i.CreatedOn)
                                         .ToList();

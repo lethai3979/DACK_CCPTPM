@@ -269,7 +269,7 @@ namespace GoWheels_WebAPI.Migrations
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RatingPoint = table.Column<double>(type: "float", nullable: false),
+                    TrustLevel = table.Column<int>(type: "int", nullable: false),
                     PricePerHour = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -610,7 +610,7 @@ namespace GoWheels_WebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Bookings",
+                name: "Invoices",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -619,10 +619,7 @@ namespace GoWheels_WebAPI.Migrations
                     Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ReturnOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RefundInvoice = table.Column<bool>(type: "bit", nullable: false),
-                    IsPay = table.Column<bool>(type: "bit", nullable: false),
                     BookingId = table.Column<int>(type: "int", nullable: false),
-                    DriverId = table.Column<int>(type: "int", nullable: true),
-                    DriverUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -637,12 +634,6 @@ namespace GoWheels_WebAPI.Migrations
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Invoices_Drivers_DriverUserId",
-                        column: x => x.DriverUserId,
-                        principalTable: "Drivers",
-                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -727,13 +718,8 @@ namespace GoWheels_WebAPI.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Invoices_BookingId",
-                table: "Bookings",
+                table: "Invoices",
                 column: "BookingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Invoices_DriverUserId",
-                table: "Bookings",
-                column: "DriverUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
@@ -826,7 +812,7 @@ namespace GoWheels_WebAPI.Migrations
                 name: "Favorites");
 
             migrationBuilder.DropTable(
-                name: "Bookings");
+                name: "Invoices");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
