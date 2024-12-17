@@ -50,6 +50,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
         }
 
         [HttpGet("GetAllAdminPromotion")]
+        [Authorize(Roles = "Admin")]// Admin lấy ds promotion của admin
         public ActionResult<OperationResult> GetAllAdminPromotions()
         {
             try
@@ -73,7 +74,8 @@ namespace GoWheels_WebAPI.Controllers.Admin
             }
         }
 
-        [HttpGet("GetAllAdminPromotionByUserId")]
+        [HttpGet("GetAllAdminPromotionByUserId")]// User lấy admin promotion trong chi tiết bài đăng
+        [Authorize]
         public ActionResult<OperationResult> GetAllAdminPromotionsByUserId()
         {
             try

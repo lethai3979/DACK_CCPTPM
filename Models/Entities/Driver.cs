@@ -17,7 +17,6 @@ namespace GoWheels_WebAPI.Models.Entities
         public DateTime? ModifiedOn { get; set; }
         public int TrustLevel { get; set; }
         public required decimal PricePerHour { get; set; }
-
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public bool IsDeleted { get; set; }
     }

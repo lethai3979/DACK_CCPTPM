@@ -57,7 +57,8 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(p => p.Post)
                                         .Where(p => !p.IsDeleted
                                                     && p.IsAdminPromotion
-                                                    && !p.Bookings.Any(b => b.UserId == userId))
+                                                    && !p.Bookings.Any(b => b.UserId == userId)
+                                                    && p.ExpiredDate > DateTime.Now)
                                         .ToList();
 
 

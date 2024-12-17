@@ -73,7 +73,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.User)
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)
-                                    .Include(p => p.PostPromotions)
+                                    .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
                                     .ThenInclude(p => p.Promotion)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
                                     .ToList();
@@ -88,7 +88,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.Ratings.Where(r => !r.IsDeleted))
                                     .Include(p => p.PostAmenities)
                                     .ThenInclude(p => p.Amenity)
-                                    .Include(p => p.PostPromotions)
+                                    .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
                                     .ThenInclude(p => p.Promotion)
                                     .Where(p => !p.IsDeleted && !p.IsDisabled)
                                     .FirstOrDefault(p => p.Id == id)
@@ -104,7 +104,7 @@ namespace GoWheels_WebAPI.Repositories
                             .Include(p => p.User)
                             .Include(p => p.PostAmenities)
                             .ThenInclude(p => p.Amenity)
-                            .Include(p => p.PostPromotions)
+                            .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
                             .ThenInclude(p => p.Promotion)
                             .Where(p => !p.IsDeleted && p.UserId == userId)
                             .ToList();
