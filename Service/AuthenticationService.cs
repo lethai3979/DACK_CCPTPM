@@ -35,6 +35,8 @@ namespace GoWheels_WebAPI.Service
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
                 UserName = signUpViewModel.Email,
+                CreateDate = DateTime.Now,
+                PhoneNumber = signUpViewModel.PhoneNumber,
                 Image = "images/ImageUser/user.png",
                 LockoutEnabled = false,
                 //CreateDate = DateTime.Now,
@@ -152,7 +154,9 @@ namespace GoWheels_WebAPI.Service
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    CreateDate = user.CreateDate,
                     CIC = user.CIC,
+                    IsSubmitDriver = user.IsSubmitDriver,
                     PhoneNumber = user.PhoneNumber,
                     License = user.License,
                     Image = user.Image,
