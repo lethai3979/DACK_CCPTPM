@@ -1,5 +1,6 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Hubs;
+using GoWheels_WebAPI.Infrastructure;
 using GoWheels_WebAPI.Mapping;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories;
@@ -122,9 +123,10 @@ builder.Services.AddScoped<IReportTypeService, ReportTypeService>();
 builder.Services.AddScoped<IStartupService, StartupService>();
 builder.Services.AddScoped<IUserPromotionService, UserPromotionService>();
 builder.Services.AddScoped<IUserService, UserService>();
-//builder.Services.AddScoped<ILocatorService, GoogleApiService>();
+
 builder.Services.AddSignalR();
 
+//builder.Services.AddScoped<TransactionManager>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>

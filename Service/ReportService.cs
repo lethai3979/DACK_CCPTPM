@@ -1,4 +1,6 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Infrastructure;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ namespace GoWheels_WebAPI.Service
         private readonly IUserService _userService;  
         private readonly IPostService _postService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _context;
         private readonly string _userId;
 
         public ReportService(IGenericRepository<Report> reportRepository,
@@ -21,7 +24,8 @@ namespace GoWheels_WebAPI.Service
                                 IInvoiceService invoiceService,
                                 IUserService userService,
                                 IPostService postService,
-                                IHttpContextAccessor httpContextAccessor)
+                                IHttpContextAccessor httpContextAccessor,
+                                ApplicationDbContext context)
         {
             _reportRepository = reportRepository;
             _bookingService = bookingService;
@@ -29,6 +33,7 @@ namespace GoWheels_WebAPI.Service
             _userService = userService;
             _postService = postService;
             _httpContextAccessor = httpContextAccessor;
+            _context = context;
             _userId = _httpContextAccessor.HttpContext?.User?
                    .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
@@ -61,52 +66,46 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
+                    
         public async Task ConfirmReport(int id, bool isAccept)
         {
-            try
+            using (var transaction = new TransactionManager(_context))
             {
-                var report = _reportRepository.GetById(id);
-                report.IsDeleted = true;
-                report.ModifiedById = _userId;
-                report.ModifiedOn = DateTime.Now;
-                _reportRepository.Update(report);
-                if (isAccept)
+                transaction.BeginTransaction();
+                try
                 {
-                    var post = _postService.GetById(report.PostId);
-                    if(post.IsDisabled)
+                    var report = _reportRepository.GetById(id);
+                    report.IsDeleted = true;
+                    report.ModifiedById = _userId;
+                    report.ModifiedOn = DateTime.Now;
+                    _reportRepository.Update(report);
+                    if (!isAccept)
                     {
                         return;
-                    }    
+                    }
+                    var post = _postService.GetById(report.PostId);
+                    if (post.IsDisabled)
+                    {
+                        return;
+                    }
                     _postService.DisablePostById(post.Id);
                     var bookings = _bookingService.GetAllUnRecieveBookingsByPostId(post.Id);
                     foreach (var booking in bookings)
                     {
-                        _bookingService.ExamineCancelBookingRequestAsync(booking, true);
+                        await _bookingService.ExamineCancelBookingRequestAsync(booking, true);
                         if (booking.IsPay)
                         {
                             _invoiceService.RefundReportedBooking(booking);
-                        }     
+                        }
                     }
                     await _userService.UpdateUserReportPointAsync(report.Post.UserId!, report.ReportType.ReportPoint);
+                    transaction.Commit();
                 }
-
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
                 catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
             }
         }
     }

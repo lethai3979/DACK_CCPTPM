@@ -20,7 +20,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public DateTime? ModifiedOn { get; set; }
 
         [Required]
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
     }
 }

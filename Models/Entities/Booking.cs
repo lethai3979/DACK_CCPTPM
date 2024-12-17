@@ -14,12 +14,12 @@ namespace GoWheels_WebAPI.Models.Entities
         public required string Latitude { get; set; }
         public required string Status { get; set; }
         public required bool OwnerConfirm { get; set; }
-        public bool IsPay { get; set; }
-        public bool IsRequest { get; set; }
-        public bool IsResponse { get; set; }
-        public bool IsRideCounted { get; set; }
-        public bool IsRequireDriver { get; set; }
-        public bool HasDriver { get; set; }
+        public bool IsPay { get; set; } = false;
+        public bool IsRequest { get; set; } = false;
+        public bool IsResponse { get; set; } = false;
+        public bool IsRideCounted { get; set; } = false;
+        public bool IsRequireDriver { get; set; } = false;
+        public bool HasDriver { get; set; } = false;
         public int PostId { get; set; }
         [ValidateNever]
         public Post Post { get; set; } = null!;

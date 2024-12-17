@@ -1,4 +1,6 @@
-﻿using GoWheels_WebAPI.Hubs;
+﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Hubs;
+using GoWheels_WebAPI.Infrastructure;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
@@ -20,6 +22,7 @@ namespace GoWheels_WebAPI.Service
         private readonly INotifyService _notifyService;
         private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _context;
         private readonly string _userId;
 
 
@@ -29,7 +32,8 @@ namespace GoWheels_WebAPI.Service
                                 ILocatorService googleApiService,
                                 INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
-                                IHttpContextAccessor httpContextAccessor)
+                                IHttpContextAccessor httpContextAccessor,
+                                ApplicationDbContext context)
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
@@ -38,6 +42,7 @@ namespace GoWheels_WebAPI.Service
             _notifyService = notifyService;
             _hubContext = hubContext;
             _httpContextAccessor = httpContextAccessor;
+            _context = context;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
@@ -189,65 +194,58 @@ namespace GoWheels_WebAPI.Service
 
         public async Task Add(Booking booking)
         {
-            try
+            using (var transaction = new TransactionManager(_context))
             {
-                var post = _postService.GetById(booking.PostId);
-                if (post.IsDisabled) 
+                transaction.BeginTransaction();
+                try
                 {
-                    throw new InvalidOperationException("Post unavailable");
-                }
-                booking.CreatedById = _userId;
-                booking.UserId = _userId;
-                booking.CreatedOn = DateTime.Now;
-                booking.Status = "Pending";
-                booking.IsDeleted = false;
-                booking.IsPay = false;
-                booking.IsRequest = false;
-                booking.IsResponse = false;
-                booking.IsRideCounted = false;
-                if((booking.RecieveOn - DateTime.Now).TotalHours >= 72)
-                {
-                    if (booking.IsRequireDriver)
+                    var post = _postService.GetById(booking.PostId);
+                    if (post.IsDisabled)
                     {
-                        booking.HasDriver = post.HasDriver;
+                        throw new InvalidOperationException("Post unavailable");
+                    }
+                    booking.CreatedById = _userId;
+                    booking.UserId = _userId;
+                    booking.CreatedOn = DateTime.Now;
+                    booking.Status = "Pending";
+                    if ((booking.RecieveOn - DateTime.Now).TotalHours >= 72)
+                    {
+                        if (booking.IsRequireDriver)
+                        {
+                            booking.HasDriver = post.HasDriver;
+                        }
+                        else
+                        {
+                            booking.HasDriver = true;
+                        }
                     }
                     else
                     {
                         booking.HasDriver = true;
-                    }    
-                }    
-                else
+                    }
+                    _bookingRepository.Add(booking);
+                    var notify = new Notify()
+                    {
+                        BookingId = booking.Id,
+                        UserId = post.UserId,
+                        CreateOn = DateTime.Now,
+                        IsRead = false,
+                        IsDeleted = false,
+                        Content = "You have new booking request"
+                    };
+                    _notifyService.Add(notify);
+                    if (NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
+                    {
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                    }
+                    transaction.Commit();
+                }
+                catch (Exception ex)
                 {
-                    booking.HasDriver = true;
-                }    
-                _bookingRepository.Add(booking);
-                var notify = new Notify()
-                {
-                    BookingId = booking.Id,
-                    UserId = post.UserId,
-                    CreateOn = DateTime.Now,
-                    IsRead = false,
-                    IsDeleted = false,
-                    Content = "You have new booking request"
-                };
-                _notifyService.Add(notify);
-                if(NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
-                {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                }    
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            } 
         }
 
         public void Update(int id, Booking booking)
@@ -289,53 +287,51 @@ namespace GoWheels_WebAPI.Service
 
         public async Task UpdateOwnerConfirm(int id, bool isAccept)
         {
-            try
+            using (var transaction = new TransactionManager(_context))
             {
-                var booking = _bookingRepository.GetById(id);
-                if (booking.Post.UserId != _userId)
+                transaction.BeginTransaction();
+                try
                 {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }
-                booking.ModifiedById = _userId;
-                booking.ModifiedOn = DateTime.Now;
-                booking.Status = isAccept ? "Accept Booking" : "Denied";
-                booking.OwnerConfirm = isAccept;
-                _bookingRepository.Update(booking);
-                var notify = new Notify()
-                {
-                    BookingId = booking.Id,
-                    UserId = booking.UserId,
-                    CreateOn = DateTime.Now,
-                    IsDeleted = false,
-                    IsRead = false
-                };
-                if (isAccept)
-                {
-                    await _driverService.SendNotifyToDrivers(booking);
-                    notify.Content = "Your booking confirmed by owner";
-                }
-                else
-                {
-                    notify.Content = "Your booking has been denied";
-                }
+                    var booking = _bookingRepository.GetById(id);
+                    if (booking.Post.UserId != _userId)
+                    {
+                        throw new UnauthorizedAccessException("Unauthorize");
+                    }
+                    booking.ModifiedById = _userId;
+                    booking.ModifiedOn = DateTime.Now;
+                    booking.Status = isAccept ? "Accept Booking" : "Denied";
+                    booking.OwnerConfirm = isAccept;
+                    _bookingRepository.Update(booking);
+                    var notify = new Notify()
+                    {
+                        BookingId = booking.Id,
+                        UserId = booking.UserId,
+                        CreateOn = DateTime.Now,
+                        IsDeleted = false,
+                        IsRead = false
+                    };
+                    if (isAccept)
+                    {
+                        await _driverService.SendNotifyToDrivers(booking);
+                        notify.Content = "Your booking confirmed by owner";
+                    }
+                    else
+                    {
+                        notify.Content = "Your booking has been denied";
+                    }
                     _notifyService.Add(notify);
-                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
-                {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                    {
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                    }
+                    transaction.Commit();
                 }
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            }        
         }
 
         public void UpdateBookingStatus()
@@ -488,14 +484,6 @@ namespace GoWheels_WebAPI.Service
                 {
                     await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", "Your selected booking is canceled");
                 }    
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {

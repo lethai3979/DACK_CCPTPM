@@ -50,7 +50,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
             catch (AutoMapperMappingException mapperEx)
             {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
             catch (AutoMapperMappingException mapperEx)
             {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {

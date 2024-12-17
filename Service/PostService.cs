@@ -1,4 +1,5 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Data;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
@@ -14,17 +15,20 @@ namespace GoWheels_WebAPI.Service
         private readonly IPostAmenityRepository _postAmenityRepository;
         private readonly IAmenityService _amenityService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _context;
         private  readonly string _userId;
 
         public PostService(IPostRepository postRepository,
                             IPostAmenityRepository postAmenityRepository,
                             IAmenityService amenityService,
-                            IHttpContextAccessor httpContextAccessor)
+                            IHttpContextAccessor httpContextAccessor,
+                            ApplicationDbContext context)
         {
             _postRepository = postRepository;
             _postAmenityRepository = postAmenityRepository;
             _amenityService = amenityService;
             _httpContextAccessor = httpContextAccessor;
+            _context = context;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
@@ -40,6 +44,7 @@ namespace GoWheels_WebAPI.Service
 
         public List<Post> GetAllByUserId(string userId)
             => _postRepository.GetPostsByUserId(userId);
+
         public List<Post> ApplyFilters(List<Post> query, SearchFilterModel filterModel)
         {
             if (!string.IsNullOrWhiteSpace(filterModel.Company))
@@ -88,6 +93,7 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
+
                 List<string> imgUrls = new List<string>();
                 if (formFile != null && formFile.Length > 0)
                 {
@@ -116,19 +122,12 @@ namespace GoWheels_WebAPI.Service
                     _postAmenityRepository.AddRange(amenitiesIds, post.Id);
                 }
             }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+
         private string SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -165,7 +164,6 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception("Could not save file", ex);
             }
         }
-
 
         private bool IsPostAmenityChange(List<int> selectedAmenities, int existingPostId)
         {
@@ -246,14 +244,6 @@ namespace GoWheels_WebAPI.Service
                 }
                 _postRepository.Update(post);
             }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -302,14 +292,6 @@ namespace GoWheels_WebAPI.Service
                     _postRepository.AddPostImages(imageUrls, postId);
                 }
             }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -325,15 +307,9 @@ namespace GoWheels_WebAPI.Service
                 post.AvgRating = avgRating;
                 _postRepository.Update(post);
             }
-            catch (DbUpdateException dbEx)
-            {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                throw new DbUpdateException(dbExMessage);
-            }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                throw new InvalidOperationException(exMessage);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -345,19 +321,9 @@ namespace GoWheels_WebAPI.Service
                 post.RideNumber += rideNumber;
                 _postRepository.Update(post);
             }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
-                throw new DbUpdateException(dbExMessage);
-            }
             catch (Exception ex)
             {
-                var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                throw new Exception(exMessage);
+                throw new Exception(ex.Message);
             }
 
         }
@@ -376,14 +342,6 @@ namespace GoWheels_WebAPI.Service
                 post.ModifiedOn = DateTime.Now;
                 _postRepository.Update(post);
             }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -399,14 +357,6 @@ namespace GoWheels_WebAPI.Service
                 post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now;
                 _postRepository.Update(post);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
             }
             catch (Exception ex)
             {
