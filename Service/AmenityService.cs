@@ -112,6 +112,7 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+
         public void Update(int id, Amenity amenity, IFormFile formFile)
         {
 

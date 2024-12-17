@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using GoWheels_WebAPI.Data;
-using GoWheels_WebAPI.Models.DTOs;
+﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +8,9 @@ namespace GoWheels_WebAPI.Repositories
     public class AmenityRepository : IGenericRepository<Amenity>
     {
         public readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-        public AmenityRepository(ApplicationDbContext context, IMapper mapper)
+        public AmenityRepository(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
         public void Add(Amenity entity)
         {

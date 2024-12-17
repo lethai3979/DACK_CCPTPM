@@ -1,5 +1,4 @@
-﻿using Azure;
-using GoWheels_WebAPI.Models.GoogleRespone;
+﻿using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Service.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;

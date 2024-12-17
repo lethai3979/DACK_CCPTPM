@@ -47,6 +47,11 @@ namespace GoWheels_WebAPI.Service
                 query = query.Where(post => post.Company.Name == filterModel.Company).ToList();
             }
 
+            if (!string.IsNullOrEmpty(filterModel.CarType))
+            {
+                query = query.Where(post => post.CarType.Name == filterModel.Company).ToList();
+            }
+
             if (filterModel.Seat > 0)
             {
                 query = query.Where(post => post.Seat == filterModel.Seat).ToList();

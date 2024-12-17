@@ -1,5 +1,4 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;

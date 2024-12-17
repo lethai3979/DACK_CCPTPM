@@ -32,7 +32,6 @@ namespace GoWheels_WebAPI.Service
         public List<Promotion> GetAll()
             => _salepromotionRepository.GetAll();
 
-
         public List<Promotion> GetAllAdminPromotions()
             => _salepromotionRepository.GetAllAdminPromotions();
 
@@ -41,8 +40,6 @@ namespace GoWheels_WebAPI.Service
 
         public Promotion GetById(int id)
             => _salepromotionRepository.GetById(id);
-
-
 
         public void Add(Promotion promotion)
         {
@@ -135,7 +132,5 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
-
     }
 }
