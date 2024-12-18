@@ -138,9 +138,25 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
-            catch (NullReferenceException nullEx)
+            catch (AutoMapperMappingException mapperEx)
             {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpGet("GetAllByOwner")]
+        public ActionResult<OperationResult> GetAllByOwner()
+        {
+            try
+            {
+                var bookings = _bookingService.GetAllByOwner();
+                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
             catch (AutoMapperMappingException mapperEx)
             {

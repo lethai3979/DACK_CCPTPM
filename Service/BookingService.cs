@@ -65,6 +65,11 @@ namespace GoWheels_WebAPI.Service
             return bookedDates;
         }
 
+        public List<Booking> GetAllByOwner()
+            => _bookingRepository.GetAllByOwner(_userId);
+
+
+
         public List<Booking> GetAllWaitingBookingsByPostId(int postId)
             => _bookingRepository.GetAllWaitingBookingByPostId(postId);
 

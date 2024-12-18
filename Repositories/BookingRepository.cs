@@ -55,6 +55,7 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
+                                        .Include(b => b.Driver).ThenInclude(d => d.User)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted
                                                     && b.OwnerConfirm
@@ -76,12 +77,24 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 
+        public List<Booking> GetAllByOwner(string userId)
+            => _context.Bookings.AsNoTracking()
+                                        .Include(b => b.User)
+                                        .Include(b => b.Post)
+                                        .Include(b => b.Driver).ThenInclude(d => d.User)
+                                        .Include(b => b.Promotion)
+                                        .Where(b => !b.IsDeleted
+                                                        && b.Post.UserId == userId
+                                                        && b.OwnerConfirm
+                                                        && b.RecieveOn > DateTime.Now)
+                                        .OrderByDescending(b => b.CreatedOn)
+                                        .ToList();
+
         public List<Booking> GetAllPersonalBookings(string userId)
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .ThenInclude(b => b.User)
                                         .Include(b => b.Promotion)
-                                        .Include(b => b.User)
                                         .Include(b => b.Driver).ThenInclude(d => d.User)
                                         .Where(b => b.UserId == userId)
                                         .OrderByDescending(b => b.CreatedOn)
