@@ -485,10 +485,13 @@ namespace GoWheels_WebAPI.Service
                 {
                     await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
                 }
-                if(NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId!, out var driverConnectionId))
+                if (booking.DriverId != null)
                 {
-                    await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", "Your selected booking is canceled");
-                }    
+                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId, out var driverConnectionId))
+                    {
+                        await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", "Your selected booking is canceled");
+                    }
+                }
             }
             catch (Exception ex)
             {

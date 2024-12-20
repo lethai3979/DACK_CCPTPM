@@ -55,6 +55,7 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
                                         .Include(b => b.Post)
+                                        .ThenInclude(b => b.User)
                                         .Include(b => b.Driver).ThenInclude(d => d.User)
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted

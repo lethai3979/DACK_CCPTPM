@@ -71,14 +71,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("MomoPayment/{bookingId}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId,[FromForm] bool isMobile)
+        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
         {
             try
             {
-                if(isMobile)
-                {
-                    isMB = true;
-                }
                 var booking = _bookingService.GetById(bookingId);
                 if(!booking.OwnerConfirm)
                 {
@@ -112,14 +108,9 @@ namespace GoWheels_WebAPI.Controllers.Customer
             try
             {
                 _invoiceService.ProcessReturnUrl(Request.Query);
-                if (isMB)
-                {
-                    return new OperationResult(true, "Transaction successfully", StatusCodes.Status200OK);
-                }
-                else
-                {
+                
                     return Redirect("http://localhost:5173/Information/User/HistoryInvoice");
-                }
+                
             }
             catch (NullReferenceException nullEx)
             {

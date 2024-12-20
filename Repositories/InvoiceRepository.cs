@@ -56,17 +56,14 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .ThenInclude(d => d.Driver)
-                                        .ThenInclude(d => d.User)
                                         .FirstOrDefault(i => i.Id == id)
                                         ?? throw new NullReferenceException("Invoice not found");
 
 
         public Invoice GetByBookingId(int bookingId)
-            => _context.Invoices.AsNoTracking()
-                                        .Include(i => i.Booking)
+            => _context.Invoices.Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
                                         .ThenInclude(d => d.Driver)
-                                        .ThenInclude(d => d.User)
                                         .FirstOrDefault(i => i.BookingId == bookingId)
                                         ?? throw new NullReferenceException("Invoice not found");
 

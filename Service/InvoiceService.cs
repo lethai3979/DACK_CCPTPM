@@ -179,8 +179,12 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<string> ProcessMomoPayment(Booking  booking)
         {
-            decimal driverFee = booking.Driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
-            decimal price = booking.PrePayment + driverFee;
+            long price = (long)booking.PrePayment;
+            if (booking.Driver != null)
+            {
+                decimal driverFee = booking.Driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
+                price += (long)driverFee;
+            }
             string priceStr = price.ToString();
             string bookingIdStr = booking.Id.ToString();
 
@@ -293,6 +297,7 @@ namespace GoWheels_WebAPI.Service
                     PrePayment = amount,
                     Total = amount,
                     ReturnOn = booking.ReturnOn.AddDays(1),
+                    BookingId = booking.Id,
                 };
                 _invoiceRepository.Add(invoice);
             }
