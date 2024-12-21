@@ -17,5 +17,6 @@ namespace GoWheels_WebAPI.Service.Interface
         Task<string> ProcessMomoPayment(Booking booking);
         void ProcessReturnUrl(IQueryCollection queryParams);
         //Task CalculateRevenuesByYears
+        List<(int month, decimal revenue)> CalculateRevenuesByMonth(int year);
     }
 }

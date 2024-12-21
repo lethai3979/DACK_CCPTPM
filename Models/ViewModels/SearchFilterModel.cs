@@ -1,4 +1,4 @@
-﻿namespace GoWheels_WebAPI.Utilities
+﻿namespace GoWheels_WebAPI.Models.ViewModels
 {
     public class SearchFilterModel
     {

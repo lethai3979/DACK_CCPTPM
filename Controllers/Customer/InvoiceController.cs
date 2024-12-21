@@ -129,5 +129,25 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpGet("CalculateRevenuesByMonth/{year}")]
+        [Authorize(Roles = "User")]
+        public ActionResult<OperationResult> CalculateRevenuesByMonth(int year)
+        {
+            try
+            {
+                var revenues = _invoiceService.CalculateRevenuesByMonth(year);
+                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: revenues);
+            }
+            catch (AutoMapperMappingException mapperEx)
+            {
+                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+            }
+            catch (Exception ex)
+            {
+                var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

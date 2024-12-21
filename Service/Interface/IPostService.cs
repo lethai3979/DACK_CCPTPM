@@ -1,5 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Utilities;
+using GoWheels_WebAPI.Models.ViewModels;
 
 namespace GoWheels_WebAPI.Service.Interface
 {

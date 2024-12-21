@@ -314,5 +314,17 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
+
+        public List<(int month, decimal revenue)> CalculateRevenuesByMonth(int year)
+        {
+            var invoices = _invoiceRepository.GetAllByPostOwner(_userId);
+            var monthsRevenues = new List<(int month, decimal revenue)>();
+            for (int i = 0; i < 11; i++)
+            {
+                var monthRevenue = invoices.Where(inv =>inv.CreatedOn.Year == year && inv.CreatedOn.Month == (i+1)).Sum(i => i.Total);
+                monthsRevenues.Add((i+1,monthRevenue));
+            }
+            return monthsRevenues;
+        }
     }
 }

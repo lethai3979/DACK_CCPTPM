@@ -485,13 +485,41 @@ namespace GoWheels_WebAPI.Service
                 {
                     await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
                 }
-                if (booking.DriverId != null)
+                if (isAccept)
                 {
-                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId, out var driverConnectionId))
+                    var ownerNotify = new Notify()
                     {
-                        await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", "Your selected booking is canceled");
+                        BookingId = booking.Id,
+                        UserId = booking.Post.UserId,
+                        CreateOn = DateTime.Now,
+                        IsRead = false,
+                        IsDeleted = false,
+                        Content = "Your booking request has canceled"
+                    };
+                     _notifyService.Add(notify);
+                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.Post.UserId!, out var userConnectionId))
+                    {
+                        await _hubContext.Clients.Client(userConnectionId).SendAsync("ReceiveMessage", ownerNotify.Content);
                     }
-                }
+                    if (booking.DriverId != null)
+                    {
+                        var driverNotify = new Notify()
+                        {
+                            BookingId = booking.Id,
+                            UserId = booking.DriverId,
+                            CreateOn = DateTime.Now,
+                            IsRead = false,
+                            IsDeleted = false,
+                            Content = "Your selected booking is canceled"
+                        };
+                        _notifyService.Add(notify);
+                        if (NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId, out var driverConnectionId))
+                        {
+                            await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", driverNotify.Content);
+                        }
+
+                    }
+                }       
             }
             catch (Exception ex)
             {

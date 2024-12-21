@@ -41,6 +41,13 @@ namespace GoWheels_WebAPI.Repositories
                                         .Where(i => i.Booking.DriverId == userId)
                                         .OrderByDescending(i => i.CreatedOn)
                                         .ToList();
+        public List<Invoice> GetAllByPostOwner(string userId)
+            => _context.Invoices.AsNoTracking()
+                                        .Include(i => i.Booking)
+                                        .ThenInclude(b => b.Post)
+                                        .Where(i => i.Booking.Post.UserId == userId)
+                                        .OrderByDescending(i => i.CreatedOn)
+                                        .ToList();
 
         public List<Invoice> GetAllRefundInvoices()
             => _context.Invoices.AsNoTracking()

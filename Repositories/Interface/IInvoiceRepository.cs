@@ -6,7 +6,9 @@ namespace GoWheels_WebAPI.Repositories.Interface
     {
         List<Invoice> GetAllByUserId(string userId);
         List<Invoice> GetAllByDriver(string userId);
+        List<Invoice> GetAllByPostOwner(string userId);
         List<Invoice> GetAllRefundInvoices();
         Invoice GetByBookingId(int bookingId);
+
     }
 }
