@@ -15,17 +15,20 @@ namespace GoWheels_WebAPI.Service
         private readonly IUserRepository _autheticationRepository;
         private readonly IDriverService _driverService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly RedisCacheService _redisCacheService;
         private readonly IMapper _mapper;
         private readonly string _userId;
 
         public UserService(IUserRepository autheticationRepository,
                             IDriverService driverService,
                             IHttpContextAccessor httpContextAccessor,
+                            RedisCacheService redisCacheService,
                             IMapper mapper)
         {
             _autheticationRepository = autheticationRepository;
             _driverService = driverService;
             _httpContextAccessor = httpContextAccessor;
+            _redisCacheService = redisCacheService;
             _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -212,21 +215,12 @@ namespace GoWheels_WebAPI.Service
                 var userVM = _mapper.Map<UserVM>(user);
                 userVM.Longitude = longitude;
                 userVM.Latitude = latitude;
-                AddUserToSession(userVM);
+                var userLocation = $"{userVM.Latitude},{userVM.Longitude}";
+                await _redisCacheService.SetDataAsync(_userId, userLocation, TimeSpan.FromMinutes(30));
             }
             catch(Exception ex)
             {
                 throw new Exception(ex.Message);
-            }
-        }
-
-        private void AddUserToSession(UserVM userVM)
-        {
-            var session = _httpContextAccessor.HttpContext?.Session;
-            if (session != null)
-            {
-                var userToJson = JsonSerializer.Serialize(userVM);
-                session.SetString(userVM.Id!, userToJson);
             }
         }
 

@@ -18,18 +18,21 @@ namespace GoWheels_WebAPI.Service
         private readonly INotifyService _notifyService;
         private readonly ILocatorService _googleApiService;
         private readonly IHubContext<NotifyHub> _hubcontext;
+        private readonly RedisCacheService _redisCacheService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
 
         public DriverService(IDriverRepository driverRepository,
                                 INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
+                                RedisCacheService redisCacheService,
                                 IHttpContextAccessor httpContextAccessor,
                                 ILocatorService googleApiService)
         {
             _driverRepository = driverRepository;
             _notifyService = notifyService;
             _hubcontext = hubContext;
+            _redisCacheService = redisCacheService;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
@@ -139,21 +142,14 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
-                var session = _httpContextAccessor.HttpContext!.Session;
-                if(session == null)
-                {
-                    return;
-                }    
-                var userIds = session.Keys.ToList();
+                var driverIds = _redisCacheService.GetAllKeysAsync("*");   
                 var userLocations = new List<(string userId, string location)>();
-                foreach (var userId in userIds)
+                foreach (var userId in driverIds)
                 {
-                    var userString = session.GetString(userId);
-                    if (!userString.IsNullOrEmpty())
+                    var userLocation = await _redisCacheService.GetDataAsync(userId);
+                    if (!userLocation.IsNullOrEmpty())
                     {
-                        var user = JsonSerializer.Deserialize<UserVM>(userString!)!;
-                        var userLocationString = $"{user.Latitude},{user.Longitude}";
-                        userLocations.Add((userId, userLocationString));
+                        userLocations.Add((userId, userLocation!));
                     }
                 }
                 var respone = await _googleApiService.GetDistanceAsync(userLocations, bookingLocationString);
