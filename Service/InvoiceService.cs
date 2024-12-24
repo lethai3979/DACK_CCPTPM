@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Payment;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
@@ -315,14 +316,18 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public List<(int month, decimal revenue)> CalculateRevenuesByMonth(int year)
+        public List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year)
         {
             var invoices = _invoiceRepository.GetAllByPostOwner(_userId);
-            var monthsRevenues = new List<(int month, decimal revenue)>();
-            for (int i = 0; i < 11; i++)
+            var monthsRevenues = new List<MonthlyRevenueVM>();
+            for (int i = 0; i <= 11; i++)
             {
                 var monthRevenue = invoices.Where(inv =>inv.CreatedOn.Year == year && inv.CreatedOn.Month == (i+1)).Sum(i => i.Total);
-                monthsRevenues.Add((i+1,monthRevenue));
+                monthsRevenues.Add(new MonthlyRevenueVM()
+                {
+                    Month = i + 1,
+                    Revenue = monthRevenue
+                });
             }
             return monthsRevenues;
         }
