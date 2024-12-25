@@ -8,7 +8,6 @@ namespace GoWheels_WebAPI.Models.ViewModels
     {
         public decimal PrePayment { get; set; }
         public decimal Total { get; set; }
-        public bool IsPay {  get; set; }
         public bool RefundInvoice { get; set; }
         public DateTime ReturnOn { get; set; }
         [JsonPropertyOrder(-100)]

@@ -45,11 +45,11 @@ namespace GoWheels_WebAPI.Controllers
             return result;
         }
 
-        [HttpPost("RemoveUserFromSession")]
+        [HttpPost("RemoveUserFromRedis")]
         [Authorize]
-        public void Logout()
+        public async Task Logout()
         {
-            _authenService.RemoveUserFromSession();
+            await _authenService.RemoveUserFromRedis();
         }
 
         [HttpGet("CheckLockoutStatus")]

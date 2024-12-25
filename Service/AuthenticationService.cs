@@ -14,15 +14,18 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly IUserRepository _autheticationRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly RedisCacheService _redisCacheService;
         private readonly string _userId;
         private readonly IConfiguration _config;
 
         public AuthenticationService(IUserRepository autheticationRepository, 
                                         IHttpContextAccessor httpContextAccessor, 
+                                        RedisCacheService redisCacheService,
                                         IConfiguration config)
         {
             _autheticationRepository = autheticationRepository;
             _httpContextAccessor = httpContextAccessor;
+            _redisCacheService = redisCacheService;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _config = config;
@@ -51,13 +54,9 @@ namespace GoWheels_WebAPI.Service
             return result;
         }
 
-        public void RemoveUserFromSession()
+        public async Task RemoveUserFromRedis()
         {
-            var session = _httpContextAccessor?.HttpContext?.Session;
-            if (session != null)
-            {
-                session.Remove(_userId);
-            };
+            await _redisCacheService.DeleteDataAsync(_userId);
         }
 
         public async Task<string> LoginAsync(LoginVM loginViewModel)
