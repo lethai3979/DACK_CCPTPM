@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Payment;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
@@ -15,7 +16,6 @@ namespace GoWheels_WebAPI.Service
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
         private readonly IConfiguration _configuration;
-
         public InvoiceService(IInvoiceRepository invoiceRepository,
                                 IBookingService bookingService,
                                 IHttpContextAccessor httpContextAccessor,
@@ -177,7 +177,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<string> ProcessMomoPayment(Booking  booking)
+        public async Task<string> ProcessMomoPayment(Booking booking, bool isMobile)
         {
             long price = (long)booking.PrePayment;
             if (booking.Driver != null)
@@ -192,6 +192,10 @@ namespace GoWheels_WebAPI.Service
             string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? string.Empty;
             string accessKey = _configuration.GetValue<string>("MomoAPI:AccessKey") ?? string.Empty;
             string returnUrl = _configuration.GetValue<string>("MomoAPI:ReturnUrl") ?? string.Empty;
+            if (isMobile)
+            {
+                returnUrl = _configuration.GetValue<string>("MomoAPI:MobileReturnUrl") ?? string.Empty;
+            }
             string notifyUrl = _configuration.GetValue<string>("MomoAPI:NotifyUrl") ?? string.Empty;
             string partnerCode = _configuration.GetValue<string>("MomoAPI:PartnerCode") ?? string.Empty;
 
@@ -206,19 +210,19 @@ namespace GoWheels_WebAPI.Service
 
             MomoSecurity crypto = new();
             string signature = crypto.signSHA256(rawHash, serectkey);
-/*
-            string momoUrl = $"momo://?/v2/gateway/pay?" +
-                     $"partnerCode={partnerCode}" +
-                     $"&accessKey={accessKey}" +
-                     $"&requestId={requestId}" +
-                     $"&amount={amount}" +
-                     $"&orderId={orderid}" +
-                     $"&orderInfo={Uri.EscapeDataString(orderInfo)}" +
-                     $"&returnUrl={Uri.EscapeDataString(returnUrl)}" +
-                     $"&notifyUrl={Uri.EscapeDataString(notifyUrl)}" +
-                     $"&extraData={Uri.EscapeDataString(extraData)}" +
-                     $"&signature={Uri.EscapeDataString(signature)}";
-            return momoUrl;*/
+
+            //string momoUrl = $"momo://app?action=pay" +
+            //         $"&partnerCode={partnerCode}" +
+            //         $"&accessKey={accessKey}" +
+            //         $"&requestId={requestId}" +
+            //         $"&amount={amount}" +
+            //         $"&orderId={orderid}" +
+            //         $"&orderInfo={Uri.EscapeDataString(orderInfo)}" +
+            //         $"&returnUrl={Uri.EscapeDataString(returnUrl)}" +
+            //         $"&notifyUrl={Uri.EscapeDataString(notifyUrl)}" +
+            //         $"&extraData={Uri.EscapeDataString(extraData)}" +
+            //         $"&signature={Uri.EscapeDataString(signature)}";
+            //return momoUrl;
 
             // Build request JSON
             JObject message = new()
@@ -315,14 +319,18 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public List<(int month, decimal revenue)> CalculateRevenuesByMonth(int year)
+        public List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year)
         {
             var invoices = _invoiceRepository.GetAllByPostOwner(_userId);
-            var monthsRevenues = new List<(int month, decimal revenue)>();
-            for (int i = 0; i < 11; i++)
+            var monthsRevenues = new List<MonthlyRevenueVM>();
+            for (int i = 0; i <= 11; i++)
             {
                 var monthRevenue = invoices.Where(inv =>inv.CreatedOn.Year == year && inv.CreatedOn.Month == (i+1)).Sum(i => i.Total);
-                monthsRevenues.Add((i+1,monthRevenue));
+                monthsRevenues.Add(new MonthlyRevenueVM()
+                {
+                    Month = i + 1,
+                    Revenue = monthRevenue
+                });
             }
             return monthsRevenues;
         }

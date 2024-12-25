@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace GoWheels_WebAPI.Controllers.Customer
 {
@@ -46,41 +47,41 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-/*        [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
-        [Authorize(Roles = "Driver")]
-        public ActionResult<OperationResult> GetAllByDriver()
-        {
-            try
-            {
-                var invoices = _invoiceService.GetAllByDriver();
-                var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }*/
+        /*        [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
+                [Authorize(Roles = "Driver")]
+                public ActionResult<OperationResult> GetAllByDriver()
+                {
+                    try
+                    {
+                        var invoices = _invoiceService.GetAllByDriver();
+                        var invoiceVMs = _mapper.Map<List<InvoiceVM>>(invoices);
+                        return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: invoiceVMs);
+                    }
+                    catch (AutoMapperMappingException mapperEx)
+                    {
+                        return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
+                    }
+                    catch (Exception ex)
+                    {
+                        var exMessage = ex.Message ?? "An error occurred while updating the database.";
+                        return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
+                    }
+                }*/
 
 
 
-        [HttpPost("MomoPayment/{bookingId}")]
+        [HttpPost("MomoPayment/{bookingId}&&{isMobile}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId)
+        public async Task<ActionResult<OperationResult>> MomoPayment(int bookingId, bool isMobile)
         {
             try
             {
                 var booking = _bookingService.GetById(bookingId);
-                if(!booking.OwnerConfirm)
+                if (!booking.OwnerConfirm)
                 {
                     return BadRequest("Owner confirm required");
-                }   
-                var responseFromMomo = await _invoiceService.ProcessMomoPayment(booking);
+                }
+                var responseFromMomo = await _invoiceService.ProcessMomoPayment(booking, isMobile);
                 JObject jmessage = JObject.Parse(responseFromMomo);
                 var payUrlToken = jmessage.GetValue("payUrl");
                 if (payUrlToken != null)
@@ -107,9 +108,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                _invoiceService.ProcessReturnUrl(Request.Query);
-                
-                    return Redirect("http://localhost:5173/Information/User/HistoryInvoice");
+                _invoiceService.ProcessReturnUrl(Request.Query);                
+                return Redirect("http://localhost:5173/Information/User/HistoryInvoice");
                 
             }
             catch (NullReferenceException nullEx)
@@ -138,10 +138,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
             {
                 var revenues = _invoiceService.CalculateRevenuesByMonth(year);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: revenues);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
             }
             catch (Exception ex)
             {

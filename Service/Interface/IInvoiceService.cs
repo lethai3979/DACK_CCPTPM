@@ -1,4 +1,5 @@
 ﻿using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 
 namespace GoWheels_WebAPI.Service.Interface
 {
@@ -14,9 +15,9 @@ namespace GoWheels_WebAPI.Service.Interface
         void Update(Invoice invoice);
         void Refund(Booking booking, bool isAccept);
         void RefundReportedBooking(Booking booking);
-        Task<string> ProcessMomoPayment(Booking booking);
+        Task<string> ProcessMomoPayment(Booking booking, bool isMobile);
         void ProcessReturnUrl(IQueryCollection queryParams);
         //Task CalculateRevenuesByYears
-        List<(int month, decimal revenue)> CalculateRevenuesByMonth(int year);
+        List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year);
     }
 }
