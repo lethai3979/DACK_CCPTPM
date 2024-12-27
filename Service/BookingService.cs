@@ -150,7 +150,7 @@ namespace GoWheels_WebAPI.Service
             for (var i = 0; i < distanceMatrixRespone.Rows.Count; i++)
             {
                 var distance = distanceMatrixRespone.Rows[i].Elements[0].Distance?.Value ?? int.MaxValue;
-                if (distance < 10000)
+                if (distance < 7000)
                 {
                     bookingsWithinRange.Add(bookingLocations[i].bookingId);
                 }
@@ -557,6 +557,8 @@ namespace GoWheels_WebAPI.Service
                 var booking = _bookingRepository.GetById(bookingId);
                 booking.HasDriver = true;
                 booking.DriverId = _userId;
+                booking.FinalValue += 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
+                booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);
                 var notify = new Notify()
                 {
@@ -593,6 +595,8 @@ namespace GoWheels_WebAPI.Service
                 var booking = _bookingRepository.GetById(bookingId);
                 booking.HasDriver = false;
                 booking.DriverId = null;
+                booking.FinalValue -= 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
+                booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);
                 var notify = new Notify()
                 {
