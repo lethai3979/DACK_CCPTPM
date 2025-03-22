@@ -1,0 +1,70 @@
+﻿@model IEnumerable<DoAnCNTT.Models.Booking>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Danh sách yêu cầu hủy chuyến</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Bài đăng
+            </th>
+            <th>
+                Ngày nhận
+            </th>
+            <th>
+                Ngày trả
+            </th>
+            <th>
+                Tổng tiền
+            </th>
+            <th>
+                Thành tiền
+            </th>
+            <th>
+                Đặt cọc
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.PostId">@item.Post.Name</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RecieveOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReturnOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Total)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FinalValue)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PrePayment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Chi tiết đặt cọc</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Trả cọc</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

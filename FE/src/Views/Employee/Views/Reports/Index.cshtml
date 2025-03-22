@@ -1,0 +1,90 @@
+﻿@model IEnumerable<DoAnCNTT.Models.Report>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Danh sách bài đăng vi phạm</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nội dung
+            </th>
+            <th>
+                Bài đăng
+            </th>
+            <th>
+                Người báo cáo
+            </th>
+            <th>
+                Ngày báo cáo
+            </th>
+            <th>
+                Người cập nhật
+            </th>
+            <th>
+                Ngày cập nhật
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                <a asp-area="Customer" asp-controller="Posts" asp-action="Details" asp-route-id="@item.PostId">@item.Post.Name</a>
+            </td>
+            <td>
+                @{
+                    var createdUser = await UserManager.FindByIdAsync(item.CreatedById!);
+                }
+                <a asp-area="Admin" asp-controller="Customers" asp-action="Details" asp-route-id="@item.CreatedById">@createdUser.Name</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedOn)
+            </td>
+            <td>
+                @{
+                    if(item.ModifiedById != null)
+                    {
+                        var modifiedUser = await UserManager.FindByIdAsync(item.ModifiedById!);
+                        <a asp-area="Admin" asp-controller="Customers" asp-action="Details" asp-route-id="@item.ModifiedById">@modifiedUser!.Name</a>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.ModifiedById)
+                    }
+                }
+                
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ModifiedOn)
+            </td>
+            <td>
+                @if (item.IsDeleted)
+                {
+                    <text>Đã xử lí</text>
+                }
+                else
+                {
+                    <text>Chưa xử lí</text>
+                }
+            </td>
+            <td>
+                <a asp-action="Delete" asp-route-id="@item.Id">Khóa bài đăng</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
