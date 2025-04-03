@@ -33,7 +33,7 @@
                         <a href="#" v-on:click="quenmk()">Quên mật khẩu?</a>
                     </div>
                     <div class="thongbao" v-if="biensai === 2">Email không chính xác!!!</div>
-                    <div class="thongbao" v-if="biensai === 3">Password không chính xác!!!</div>
+                    <div class="thongbao" v-if="biensai === 3">Email hoặc password không đúng!</div>
                     <button type="submit" class="btn">Đăng nhập</button> <!-- Không cần v-on:click ở đây nữa -->
                     <!-- <div class="login-register">
                         <p>Bạn không có tài khoản? <a v-on:click="hamnhan()" href="#" class="register-link">Đăng ký</a>
@@ -175,8 +175,9 @@ export default {
                     setTimeout(() => {
                         abc.biensai = 1;
                     }, 2000);
-                } else if (token === "Wrong password") {
+                } else if (token === "Wrong email or password") {
                     this.biensai = 3;
+                    
                     setTimeout(() => {
                         abc.biensai = 1;
                     }, 2000);
