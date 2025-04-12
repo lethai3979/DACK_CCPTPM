@@ -37,8 +37,8 @@
                 <!-- Add both HTTP and HTTPS schemes -->
                 <data android:scheme="momo" />
                 <data android:scheme="https" />
-                <data android:scheme="http" />
-                <data android:host="payment.momo.vn" />
+                <!-- <data android:scheme="http" />
+                <data android:host="payment.momo.vn" /> -->
                 <data android:host="payment.test.momo.vn" />
                 
                 <!-- Your app's custom scheme -->

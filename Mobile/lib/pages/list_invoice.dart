@@ -5,9 +5,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/invoice_controller.dart';
-import '../controllers/payment_controller.dart';
 import '../models/invoice_model.dart';
-import '../service/momo_payment_service.dart';
 
 class InvoiceScreen extends StatelessWidget {
   const InvoiceScreen({super.key});
@@ -31,49 +29,6 @@ class InvoiceScreen extends StatelessWidget {
         builder: (controller) {
           return Column(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildFilterChip(
-                        label: 'All',
-                        selected: controller.selectedStatus.value == '',
-                        onSelected: () => controller.setStatusFilter(''),
-                        color: Colors.grey,
-                      ),
-                      SizedBox(width: 8),
-                      _buildFilterChip(
-                        label: 'Paid',
-                        selected: controller.selectedStatus.value == 'true',
-                        onSelected: () => controller.setStatusFilter('true'),
-                        color: Colors.green,
-                      ),
-                      SizedBox(width: 8),
-                      _buildFilterChip(
-                        label: 'Unpaid',
-                        selected: controller.selectedStatus.value == 'false',
-                        onSelected: () => controller.setStatusFilter('false'),
-                        color: Colors.red,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
@@ -123,7 +78,7 @@ class InvoiceScreen extends StatelessWidget {
       backgroundColor: Colors.grey[200],
       selectedColor: color,
       checkmarkColor: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }
@@ -148,10 +103,10 @@ class _InvoiceCardState extends State<InvoiceCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
+        side: const BorderSide(
           color: Colors.grey,
           width: 3,
         ),
@@ -168,7 +123,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
                   children: [
                     Text(
                       'Invoice #${widget.invoice.id}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -187,7 +142,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
                     SizedBox(height: 8),
                     Text(
                       'Total Amount: ${NumberFormat.currency(locale: 'vi').format(widget.invoice.total)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.green,
                       ),
@@ -214,7 +169,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
             });
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -239,10 +194,8 @@ class _InvoiceCardState extends State<InvoiceCard> {
   List<Widget> _buildExpandedContent() {
     final booking = widget.invoice.booking!;
     return [
-      Divider(height: 24),
+      const Divider(height: 24),
       _buildInfoRow('Booking Status:', booking.status),
-      _buildInfoRow('Driver Required:', booking.isRequireDriver ? 'Yes' : 'No'),
-      _buildInfoRow('Driver Assigned:', booking.hasDriver ? 'Yes' : 'No'),
       _buildInfoRow('Receive Date:', DateFormat('dd/MM/yyyy HH:mm').format(booking.recieveOn)),
       _buildInfoRow('Return Date:', DateFormat('dd/MM/yyyy HH:mm').format(booking.returnOn)),
       _buildInfoRow('Pre-payment:', NumberFormat.currency(locale: 'vi').format(widget.invoice.prePayment)),
@@ -254,16 +207,12 @@ class _InvoiceCardState extends State<InvoiceCard> {
         if (booking.user!.phoneNumber != null)
           _buildInfoRow('Phone Number:', booking.user!.phoneNumber!),
       ],
-
-      SizedBox(height: 16),
-      if (!widget.invoice.isPay)
-        PaymentButton(invoiceId: widget.invoice.booking!.id),
     ];
   }
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -280,7 +229,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
             flex: 3,
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.right,
@@ -295,73 +244,11 @@ class _InvoiceCardState extends State<InvoiceCard> {
 
   Widget _buildPaymentChip(bool isPay) {
     return Chip(
-      label: Text(
-        isPay ? 'Paid' : 'Unpaid',
+      label: const Text(
+        'Paid',
         style: TextStyle(color: Colors.white),
       ),
       backgroundColor: isPay ? Colors.green : Colors.red,
-    );
-  }
-}
-
-class PaymentButton extends StatelessWidget {
-  final int invoiceId;
-
-  const PaymentButton({
-    Key? key,
-    required this.invoiceId,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Initialize with MomoPaymentService
-    final controller = Get.put(PaymentController(MomoPaymentService()));
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Obx(() => ElevatedButton(
-        onPressed: controller.isProcessing.value
-            ? null
-            : () => controller.processPayment(invoiceId),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF80EE98),
-          foregroundColor: const Color(0xFF213A58),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-          disabledBackgroundColor: const Color(0xFF80EE98).withOpacity(0.6),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (controller.isProcessing.value) ...[
-              const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  color: Color(0xFF213A58),
-                  strokeWidth: 2.5,
-                ),
-              ),
-              const SizedBox(width: 12),
-            ],
-            Text(
-              controller.isProcessing.value ? 'Processing Payment...' : 'Pay with MoMo',
-              style: GoogleFonts.lexendDeca(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (!controller.isProcessing.value) ...[
-              const SizedBox(width: 8),
-              const Icon(Icons.payment, size: 20),
-            ],
-          ],
-        ),
-      )),
     );
   }
 }

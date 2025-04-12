@@ -6,13 +6,13 @@ import '../controllers/admin_promotion_controller.dart';
 import '../models/promotion_model.dart';
 
 class PromotionSelector extends StatefulWidget {
-  final List<Promotion> postPromotions;
+  // final List<Promotion> postPromotions;
   final Function(Promotion?) onPromotionSelected;
   final bool showExpired;
 
   const PromotionSelector({
     super.key,
-    required this.postPromotions,
+    // required this.postPromotions,
     required this.onPromotionSelected,
     this.showExpired = false,
   });
@@ -109,18 +109,18 @@ class _AdvancedPromotionSelectorState extends State<PromotionSelector> {
             filteredAdminPromotions,
           );
         }),
-        const SizedBox(height: 8),
-        Obx(() {
-          final filteredPostPromotions = filterPromotions(
-              widget.postPromotions,
-              _showExpired.value
-          );
+        // const SizedBox(height: 8),
+        // Obx(() {
+        //   final filteredPostPromotions = filterPromowtions(
+        //       widget.postPromotions,
+        //       _showExpired.value
+        //   );
 
-          return _buildPromotionSection(
-            _showExpired.value ? 'Expired Post Owner Promotions' : 'Active Post Owner Promotions',
-            filteredPostPromotions,
-          );
-        }),
+        //   return _buildPromotionSection(
+        //     _showExpired.value ? 'Expired Post Owner Promotions' : 'Active Post Owner Promotions',
+        //     filteredPostPromotions,
+        //   );
+        // }),
       ],
     );
   }

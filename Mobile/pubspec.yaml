@@ -51,7 +51,10 @@ dependencies:
   google_maps_flutter: ^2.10.0
   skeletonizer: ^1.4.2
   url_launcher: ^6.3.1
-
+  syncfusion_flutter_datepicker: ^27.2.5
+  badges: ^3.1.2
+  signalr_netcore: ^1.4.0
+  fl_chart: ^0.69.2
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +83,7 @@ flutter:
   assets:
     - images/profile_background.jpg
     - images/logo.png
+    - images/6523417.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

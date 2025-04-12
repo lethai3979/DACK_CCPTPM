@@ -18,7 +18,7 @@ class AdminPromotionService {
     final token = await tokenService.getToken();
 
     final response = await http.get(
-    Uri.parse('${URL.baseUrl}AdminPromotion/GetAllAdminPromotion'),
+    Uri.parse('${URL.baseUrl}AdminPromotion/GetAllAdminPromotionByUserId'),
     headers: {
     'Authorization': 'Bearer $token',
     },

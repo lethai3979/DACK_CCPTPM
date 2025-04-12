@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '../components/snackbar.dart';
@@ -12,12 +13,21 @@ class PostController extends GetxController {
   final RxList<Post> posts = <Post>[].obs;
   final RxBool isAddingPost = false.obs;
   final RxString selectedImagePath = ''.obs;
-  RxList<String> selectedImageList = <String>[].obs;
-  Rx<String> error = ''.obs;
+  final RxList<String> selectedImageList = <String>[].obs;
+  final RxString error = ''.obs;
+  final pageIndex = 2.obs;
+  final int pageSize = 8; 
+  final RxBool isLoadingMore = false.obs;
 
   // For single post
   final Rxn<Post> currentPost = Rxn<Post>();
   final RxBool isLoadingPost = false.obs;
+  final RxBool hasMorePosts = true.obs;
+
+  // Add new observable for personal posts
+  final RxList<Post> personalPosts = <Post>[].obs;
+  final RxBool isLoadingPersonal = false.obs;
+  final RxString personalError = ''.obs;
 
   @override
   void onInit() {
@@ -28,16 +38,20 @@ class PostController extends GetxController {
   Future<void> getAllPosts() async {
     try {
       isLoading.value = true;
+      error.value = ''; // Reset error
 
       final postsList = await _postService.getAllPosts();
 
-      if (postsList.isEmpty) {
-      Snackbar.showError("Error", "List is empty!");
-      } else {
-        posts.assignAll(postsList);
-      }
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (postsList.isEmpty) {
+          Snackbar.showError("Error", "No posts found!");
+        } else {
+          posts.assignAll(postsList);
+        }
+      });
     } catch (e) {
-      Snackbar.showError("Error", "Lost connection to server!");
+      error.value = 'Failed to load posts: $e';
+        Snackbar.showError("Error", "Lost connection to server!");
     } finally {
       isLoading.value = false;
     }
@@ -62,6 +76,7 @@ class PostController extends GetxController {
   }) async {
     try {
       isAddingPost.value = true;
+      error.value = ''; // Reset error
 
       final success = await _postService.addPost(
         name: name,
@@ -80,43 +95,59 @@ class PostController extends GetxController {
         imagePath: imagePath,
         imagesList: imageList
       );
-
-      if (success) {
-        Snackbar.showSuccess('Success','Post added successfully');
-        await refreshPosts();
-      } else {
-        Snackbar.showError('Error','Failed to add post');
-      }
+        if (success) {
+          refreshPosts();
+          Snackbar.showSuccess('Success','Post added successfully');
+        } else {
+          Snackbar.showError('Error','Failed to add post');
+        }
     } catch (e) {
-      Snackbar.showError('Error','Failed to add post');
+      error.value = 'Failed to add post: $e';
+        Snackbar.showError('Error','Failed to add post');
     } finally {
       isAddingPost.value = false;
     }
   }
 
-  Future<void> getPersonalPost() async {
-    try{
-      isLoading.value = true;
-      final postslist = await _postService.getAllPersonalPosts();
-      if (postslist.isEmpty) {
-        error.value = 'No posts found';
-      } else {
-        posts.assignAll(postslist);
-      }
+  Future<void> loadMorePost() async {
+  if (isLoadingMore.value || !hasMorePosts.value) return;
 
-    } catch (e) {
-      error.value = 'Failed to load posts: $e';
-      Snackbar.showError(
-        "Error",
-        'Failed to load posts: $e',
-      );
-    } finally {
-      isLoading.value = false;
+  try {
+    isLoadingMore.value = true;
+    print("Loading posts for page: ${pageIndex.value}");
+
+    final newPosts = await _postService.loadMorePosts(pageIndex.value);
+    print("Loaded ${newPosts.length} posts for page ${pageIndex.value}");
+
+    if (newPosts.isEmpty) {
+      hasMorePosts.value = false;
+      return;
     }
+
+    final uniquePosts = newPosts.where((post) => 
+        !posts.any((existingPost) => existingPost.id == post.id)).toList();
+
+    posts.addAll(uniquePosts);
+    print("Added ${uniquePosts.length} unique posts for page ${pageIndex.value}");
+
+    // Tăng chỉ số trang
+    pageIndex.value++;
+  } catch (e) {
+    Snackbar.showError("Error", "Failed to load more posts");
+    hasMorePosts.value = false;
+  } finally {
+    isLoadingMore.value = false;
+  }
+}
+
+
+  void resetPageIndex() {
+    pageIndex.value = 2;
+    posts.clear();
+    hasMorePosts.value = true;
   }
 
   Future<void> refreshPosts() async {
-    posts.clear();
     await getAllPosts();
   }
 }

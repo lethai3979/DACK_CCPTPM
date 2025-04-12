@@ -3,18 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gowheel_flutterflow_ui/models/amenity_model.dart';
 import 'package:gowheel_flutterflow_ui/root.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../components/amenity_selector.dart';
 import '../components/snackbar.dart';
-import '../controllers/amenity_controller.dart';
 import '../controllers/post_controler.dart';
 
 class AddPostScreen extends StatelessWidget {
   final PostController controller = Get.put(PostController());
-  final AmenityController amenityController = Get.put(AmenityController());
   final _formKey = GlobalKey<FormState>();
 
   // Existing controllers
@@ -31,13 +27,10 @@ class AddPostScreen extends StatelessWidget {
   final hasDriver = false.obs;
   final gear = false.obs;
   final RxList<int> selectedAmenityIds = <int>[].obs;
-  final RxList<Amenity> selectedAmenities = <Amenity>[].obs;
   final selectedCarTypeId = 1;
   final selectedCompanyId = 1;
 
-  AddPostScreen({super.key}) {
-    amenityController.loadAmenities();
-  }
+  AddPostScreen({super.key});
 
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -394,13 +387,6 @@ class AddPostScreen extends StatelessWidget {
                 validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
               ),
 
-              //amenitypicker
-              const SizedBox(height: 10),
-              AmenitySelectionWidget(
-                selectedAmenities: selectedAmenities,
-                selectedAmenityIds: selectedAmenityIds,
-              ),
-
               //other
               const SizedBox(height: 10),
               Text("Others",
@@ -481,7 +467,6 @@ class AddPostScreen extends StatelessWidget {
                         controller.selectedImagePath.value = '';
                         controller.selectedImageList.value = [];
                         selectedAmenityIds.clear();
-                        selectedAmenities.clear();
                         
                         // Quay lại trang chủ
                         Get.to(() => const RootPage());

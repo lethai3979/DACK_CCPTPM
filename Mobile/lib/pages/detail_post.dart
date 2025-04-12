@@ -4,19 +4,17 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gowheel_flutterflow_ui/components/snackbar.dart';
+import 'package:gowheel_flutterflow_ui/service/booking_service.dart';
 import 'package:gowheel_flutterflow_ui/url.dart';
 import '../../controllers/booking_controller.dart';
 import '../../controllers/favorite_controller.dart';
-import '../components/comment_section.dart';
 import '../components/datetime_range_picker.dart';
 import '../components/map_picker.dart';
 import '../components/promotion_selector.dart';
-import '../components/report_bottom_sheet.dart';
 import '../controllers/user_controller.dart';
 import '../models/booking_request_model.dart';
 import '../models/post_model.dart';
 import '../models/promotion_model.dart';
-import '../service/comment_service.dart';
 
 class DetailPage extends StatefulWidget {
   final Post post;
@@ -34,23 +32,31 @@ class _DetailPageState extends State<DetailPage> {
   DateTime? endDate;
   TimeOfDay? startTime;
   TimeOfDay? endTime;
-  bool isOwner = false;
+  bool isAdmin = false;
   Rx<bool> isRequestDriver = false.obs;
   int _currentImageIndex = 0;
   LatLng? _pickedLocation;
   String _pickedAddress = 'No location selected';
+  List<DateTimeRange> _blockedDates = [];
 
   final FavoriteController _favoriteController = Get.put(FavoriteController());
   final BookingController _bookingController = Get.put(BookingController());
-  // ignore: unused_field
-  final CommentService _commentService = Get.put(CommentService());
+  final BookingService _bookingService  = Get.put(BookingService());
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
-    _checkIfOwner();
+    _checkIfAdmin();
+    _fetchBlackoutDates();
   }
+
+  Future<void> _fetchBlackoutDates() async {
+  List<DateTimeRange> blackoutDates = await _bookingService.getBookedDateRanges(widget.post.id);
+  setState(() {
+    _blockedDates = blackoutDates;
+  });
+}
 
   void _pickLocation() async {
     final result = await Navigator.push(
@@ -68,20 +74,20 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  Future<void> _checkIfOwner() async {
+  Future<void> _checkIfAdmin() async {
     try {
       final userController = Get.find<UserController>();
       final currentUserId = userController.currentUser.value?.id;
       final postUserId = widget.post.user?.id;
 
       setState(() {
-        isOwner = currentUserId != null &&
+        isAdmin = currentUserId != null &&
             postUserId != null &&
             currentUserId == postUserId;
       });
     } catch (e) {
       setState(() {
-        isOwner = false;
+        isAdmin = false;
       });
     }
   }
@@ -122,7 +128,7 @@ class _DetailPageState extends State<DetailPage> {
       finalValue: calculateFinalPrice() ?? 0,
       recieveOn: start,
       returnOn: end,
-      isRequireDriver: isRequestDriver.value,
+      // isRequireDriver: isRequestDriver.value,
       postId: widget.post.id,
       promotionId: selectedPromotion?.id,
       discountValue: selectedPromotion?.discountValue ?? 0,
@@ -196,7 +202,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   double? calculatedPrepayPrice(){
-    return calculateTotalPrice() * 0.5;
+    return calculateFinalPrice()! * 0.5;
   }
 
   Widget _buildImageCarousel() {
@@ -261,6 +267,7 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -429,24 +436,24 @@ class _DetailPageState extends State<DetailPage> {
                         ),
                     ),
                     const SizedBox(height: 8),
-                    _buildSpecItem("Gear", widget.post.gear ? 'Manual' : "Automatic"),
+                    // _buildSpecItem("Gear", widget.post.gear ? 'Manual' : "Automatic"),
                     _buildSpecItem("Seating Capacity", "${widget.post.seat} seats"),
-                    _buildSpecItem("Fuel", widget.post.fuel),
-                    _buildSpecItem("Fuel Consumption", "${widget.post.fuelConsumed} L/100km"),
+                    // _buildSpecItem("Fuel", widget.post.fuel),
+                    // _buildSpecItem("Fuel Consumption", "${widget.post.fuelConsumed} L/100km"),
                     _buildSpecItem("Number of Rides Rented", '${widget.post.rideNumber}'),
                     const Divider(),
       
-                    Text(
-                      "Rental Type: ${widget.post.hasDriver ? "Car rental with a driver provided" : "Self-drive or hire an external driver"}", 
-                      style: GoogleFonts.urbanist(
-                          color: const Color(0xFF213A58),
-                          fontSize: 20,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    ),
+                    // Text(
+                    //   "Rental Type: ${widget.post.hasDriver ? "Car rental with a driver provided" : "Self-drive or hire an external driver"}", 
+                    //   style: GoogleFonts.urbanist(
+                    //       color: const Color(0xFF213A58),
+                    //       fontSize: 20,
+                    //       letterSpacing: 0.0,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    // ),
 
-                    const Divider(),
+                    // const Divider(),
       
                     if (widget.post.user != null) ...[
                       Text(
@@ -488,7 +495,7 @@ class _DetailPageState extends State<DetailPage> {
                         ],
                       ),
                     ],
-                    if(!isOwner)...[
+                    if(!isAdmin)...[
                     const Divider(),
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -501,42 +508,36 @@ class _DetailPageState extends State<DetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           DateTimeRangePickerWidget(
-                            startDate: startDate,
-                            endDate: endDate,
-                            startTime: startTime,
-                            endTime: endTime,
-                            numberOfDays: numberOfHours > 0 ? (numberOfHours / 24)
-                                .ceil() : 0,
-                            onDateTimeRangeSelected: (start, end, pickStartTime,
-                                pickEndTime) {
+                          startDate: startDate,
+                          endDate: endDate,
+                          startTime: startTime,
+                          endTime: endTime,
+                          numberOfDays: numberOfHours > 0 ? (numberOfHours / 24).ceil() : 0,
+                          blackoutDateRanges: _blockedDates,
+                          onDateTimeRangeSelected: (start, end, pickStartTime, pickEndTime) {
+                            if (start != null && end != null && pickStartTime != null && pickEndTime != null) {
                               setState(() {
                                 startDate = start;
                                 endDate = end;
                                 startTime = pickStartTime;
                                 endTime = pickEndTime;
                               });
-                            },
-                          ),
+                            } else {
+                              // Handle the error case here (for example, show a warning message to the user)
+                              print("Invalid date range selected.");
+                            }
+                          },
+                        ),
+
                           Divider(color: Colors.blue[100]),
                           PromotionSelector(
-                            postPromotions: widget.post.postPromotion,
                             onPromotionSelected: (promotion) {
                               setState(() {
                                 selectedPromotion = promotion;
                               });
                             },
                           ),
-                          if(widget.post.hasDriver == false)
                             Divider(color: Colors.blue[100]),
-                          if(!widget.post.hasDriver == false)
-                            Obx(() => SwitchListTile(
-                              title: const Text('Want to rent Driver?'),
-                              value: isRequestDriver.value,
-                              onChanged: (bool value) {
-                                isRequestDriver.value = value;
-                              },
-                              activeColor: Colors.blue,
-                            )),
                             Text(
                               'Pick-up Location',
                               style: GoogleFonts.urbanist(
@@ -576,37 +577,6 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                     )
                   ]
-                  else
-                    const Divider(),
-      
-                    if(!isOwner)...[
-                    // Comment section
-                    const Divider(),
-                    CommentSectionWidget(postId: widget.post.id),
-                    // Report Section
-                    const Divider(),
-                    Row(
-                      children: [
-                        Text("Post in violation?",style: GoogleFonts.urbanist(
-                          color: const Color(0xFF213A58),
-                          fontSize: 20,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                        ),),
-                        IconButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) => ReportBottomSheet(postId: widget.post.id),
-                            );
-                          },
-                          icon: const Icon(Icons.report_problem, color: Colors.red),
-                        )
-                      ],
-                    )
-                    ]
                   ],
                 ),
               ),
@@ -743,7 +713,7 @@ class _DetailPageState extends State<DetailPage> {
                   ],
                 ),
               ],
-              if (isOwner) ...[
+              if (isAdmin) ...[
                 ElevatedButton(
                   onPressed: () {},
                   child: const Text(

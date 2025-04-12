@@ -97,22 +97,6 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> sendDriverRequest() async {
-    isLoading.value = true;
-    try {
-      final response = await _userService.sendDriverRequest();
-      if (response != null && response.success) {
-      Snackbar.showSuccess("Success", "Request sent!");
-    } else {
-      Snackbar.showError("Error", response?.message ?? "Failed to sent request!");
-    }
-    } catch (e) {
-      Snackbar.showWarning('Error', 'Error while sent request!');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<void> refreshUserData() async {
     await getMe();
   }

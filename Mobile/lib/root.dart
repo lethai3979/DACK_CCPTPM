@@ -13,13 +13,14 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+
   int _currentIndex = 0;
 
   List<Widget> _widgetOptions() {
     return [
       const HomePage(),
       FavoritePage(),
-      NotificationPage(),
+      NotificationView(),
       const MainProfileWidget()
     ];
   }

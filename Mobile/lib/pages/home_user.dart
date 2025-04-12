@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gowheel_flutterflow_ui/components/notification_icon.dart';
 import 'package:gowheel_flutterflow_ui/components/post_list.dart';
+import 'package:gowheel_flutterflow_ui/components/banner.dart';
 
 import '../controllers/favorite_controller.dart';
 import '../controllers/post_controler.dart';
 import 'list_post.dart';
+import '../components/quick_action_grid.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,6 +25,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    postController.refreshPosts();
     _loadFavorites();
   }
 
@@ -59,47 +63,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             letterSpacing: 0.0,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: NotificationIcon(),
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
-            Container(
-              padding: const EdgeInsets.only(top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    width: size.width * .9,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search, color: Colors.black.withOpacity(.6)),
-                        Expanded(
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              hintText: "Search here...",
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 15),
-                              focusedBorder: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Icon(Icons.filter_list),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
+            const SizedBox(height: 20),
+            const BannerCarousel(),
+            const SizedBox(height: 20),
+            const QuickActionGrid(),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
               child: Row(

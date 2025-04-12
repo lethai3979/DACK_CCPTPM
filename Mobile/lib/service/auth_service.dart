@@ -21,7 +21,7 @@ class AuthService {
     }
   }
   //Signup
-  Future<Map<String, dynamic>> signup(String email, String username, String password) async {
+  Future<Map<String, dynamic>> signup(String email, String username, String password, String phoneNumber) async {
     try {
       final response = await http.post(
         Uri.parse('${URL.baseUrl}Authentication/Signup'),
@@ -30,6 +30,7 @@ class AuthService {
           'email': email,
           'username': username,
           'password': password,
+          'phoneNumber': phoneNumber
         }),
       );
       return jsonDecode(response.body);

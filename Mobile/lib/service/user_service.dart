@@ -97,32 +97,4 @@ class UserService {
     }
   }
 
-  Future<ApiResponse?> sendDriverRequest() async {
-  try {
-    final token = await tokenService.getToken();
-    if (token == null) {
-      return null;
-    }
-
-    final response = await http.put(
-      Uri.parse('${URL.baseUrl}User/SendSubmitDriver'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      if (jsonResponse['success'] == true) {
-        return ApiResponse.fromJson(jsonResponse);
-      } else {
-        return ApiResponse(success: false, message: jsonResponse['message'], statusCode: jsonResponse['statusCode'], data: jsonResponse['data']);
-      }
-    } else {
-      return null;
-    }
-  } catch (e) {
-    return null;
-  }
-  }
 }

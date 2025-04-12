@@ -7,11 +7,10 @@ import 'package:gowheel_flutterflow_ui/controllers/auth_controller.dart';
 import 'package:gowheel_flutterflow_ui/controllers/user_controller.dart';
 import 'package:gowheel_flutterflow_ui/pages/add_post.dart';
 import 'package:gowheel_flutterflow_ui/pages/detail_profile.dart';
-import 'package:gowheel_flutterflow_ui/pages/home_driver.dart';
 import 'package:gowheel_flutterflow_ui/pages/list_booking.dart';
 import 'package:gowheel_flutterflow_ui/pages/list_invoice.dart';
-import 'package:gowheel_flutterflow_ui/pages/list_user_promotion.dart';
-import 'package:gowheel_flutterflow_ui/pages/submit_driver_request.dart';
+import 'package:gowheel_flutterflow_ui/pages/list_pending_booking.dart';
+import 'package:gowheel_flutterflow_ui/pages/list_personal_post.dart';
 import 'package:gowheel_flutterflow_ui/url.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -246,66 +245,66 @@ class _MainProfileWidgetState extends State<MainProfileWidget> {
               ),
 
               //driver request
-              Material(
-                color: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
-                ),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 50,
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 0,
-                        color: Color(0xFFE3E5E7),
-                        offset: Offset(
-                          0.0,
-                          2,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.person_add,
-                          size: 24,
-                        ),
-                        Expanded(
-                          child:
-                          Text(
-                            ' Request to become Driver',
-                            style: GoogleFonts.interTight(
-                              letterSpacing: 0.0,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 46.0,
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                            color:Color(0xFF95A1AC),
-                            size: 25.0,
-                          ),
-                          onPressed: () {
-                            Get.to(() => const DriverRequest());
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // Material(
+              //   color: Colors.transparent,
+              //   elevation: 0,
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(0),
+              //   ),
+              //   child: Container(
+              //     width: MediaQuery.sizeOf(context).width,
+              //     height: 50,
+              //     constraints: const BoxConstraints(
+              //       minWidth: double.infinity,
+              //     ),
+              //     decoration: const BoxDecoration(
+              //       boxShadow: [
+              //         BoxShadow(
+              //           blurRadius: 0,
+              //           color: Color(0xFFE3E5E7),
+              //           offset: Offset(
+              //             0.0,
+              //             2,
+              //           ),
+              //         )
+              //       ],
+              //     ),
+              //     child: Padding(
+              //       padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
+              //       child: Row(
+              //         mainAxisSize: MainAxisSize.max,
+              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //         children: [
+              //           const Icon(
+              //             Icons.person_add,
+              //             size: 24,
+              //           ),
+              //           Expanded(
+              //             child:
+              //             Text(
+              //               ' Request to become Driver',
+              //               style: GoogleFonts.interTight(
+              //                 letterSpacing: 0.0,
+              //               ),
+              //             ),
+              //           ),
+              //           IconButton(
+              //             padding: EdgeInsets.zero,
+              //             iconSize: 46.0,
+              //             icon: const Icon(
+              //               Icons.chevron_right_rounded,
+              //               color:Color(0xFF95A1AC),
+              //               size: 25.0,
+              //             ),
+              //             onPressed: () {
+              //               Get.to(() => const DriverRequest());
+              //             },
+              //           )
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               Material(
                 color: Colors.transparent,
@@ -359,7 +358,7 @@ class _MainProfileWidgetState extends State<MainProfileWidget> {
                             size: 25.0,
                           ),
                           onPressed: () {
-                            Get.to(() => const BookingScreen());
+                            Get.to(() => BookingScreen());
                           },
                         )
                       ],
@@ -429,300 +428,219 @@ class _MainProfileWidgetState extends State<MainProfileWidget> {
                 ),
               ),
 
-              //masterfield
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Rentail Service Management',
-                      style: GoogleFonts.interTight(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.0,
+              Obx(() {
+                final user = userController.currentUser.value;
+
+                if (user != null && user.roles.contains('Admin')) {
+                  return Column(
+                    children: [
+                      Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Rentail Service Management',
+                            style: GoogleFonts.interTight(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
 
-              //your rental car
-              Material(
-                color: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
-                ),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 50,
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 0,
-                        color: Color(0xFFE3E5E7),
-                        offset: Offset(
-                          0.0,
-                          2,
+                    //your rental car
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: double.infinity,
                         ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.car_rental,
-                          size: 24,
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 0,
+                              color: Color(0xFFE3E5E7),
+                              offset: Offset(
+                                0.0,
+                                2,
+                              ),
+                            )
+                          ],
                         ),
-                        Expanded(
-                          child:
-                          Text(
-                            ' Your Vehicles for Rent',
-                            style: GoogleFonts.interTight(
-                              letterSpacing: 0.0,
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.car_rental,
+                                size: 24,
+                              ),
+                              Expanded(
+                                child:
+                                Text(
+                                  ' Your Vehicles for Rent',
+                                  style: GoogleFonts.interTight(
+                                    letterSpacing: 0.0,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                iconSize: 46.0,
+                                icon: const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color:Color(0xFF95A1AC),
+                                  size: 25.0,
+                                ),
+                                onPressed: () {
+                                  Get.to(() => const PersonalPostsPage());
+                                },
+                              )
+                            ],
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 46.0,
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                            color:Color(0xFF95A1AC),
-                            size: 25.0,
-                          ),
-                          onPressed: () {
-                            Get.to(() => const DetailProfile());
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              //add rental car
-              Material(
-                color: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
-                ),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 50,
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 0,
-                        color: Color(0xFFE3E5E7),
-                        offset: Offset(
-                          0.0,
-                          2,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.plus_one,
-                          size: 24,
-                        ),
-                        Expanded(
-                          child:
-                          Text(
-                            ' Post Your Car for Rent',
-                            style: GoogleFonts.interTight(
-                              letterSpacing: 0.0,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 46.0,
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                            color:Color(0xFF95A1AC),
-                            size: 25.0,
-                          ),
-                          onPressed: () {
-                            Get.to(() => AddPostScreen());
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              //add promotion for post
-              Material(
-                color: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
-                ),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 50,
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 0,
-                        color: Color(0xFFE3E5E7),
-                        offset: Offset(
-                          0.0,
-                          2,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.discount,
-                          size: 24,
-                        ),
-                        Expanded(
-                          child:
-                          Text(
-                            ' Add Promotion to your Car',
-                            style: GoogleFonts.interTight(
-                              letterSpacing: 0.0,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 46.0,
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                            color:Color(0xFF95A1AC),
-                            size: 25.0,
-                          ),
-                          onPressed: () {
-                            Get.to(() => UserPromotionListScreen());
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShaderMask(
-                          shaderCallback: (Rect bounds) {
-                            return const LinearGradient(
-                              colors: [
-                                Color(0xFF213A58),
-                                Color(0xFF80EE98),
-                              ],
-                            ).createShader(bounds);
-                          },
-                          child:
-                    Text(
-                      'Driver Management',
-                      style: GoogleFonts.interTight(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 0.0,
                       ),
                     ),
-                    )
-                  ],
-                ),
-              ),
 
-              Material(
-                color: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
-                ),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 50,
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 0,
-                        color: Color(0xFFE3E5E7),
-                        offset: Offset(
-                          0.0,
-                          2,
+                    //add rental car
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: double.infinity,
                         ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.list_alt,
-                          size: 24,
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 0,
+                              color: Color(0xFFE3E5E7),
+                              offset: Offset(
+                                0.0,
+                                2,
+                              ),
+                            )
+                          ],
                         ),
-                        Expanded(
-                          child:
-                          Text(
-                            ' Driver Booking List',
-                            style: GoogleFonts.interTight(
-                              letterSpacing: 0.0,
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.plus_one,
+                                size: 24,
+                              ),
+                              Expanded(
+                                child:
+                                Text(
+                                  ' Post Your Car for Rent',
+                                  style: GoogleFonts.interTight(
+                                    letterSpacing: 0.0,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                iconSize: 46.0,
+                                icon: const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color:Color(0xFF95A1AC),
+                                  size: 25.0,
+                                ),
+                                onPressed: () {
+                                  Get.to(() => AddPostScreen());
+                                },
+                              )
+                            ],
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 46.0,
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                            color:Color(0xFF95A1AC),
-                            size: 25.0,
-                          ),
-                          onPressed: () {
-                            Get.to(() => LocationTrackingPage());
-                          },
-                        )
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-          
+
+                    //accept booking for your booking
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: double.infinity,
+                        ),
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 0,
+                              color: Color(0xFFE3E5E7),
+                              offset: Offset(
+                                0.0,
+                                2,
+                              ),
+                            )
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.checklist_rtl,
+                                size: 24,
+                              ),
+                              Expanded(
+                                child:
+                                Text(
+                                  ' Accept Booking Request',
+                                  style: GoogleFonts.interTight(
+                                    letterSpacing: 0.0,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                iconSize: 46.0,
+                                icon: const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color:Color(0xFF95A1AC),
+                                  size: 25.0,
+                                ),
+                                onPressed: () {
+                                  Get.to(() => OwnerPendingBookingScreen());
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
               //Logout button
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 20),

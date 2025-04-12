@@ -20,11 +20,13 @@ class _SignupWidgetState extends State<SignupWidget> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
   final AuthController _authController = Get.put(AuthController());
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
   final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _phoneNumberFocusNode = FocusNode();
   bool _passwordVisible = false;
   Timer? _debounce;
 
@@ -376,6 +378,89 @@ class _SignupWidgetState extends State<SignupWidget> {
                       ),
                     ),
                   ),
+
+// Phone number field
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0, 30, 0, 0),
+                    child: Container(
+                      width: double.infinity,
+                      child: TextFormField(
+                        controller: _phoneNumberController,
+                        focusNode: _phoneNumberFocusNode,
+                        obscureText: false,
+                        keyboardType: TextInputType.phone,
+                        onChanged: (_) => _onTextChanged(() {
+                          if (_formField.currentState!.validate()) {
+                          }
+                        }),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Phone number is required!";
+                          }
+                          final phoneRegExp = RegExp(r'^\+?[0-9]{10,15}$');
+                          if (!phoneRegExp.hasMatch(value)) {
+                            return "Enter a valid phone number!";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          labelStyle: GoogleFonts.urbanist(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          hintText: 'Enter your phone number here...',
+                          hintStyle: GoogleFonts.urbanist(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          errorStyle: GoogleFonts.urbanist(),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                          contentPadding: const EdgeInsets.fromLTRB(16, 24, 0, 24),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.phone,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              size: 22,
+                            ),
+                            onPressed: () {
+                              // Add an optional action, if necessary
+                            },
+                          ),
+                        ),
+                        style: GoogleFonts.interTight(),
+                        cursorColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+
+
                   Align(
                     alignment: const AlignmentDirectional(0, 0),
                     child: Padding(
@@ -387,12 +472,15 @@ class _SignupWidgetState extends State<SignupWidget> {
                               _emailController.text,
                               _usernameController.text,
                               _passwordController.text,
+                              _phoneNumberController.text,
                             );
                             _emailController.clear();
                             _passwordController.clear();
                             _confirmPasswordController.clear();
                             _usernameController.clear();
+                            _phoneNumberController.clear();
                             _emailFocusNode.unfocus();
+                            _phoneNumberFocusNode.unfocus();
                             _passwordFocusNode.unfocus();
                             _confirmPasswordFocusNode.unfocus();
                             _usernameFocusNode.unfocus();

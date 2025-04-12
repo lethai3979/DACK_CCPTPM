@@ -35,13 +35,13 @@ class EditPostScreen extends StatelessWidget {
     nameController.text = post.name;
     descriptionController.text = post.description;
     seatController.text = post.seat.toString();
-    locationController.text = post.rentLocation;
+    // locationController.text = post.rentLocation;
     priceHourController.text = post.pricePerHour.toString();
     priceDayController.text = post.pricePerDay.toString();
-    fuelController.text = post.fuel;
-    fuelConsumeController.text = post.fuelConsumed.toString();
-    hasDriver.value = post.hasDriver;
-    gear.value = post.gear;
+    // fuelController.text = post.fuel;
+    // fuelConsumeController.text = post.fuelConsumed.toString();
+    // hasDriver.value = post.hasDriver;
+    // gear.value = post.gear;
     //selectedAmenities.value = post.amenitiesIds;
     controller.selectedImagePath.value = post.image;
     controller.selectedImageList.value = post.images!;
@@ -155,10 +155,10 @@ class EditPostScreen extends StatelessWidget {
                 keyboardType: TextInputType.number,
               ),
 
-              FuelTypeDropdown(
-                controller: fuelController,
-                initialValue: post.fuel,
-              ),
+              // FuelTypeDropdown(
+              //   controller: fuelController,
+              //   initialValue: post.fuel,
+              // ),
 
               InputField(
                 title: "Fuel Consumption (L/100km)",

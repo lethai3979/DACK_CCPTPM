@@ -14,7 +14,7 @@ class PostService {
   Future<List<Post>> getAllPosts() async {
     try {
       final response = await http.get(
-        Uri.parse("${URL.baseUrl}User/Post/GetAll"),
+        Uri.parse("${URL.baseUrl}Admin/Post/GetAll"),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -31,7 +31,7 @@ class PostService {
           return [];
         }
 
-        final List<dynamic> postsJson = responseData['data'] as List<dynamic>;
+        final List<dynamic> postsJson = responseData['data']['listPost'] as List<dynamic>;
         return postsJson
             .map((json) => Post.fromJson(json))
             .whereType<Post>()
@@ -40,6 +40,7 @@ class PostService {
         return[];
       }
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
@@ -64,7 +65,7 @@ class PostService {
   }) async {
     try {
       final token = await tokenService.getToken();
-      var uri = Uri.parse("${URL.baseUrl}User/Post/Add");
+      var uri = Uri.parse("${URL.baseUrl}Admin/Post/Add");
 
       var request = http.MultipartRequest('POST', uri);
 
@@ -101,12 +102,13 @@ class PostService {
       });
 
       // Add amenities
-      for (var amenityId in amenitiesIds) {
-        request.fields['AmenitiesIds'] = amenityId.toString();
+      for (var i = 0; i < amenitiesIds.length; i++) {
+        request.fields['AmenitiesIds[$i]'] = amenitiesIds[i].toString();
       }
 
       var response = await request.send();
       var responseData = await response.stream.bytesToString();
+      print(responseData);
 
       if (response.statusCode == 200) {
         final decodedResponse = json.decode(responseData);
@@ -119,39 +121,39 @@ class PostService {
     }
   }
 
-  Future<List<Post>> getAllPersonalPosts() async {
-    final token = await tokenService.getToken();
+  Future<List<Post>> loadMorePosts(int pageIndex) async {
     try {
       final response = await http.get(
-        Uri.parse("${URL.baseUrl}User/Post/GetPersonalPosts"),
+        Uri.parse("${URL.baseUrl}Admin/Post/GetAll?pageIndex=$pageIndex"),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
         },
       );
-
+      print(Uri.parse("${URL.baseUrl}User/Post/GetAll?page=$pageIndex").toString());
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
 
         if (responseData['success'] != true) {
-          throw Exception(responseData['message'] ?? 'Failed to load personal posts');
+          return [];
         }
-
+        
         if (responseData['data'] == null) {
           return [];
         }
-
-        final List<dynamic> postsJson = responseData['data'] as List<dynamic>;
+        print("Response for page $pageIndex: ${response.body}");
+        final List<dynamic> postsJson = responseData['data']['listPost'] as List<dynamic>;
         return postsJson
             .map((json) => Post.fromJson(json))
             .whereType<Post>()
             .toList();
       } else {
-        throw Exception('Failed to load personal posts. Status code: ${response.statusCode}');
+        return[];
       }
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
 
+  
 }
