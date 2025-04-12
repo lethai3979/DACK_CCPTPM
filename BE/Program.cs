@@ -208,5 +208,6 @@ app.UseAuthorization();
 
 // Map SignalR Hub
 app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
+app.MapHub<TrackingHub>("tracking-hub").RequireCors("AllowAllOrigins");
 app.MapControllers();
 app.Run();
