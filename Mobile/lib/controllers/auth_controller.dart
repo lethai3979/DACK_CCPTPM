@@ -24,6 +24,7 @@ class AuthController extends GetxController {
         final token = response['message'];
         tokenService.saveToken(token);
         HubService.instance.connect();
+        HubService.instance.connecttrackinghub();
         Get.offAll(() => const RootPage());
         Snackbar.showSuccess('Success!', 'Logged in successfully');
       }
@@ -62,6 +63,7 @@ class AuthController extends GetxController {
       Snackbar.showSuccess("Success", "Loggout successfully!");
       _postController.resetPageIndex();
       HubService.instance.disconnect();
+      HubService.instance.disconnectLocationHub();
       Get.offAll(() => const SignInWidget());
     } catch (e) {
       Snackbar.showError("Error", "Something went wrong, we cannot logout for you!");
