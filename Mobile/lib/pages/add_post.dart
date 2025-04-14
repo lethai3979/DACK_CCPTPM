@@ -10,7 +10,7 @@ import '../components/snackbar.dart';
 import '../controllers/post_controler.dart';
 
 class AddPostScreen extends StatelessWidget {
-  final PostController controller = Get.put(PostController());
+  final PostController controller = Get.find<PostController>();
   final _formKey = GlobalKey<FormState>();
 
   // Existing controllers
@@ -103,7 +103,6 @@ class AddPostScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              // For the cover image
               Obx(() => Container(
                 width: double.infinity,
                 height: 200,

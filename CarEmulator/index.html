@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"
+        integrity="sha512-7rhBJh1om/W5Ztx7WiYOR9h2wlSaTmPyQMoHFtbT/FVNIA12y6S6I8HY9mrBS1uJ3dSU/R3qaSAXsGYuRjMDxg=="
+        crossorigin="*" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .chat {
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .button {
+            display: flex;
+            justify-content: space-between;
+            width: 30%;
+            margin: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>SignalR Chat App</h1>
+
+    <div id="loginForm">
+        <h3>Login</h3>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div id="chatUI" style="display: none;">
+        <h3>Welcome, <span id="userNameDisplay"></span></h3>
+        <button onclick="logout()">Logout</button>
+
+        <div class="chat">
+            <h4>Messages</h4>
+            <div id="messages"></div>
+        </div>
+        <div class="button">
+            <button onclick="sendMessage('group1','messageInput')">Send</button>
+            <button onclick="joinGroup('13')">tracking 13</button>
+        </div>
+        <div class="chat">
+            <div id="messages2"></div>
+        </div>
+        <div class="button">
+            <button onclick="sendMessage('10','messageInput2')">Send</button>
+            <button onclick="joinGroup('10')">tracking 10</button>
+        </div>
+    </div>
+    <h4>Gửi tuyến đường đến Mobile</h4>
+    <button onclick="sendRouteToSignalR('13', 1)">Long Thành - Tam Phước</button>
+    <button onclick="sendRouteToSignalR('10', 2)">Võ Văn Ngân - Hutech</button>
+    <script src="site.js"></script>
+</body>
+
+</html>

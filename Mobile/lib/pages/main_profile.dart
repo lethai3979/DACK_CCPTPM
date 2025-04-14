@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gowheel_flutterflow_ui/controllers/auth_controller.dart';
 import 'package:gowheel_flutterflow_ui/controllers/user_controller.dart';
 import 'package:gowheel_flutterflow_ui/pages/add_post.dart';
+import 'package:gowheel_flutterflow_ui/pages/admin_vehicle_list.dart';
 import 'package:gowheel_flutterflow_ui/pages/detail_profile.dart';
 import 'package:gowheel_flutterflow_ui/pages/list_booking.dart';
 import 'package:gowheel_flutterflow_ui/pages/list_invoice.dart';
@@ -505,6 +506,67 @@ class _MainProfileWidgetState extends State<MainProfileWidget> {
                                 ),
                                 onPressed: () {
                                   Get.to(() => const PersonalPostsPage());
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: double.infinity,
+                        ),
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 0,
+                              color: Color(0xFFE3E5E7),
+                              offset: Offset(
+                                0.0,
+                                2,
+                              ),
+                            )
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.car_rental,
+                                size: 24,
+                              ),
+                              Expanded(
+                                child:
+                                Text(
+                                  ' Tracking Your Vehicles',
+                                  style: GoogleFonts.interTight(
+                                    letterSpacing: 0.0,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                iconSize: 46.0,
+                                icon: const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color:Color(0xFF95A1AC),
+                                  size: 25.0,
+                                ),
+                                onPressed: () {
+                                  Get.to(() => AdminVehicleListPage());
                                 },
                               )
                             ],
